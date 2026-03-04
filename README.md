@@ -3,3 +3,4 @@
 Waste Management inventory and reporting project
 ## TEAM MEMBERS
 - Abigail Salem Tendo
+- Maxime Lilian HIRWA
