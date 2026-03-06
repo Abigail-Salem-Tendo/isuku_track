@@ -5,5 +5,6 @@ Waste Management inventory and reporting project
 - Abigail Salem Tendo
 - Maxime Lilian HIRWA
 - Liliane Uwase
+- Brian MAHUI
 - Fabrice MBARUSHIMANA
 - Bonane NIYIGENA
