@@ -1,0 +1,13 @@
+# Flask
+flask
+flask-sqlalchemy
+flask-migrate
+flask-bcrypt
+flask-jwt-extended
+
+# Database
+pymysql
+cryptography
+
+# Environment
+python-dotenv
