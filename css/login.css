@@ -1,0 +1,41 @@
+/* ============================================
+   LOGIN.CSS — Styles specific to login.html
+   Always import base.css before this file
+   ============================================ */
+
+.forgot-link {
+  display: block;
+  text-align: right;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.login-btn-wrapper {
+  margin-top: 24px;
+}
+
+/* Password input wrapper for the toggle button */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper input {
+  padding-right: 40px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 0;
+}
+
+.toggle-password:hover {
+  color: var(--text-primary);
+}

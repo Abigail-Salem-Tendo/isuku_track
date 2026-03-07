@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Isuku Track</title>
+
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/login.css" />
+</head>
+<body>
+
+  <main class="auth-page">
+    <div class="auth-card">
+
+      <!-- Branding -->
+      <div class="app-brand">
+        <div class="app-brand__name">Isuku Track</div>
+        <div class="app-brand__subtitle">Waste Collection Management</div>
+      </div>
+
+      <!-- Heading -->
+      <div class="page-heading">
+        <h1>Welcome back</h1>
+        <p>Sign in to your account to continue</p>
+      </div>
+
+      <!-- Form -->
+      <form id="loginForm" novalidate>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+          />
+          <span class="error-message" id="emailError">
+            Please enter a valid email address
+          </span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            />
+            <button type="button" class="toggle-password" id="togglePassword">
+              Show
+            </button>
+          </div>
+          <span class="error-message" id="passwordError">
+            Password is required
+          </span>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <!-- Submit -->
+        <div class="login-btn-wrapper">
+          <button type="submit" class="btn btn-primary">Sign In</button>
+        </div>
+
+      </form>
+
+      <!-- Register link -->
+      <p class="auth-footer">
+        Don't have an account?
+        <a href="role-selector.html">Register</a>
+      </p>
+
+    </div>
+  </main>
+
+  <script>
+    // Password show/hide toggle
+    const toggleBtn   = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    toggleBtn.addEventListener('click', function () {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.textContent = 'Hide';
+      } else {
+        passwordInput.type = 'password';
+        toggleBtn.textContent = 'Show';
+      }
+    });
+
+    // Form validation
+    const loginForm     = document.getElementById('loginForm');
+    const emailInput    = document.getElementById('email');
+    const emailError    = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      let valid = true;
+
+      // Validate email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailInput.value || !emailRegex.test(emailInput.value)) {
+        emailInput.classList.add('error');
+        emailError.classList.add('visible');
+        valid = false;
+      } else {
+        emailInput.classList.remove('error');
+        emailError.classList.remove('visible');
+      }
+
+      // Validate password
+      if (!passwordInput.value) {
+        passwordInput.classList.add('error');
+        passwordError.classList.add('visible');
+        valid = false;
+      } else {
+        passwordInput.classList.remove('error');
+        passwordError.classList.remove('visible');
+      }
+
+      if (valid) {
+        // TODO: connect to backend
+        window.location.href = 'role-selector.html';
+      }
+    });
+  </script>
+
+</body>
+</html>
