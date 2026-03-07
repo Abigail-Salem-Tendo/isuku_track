@@ -22,6 +22,9 @@ def create_app():
     # Register blueprints
     app.register_blueprint(auth_bp)
 
+    # Registering blueprints
+    app.register_blueprint(vehicle_bp, url_prefix='/api/vehicles')
+
     return app
 
 app = create_app()
