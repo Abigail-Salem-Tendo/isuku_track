@@ -1,7 +1,5 @@
-/* ============================================
-   LOGIN.CSS — Styles specific to login.html
-   Always import base.css before this file
-   ============================================ */
+/* login.css — Styles specific to login.html
+   Always import base.css before this file */
 
 .forgot-link {
   display: block;
