@@ -40,3 +40,20 @@ def create_schedule():
 
     return jsonify({"message": "Schedule created successfully", "id": new_schedule.id}), 201
 
+
+# --- READ: Get all schedules ---
+@schedule_bp.route('/', methods=['GET'], strict_slashes=False)
+def get_schedules():
+    status_filter = request.args.get('status')
+    zone_filter = request.args.get('zone_id', type=int)
+
+    query = Schedule.query
+    if status_filter:
+        query = query.filter_by(status=status_filter)
+    if zone_filter:
+        query = query.filter_by(zone_id=zone_filter)
+
+    schedules = query.order_by(Schedule.date_time_start.asc()).all()
+    return jsonify([s.to_dict() for s in schedules]), 200
+
+
