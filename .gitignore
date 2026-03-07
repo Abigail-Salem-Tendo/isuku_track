@@ -6,3 +6,4 @@ __pycache__
 /backend/migrations
 /backend/instance
 PLAN.md
+/backend/seed_vehicles.py
