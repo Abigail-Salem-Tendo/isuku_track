@@ -85,9 +85,9 @@ This installs:
 Create a file named `.env` in the `backend/` directory with the following variables:
 
 ```env
-SECRET_KEY=your_secret_key_here
-JWT_SECRET_KEY=your_jwt_secret_key_here
-DATABASE_URL=mysql+pymysql://<user>:<password>@<host>:<port>/<database_name>?charset=utf8mb4
+SECRET_KEY=a0aa16b1d32c2ba53c9ec870f9fa0c39b02dce410b0390d6e58546af74bb92c3
+JWT_SECRET_KEY=a875dc07811867b3f77b628399853478878ae2544eb1b1bc7d694220eb490bbc
+DATABASE_URL=
 ```
 
 Example with Aiven MySQL:
