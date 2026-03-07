@@ -86,3 +86,23 @@ def get_zone(id):
         "zo_registered_phone": z.zo_registered_phone,
         "zone_operator_id": z.zone_operator_id
     }), 200
+
+# --- UPDATE: Modify a zone ---
+@zone_bp.route('/<int:id>', methods=['PUT'], strict_slashes=False)
+def update_zone(id):
+    zone = Zone.query.get_or_404(id)
+    data = request.get_json()
+
+    # Updating only the fields provided in the request
+    updatable_fields = [
+        'name', 'district', 'sector', 'cell', 'village', 
+        'latitude', 'longitude', 'zo_registered_name', 
+        'zo_registered_phone', 'zone_operator_id'
+    ]
+    
+    for field in updatable_fields:
+        if field in data:
+            setattr(zone, field, data[field])
+
+    db.session.commit()
+    return jsonify({"message": "Zone updated successfully"}), 200
