@@ -7,7 +7,8 @@ class Zone(db.Model):
 
     name = db.Column(db.String(100), nullable=False, unique=True)
 
-   
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
 
     created_at = db.Column(
         db.DateTime,
