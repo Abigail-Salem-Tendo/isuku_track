@@ -41,3 +41,20 @@ class Schedule(db.Model):
         ),
     )
 
+
+    def __repr__(self):
+        return f"<Schedule {self.id} - {self.status}>"
+
+    def to_dict(self):
+        """Serialize schedule to a JSON-friendly dictionary."""
+        return {
+            "id": self.id,
+            "date_time_start": self.date_time_start.isoformat() if self.date_time_start else None,
+            "date_time_end": self.date_time_end.isoformat() if self.date_time_end else None,
+            "status": self.status,
+            "zone_operator_id": self.zone_operator_id,
+            "zone_id": self.zone_id,
+            "vehicle_id": self.vehicle_id,
+            "priority_score": self.priority_score,
+            "created_at": self.created_at.isoformat() if self.created_at else None
+        }
