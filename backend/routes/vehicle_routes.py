@@ -6,6 +6,8 @@ from models.vehicle import Vehicle
 # Initialize the blueprint
 vehicle_bp = Blueprint('vehicles', __name__)
 
+
+
 # --- CREATE: Add a new vehicle ---
 @vehicle_bp.route('/', methods=['POST'])
 def create_vehicle():
@@ -31,3 +33,23 @@ def create_vehicle():
     db.session.commit()
 
     return jsonify({"message": "Vehicle created successfully", "id": new_vehicle.id}), 201
+
+
+    # --- READ: Get all vehicles ---
+@vehicle_bp.route('/', methods=['GET'])
+def get_vehicles():
+    # Optional: allow filtering by status via query param (e.g., ?status=available)
+    status_filter = request.args.get('status')
+    
+    if status_filter:
+        vehicles = Vehicle.query.filter_by(status=status_filter).all()
+    else:
+        vehicles = Vehicle.query.all()
+
+    return jsonify([{
+        "id": v.id,
+        "plate_number": v.plate_number,
+        "driver_name": v.driver_name,
+        "driver_phone": v.driver_phone,
+        "status": v.status
+    } for v in vehicles]), 200
