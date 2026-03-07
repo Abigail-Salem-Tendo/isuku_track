@@ -7,6 +7,7 @@ from routes.auth import auth_bp
 from routes.vehicle_routes import vehicle_bp
 from routes.zone_routes import zone_bp
 from config import Config
+from routes.schedules import schedule_bp
 
 def create_app():
     app = Flask(__name__)
@@ -21,6 +22,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(vehicle_bp, url_prefix='/api/vehicles')
     app.register_blueprint(zone_bp, url_prefix='/api/zones')
+    app.register_blueprint(schedule_bp, url_prefix='/api/schedules')
 
     return app
 
