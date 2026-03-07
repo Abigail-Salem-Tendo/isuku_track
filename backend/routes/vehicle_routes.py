@@ -38,7 +38,7 @@ def create_vehicle():
     # --- READ: Get all vehicles ---
 @vehicle_bp.route('/', methods=['GET'])
 def get_vehicles():
-    # Optional: allow filtering by status via query param (e.g., ?status=available)
+    #  allow filtering by status via query param (e.g., ?status=available)
     status_filter = request.args.get('status')
     
     if status_filter:
