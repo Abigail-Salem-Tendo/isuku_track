@@ -1,4 +1,5 @@
 from extensions import db
+from datetime import datetime
 
 class Zone(db.Model):
     __tablename__ = "zones"
@@ -23,10 +24,7 @@ class Zone(db.Model):
     zo_registered_name = db.Column(db.String(100), nullable=True)
     zo_registered_phone = db.Column(db.String(20), nullable=True)
 
-     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
+    
     created_at = db.Column(
         db.DateTime,
         server_default=db.func.now()
