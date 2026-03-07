@@ -12,6 +12,11 @@ class Config:
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_recycle": 280,
         "pool_pre_ping": True,
+          "connect_args": {
+            "read_timeout": 30,
+            "write_timeout": 30,
+            "connect_timeout": 10,
+        },
     }
     
     # JWT Settings
