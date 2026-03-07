@@ -63,5 +63,39 @@ def get_schedule(id):
     schedule = Schedule.query.get_or_404(id)
     return jsonify(schedule.to_dict()), 200
 
+# --- UPDATE: Modify a schedule ---
+@schedule_bp.route('/<int:id>', methods=['PUT'], strict_slashes=False)
+def update_schedule(id):
+    schedule = Schedule.query.get_or_404(id)
+    data = request.get_json()
+
+    if 'date_time_start' in data:
+        try:
+            schedule.date_time_start = datetime.fromisoformat(data['date_time_start'])
+        except (ValueError, TypeError):
+            return jsonify({"error": "Invalid date_time_start format"}), 400
+
+    if 'date_time_end' in data:
+        try:
+            schedule.date_time_end = datetime.fromisoformat(data['date_time_end'])
+        except (ValueError, TypeError):
+            return jsonify({"error": "Invalid date_time_end format"}), 400
+
+    if 'status' in data:
+        schedule.status = data['status']
+    if 'zone_operator_id' in data:
+        schedule.zone_operator_id = data['zone_operator_id']
+    if 'zone_id' in data:
+        schedule.zone_id = data['zone_id']
+    if 'vehicle_id' in data:
+        schedule.vehicle_id = data['vehicle_id']
+    if 'priority_score' in data:
+        schedule.priority_score = data['priority_score']
+
+    db.session.commit()
+    return jsonify({"message": "Schedule updated successfully"}), 200
+
+
+
 
 
