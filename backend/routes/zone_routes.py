@@ -67,3 +67,22 @@ def get_zones():
         "zo_registered_phone": z.zo_registered_phone,
         "zone_operator_id": z.zone_operator_id
     } for z in zones]), 200
+
+
+    # --- READ: Getting a single zone ---
+@zone_bp.route('/<int:id>', methods=['GET'], strict_slashes=False)
+def get_zone(id):
+    z = Zone.query.get_or_404(id)
+    return jsonify({
+        "id": z.id,
+        "name": z.name,
+        "district": z.district,
+        "sector": z.sector,
+        "cell": z.cell,
+        "village": z.village,
+        "latitude": z.latitude,
+        "longitude": z.longitude,
+        "zo_registered_name": z.zo_registered_name,
+        "zo_registered_phone": z.zo_registered_phone,
+        "zone_operator_id": z.zone_operator_id
+    }), 200
