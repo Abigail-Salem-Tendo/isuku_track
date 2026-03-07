@@ -28,3 +28,16 @@ class Schedule(db.Model):
         db.DateTime,
         server_default=db.func.now()
     )
+    __table_args__ = (
+        # Indexes for common query patterns (filter by zone, ZO, status, date)
+        db.Index('idx_schedules_zone', 'zone_id'),
+        db.Index('idx_schedules_zo', 'zone_operator_id'),
+        db.Index('idx_schedules_status', 'status'),
+        db.Index('idx_schedules_date', 'date_time_start'),
+        # DB-level constraint to enforce only valid status values
+        db.CheckConstraint(
+            "status IN ('not_started', 'ongoing', 'completed')",
+            name='chk_schedule_valid_status'
+        ),
+    )
+
