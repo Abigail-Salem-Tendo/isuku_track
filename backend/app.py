@@ -3,6 +3,7 @@ from extensions import db, migrate, bcrypt, jwt
 from models.user import User
 from models.zone import Zone
 from models.vehicle import Vehicle
+from routes.auth import auth_bp
 from routes.vehicle_routes import vehicle_bp
 from routes.zone_routes import zone_bp
 from config import Config
