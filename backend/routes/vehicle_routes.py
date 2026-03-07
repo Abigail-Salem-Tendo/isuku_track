@@ -53,3 +53,15 @@ def get_vehicles():
         "driver_phone": v.driver_phone,
         "status": v.status
     } for v in vehicles]), 200
+
+# --- READ: Get a single vehicle by ID ---
+@vehicle_bp.route('/<int:id>', methods=['GET'])
+def get_vehicle(id):
+    vehicle = Vehicle.query.get_or_404(id)
+    return jsonify({
+        "id": vehicle.id,
+        "plate_number": vehicle.plate_number,
+        "driver_name": vehicle.driver_name,
+        "driver_phone": vehicle.driver_phone,
+        "status": vehicle.status
+    }), 200
