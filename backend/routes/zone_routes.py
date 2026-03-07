@@ -37,3 +37,33 @@ def create_zone():
     db.session.commit()
 
     return jsonify({"message": "Zone created successfully", "id": new_zone.id}), 201
+
+
+    # --- READ: Get all zones ---
+@zone_bp.route('/', methods=['GET'], strict_slashes=False)
+def get_zones():
+    # allowing frontend to filter by district or sector
+    district_filter = request.args.get('district')
+    sector_filter = request.args.get('sector')
+    
+    query = Zone.query
+    if district_filter:
+        query = query.filter_by(district=district_filter)
+    if sector_filter:
+        query = query.filter_by(sector=sector_filter)
+        
+    zones = query.all()
+
+    return jsonify([{
+        "id": z.id,
+        "name": z.name,
+        "district": z.district,
+        "sector": z.sector,
+        "cell": z.cell,
+        "village": z.village,
+        "latitude": z.latitude,
+        "longitude": z.longitude,
+        "zo_registered_name": z.zo_registered_name,
+        "zo_registered_phone": z.zo_registered_phone,
+        "zone_operator_id": z.zone_operator_id
+    } for z in zones]), 200
