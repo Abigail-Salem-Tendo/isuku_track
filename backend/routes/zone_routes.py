@@ -106,3 +106,11 @@ def update_zone(id):
 
     db.session.commit()
     return jsonify({"message": "Zone updated successfully"}), 200
+
+    # --- DELETE: Remove a zone ---
+@zone_bp.route('/<int:id>', methods=['DELETE'], strict_slashes=False)
+def delete_zone(id):
+    zone = Zone.query.get_or_404(id)
+    db.session.delete(zone)
+    db.session.commit()
+    return jsonify({"message": "Zone deleted successfully"}), 200
