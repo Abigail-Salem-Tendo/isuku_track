@@ -9,6 +9,23 @@ class Zone(db.Model):
 
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
+    
+    # Geographic info
+    district = db.Column(db.String(100), nullable=False)
+    sector = db.Column(db.String(100), nullable=False)
+    cell = db.Column(db.String(100), nullable=False)
+    village = db.Column(db.String(100), nullable=False)
+
+    # Assigned Zone Operator
+    zone_operator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+     # Pre-registered ZO info (for verification during signup)
+    zo_registered_name = db.Column(db.String(100), nullable=True)
+    zo_registered_phone = db.Column(db.String(20), nullable=True)
+
+     # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     created_at = db.Column(
         db.DateTime,
