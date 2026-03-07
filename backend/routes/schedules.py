@@ -57,3 +57,11 @@ def get_schedules():
     return jsonify([s.to_dict() for s in schedules]), 200
 
 
+# --- READ: Get a single schedule ---
+@schedule_bp.route('/<int:id>', methods=['GET'], strict_slashes=False)
+def get_schedule(id):
+    schedule = Schedule.query.get_or_404(id)
+    return jsonify(schedule.to_dict()), 200
+
+
+
