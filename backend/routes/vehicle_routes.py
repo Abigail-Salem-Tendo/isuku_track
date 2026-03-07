@@ -65,3 +65,21 @@ def get_vehicle(id):
         "driver_phone": vehicle.driver_phone,
         "status": vehicle.status
     }), 200
+
+
+# --- UPDATE: Modify a vehicle ---
+@vehicle_bp.route('/<int:id>', methods=['PUT'])
+def update_vehicle(id):
+    vehicle = Vehicle.query.get_or_404(id)
+    data = request.get_json()
+
+    # Updating fields if they exist in the payload
+    if 'driver_name' in data:
+        vehicle.driver_name = data['driver_name']
+    if 'driver_phone' in data:
+        vehicle.driver_phone = data['driver_phone']
+    if 'status' in data:
+        vehicle.status = data['status']
+
+    db.session.commit()
+    return jsonify({"message": "Vehicle updated successfully"}), 200
