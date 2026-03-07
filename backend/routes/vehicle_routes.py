@@ -83,3 +83,11 @@ def update_vehicle(id):
 
     db.session.commit()
     return jsonify({"message": "Vehicle updated successfully"}), 200
+
+    # --- DELETE: Remove a vehicle ---
+@vehicle_bp.route('/<int:id>', methods=['DELETE'])
+def delete_vehicle(id):
+    vehicle = Vehicle.query.get_or_404(id)
+    db.session.delete(vehicle)
+    db.session.commit()
+    return jsonify({"message": "Vehicle deleted successfully"}), 200
