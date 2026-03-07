@@ -2,6 +2,7 @@ from flask import Flask
 from extensions import db, migrate
 from models.user import User
 from models.zone import Zone
+from models.vehicle import Vehicle
 from config import Config
 
 def create_app():
