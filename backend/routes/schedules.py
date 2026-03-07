@@ -95,6 +95,13 @@ def update_schedule(id):
     db.session.commit()
     return jsonify({"message": "Schedule updated successfully"}), 200
 
+# --- DELETE: Remove a schedule ---
+@schedule_bp.route('/<int:id>', methods=['DELETE'], strict_slashes=False)
+def delete_schedule(id):
+    schedule = Schedule.query.get_or_404(id)
+    db.session.delete(schedule)
+    db.session.commit()
+    return jsonify({"message": "Schedule deleted successfully"}), 200
 
 
 
