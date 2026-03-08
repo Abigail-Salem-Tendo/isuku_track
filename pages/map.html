@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isuku Track - Zone Map</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        /*  map taking up the full screen for the prototype */
+        #map { height: 100vh; width: 100vw; }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // 1. Initializing the map centered broadly on Kigali
+        const map = L.map('map').setView([-1.95, 30.08], 12);
+
+        // 2. Adding the OpenStreetMap base layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 3. Fetching zones from our local Flask backend
+        async function loadZones() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/zones/');
+                const zones = await response.json();
+
+                // 4. Looping through the zones and plot them
+                zones.forEach(zone => {
+                    if (zone.latitude && zone.longitude) {
+                        const marker = L.marker([zone.latitude, zone.longitude]).addTo(map);
+                        
+                        // 5.popup with the Zone Operator details
+                        const popupContent = `
+                            <h3 style="margin: 0 0 5px 0;">${zone.name}</h3>
+                            <strong>Location:</strong> ${zone.district}, ${zone.sector}<br>
+                            <strong>Operator:</strong> ${zone.zo_registered_name || 'Pending'}<br>
+                            <strong>Contact:</strong> ${zone.zo_registered_phone || 'N/A'}
+                        `;
+                        
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching zones:', error);
+                alert('Could not load zones. Is the Flask backend running?');
+            }
+        }
+
+        // Triggering the fetch when the page loads
+        loadZones();
+    </script>
+</body>
+</html>
