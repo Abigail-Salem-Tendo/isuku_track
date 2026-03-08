@@ -33,6 +33,7 @@
             try {
                 const response = await fetch('http://127.0.0.1:5000/api/zones/');
                 const zones = await response.json();
+                console.log("Fetched zones :", zones);
 
                 // 4. Looping through the zones and plot them
                 zones.forEach(zone => {
