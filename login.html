@@ -74,11 +74,134 @@
       <!-- Register link -->
       <p class="auth-footer">
         Don't have an account?
-        <a href="role-selector.html">Register</a>
+        <a href="#" id="openRegisterModal">Register</a>
       </p>
 
     </div>
   </main>
+
+  <!-- Registration Modal -->
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Create New Account</h2>
+        <button type="button" class="close-modal" id="closeRegisterModal">&times;</button>
+      </div>
+
+      <form id="registerForm" novalidate>
+
+        <!-- Full Names -->
+        <div class="form-group">
+          <label for="fullNames">Full Names</label>
+          <input
+            type="text"
+            id="fullNames"
+            name="fullNames"
+            placeholder="Enter your full names"
+            autocomplete="name"
+          />
+          <span class="error-message" id="fullNamesError">
+            Full names are required
+          </span>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="registerEmail">Email Address</label>
+          <input
+            type="email"
+            id="registerEmail"
+            name="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+          />
+          <span class="error-message" id="registerEmailError">
+            Please enter a valid email address
+          </span>
+        </div>
+
+        <!-- Phone Number -->
+        <div class="form-group">
+          <label for="phoneNumber">Phone Number</label>
+          <input
+            type="tel"
+            id="phoneNumber"
+            name="phoneNumber"
+            placeholder="Enter your phone number"
+            autocomplete="tel"
+          />
+          <span class="error-message" id="phoneNumberError">
+            Please enter a valid phone number
+          </span>
+        </div>
+
+        <!-- Zone Selection -->
+        <div class="form-group">
+          <label for="zone">Zone</label>
+          <select id="zone" name="zone">
+            <option value="">Select your zone</option>
+            <option value="kimironko-a-gasabo-kimironko">Kimironko A-Gasabo: Kimironko</option>
+            <option value="kimironko-a-gasabo-kibagabaga">Kimironko A-Gasabo: Kibagabaga</option>
+            <option value="kimironko-a-gasabo-kamatamu">Kimironko A-Gasabo: Kamatamu</option>
+            <option value="b-gasabo-kimironko">B-Gasabo: Kimironko</option>
+            <option value="b-gasabo-bibare">B-Gasabo: Bibare</option>
+            <option value="b-gasabo-murindi">B-Gasabo: Murindi</option>
+          </select>
+          <span class="error-message" id="zoneError">
+            Please select a zone
+          </span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="registerPassword">Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="registerPassword"
+              name="password"
+              placeholder="Enter your password"
+              autocomplete="new-password"
+            />
+            <button type="button" class="toggle-password" id="toggleRegisterPassword">
+              Show
+            </button>
+          </div>
+          <span class="error-message" id="registerPasswordError">
+            Password is required
+          </span>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              placeholder="Confirm your password"
+              autocomplete="new-password"
+            />
+            <button type="button" class="toggle-password" id="toggleConfirmPassword">
+              Show
+            </button>
+          </div>
+          <span class="error-message" id="confirmPasswordError">
+            Passwords must match
+          </span>
+        </div>
+
+        <!-- Submit -->
+        <div class="register-btn-wrapper">
+          <button type="submit" class="btn btn-primary">Create Account</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
   <script src="js/login.js"></script>
 </body>
 </html>
