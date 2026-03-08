@@ -11,6 +11,7 @@ from config import Config
 
 def create_app():
     app = Flask(__name__)
+    CORS(app) # allowing frontend requests
     app.config.from_object(Config)
 
     db.init_app(app)
