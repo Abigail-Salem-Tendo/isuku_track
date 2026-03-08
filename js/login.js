@@ -213,3 +213,344 @@ loginForm.addEventListener('submit', async function (e) {
     setLoading(false);
   }
 });
+
+
+// ============================================================
+//  REGISTRATION MODAL
+// ============================================================
+
+// ─── 7. MODAL CONTROLS ──────────────────────────────────────
+const registerModal = document.getElementById('registerModal');
+const openRegisterBtn = document.getElementById('openRegisterModal');
+const closeRegisterBtn = document.getElementById('closeRegisterModal');
+const registerForm = document.getElementById('registerForm');
+
+// Open modal
+openRegisterBtn.addEventListener('click', function(e) {
+  e.preventDefault();
+  registerModal.classList.add('active');
+  document.body.style.overflow = 'hidden'; // Prevent background scrolling
+});
+
+// Close modal
+closeRegisterBtn.addEventListener('click', function() {
+  registerModal.classList.remove('active');
+  document.body.style.overflow = ''; // Restore scrolling
+});
+
+// Close modal when clicking outside
+registerModal.addEventListener('click', function(e) {
+  if (e.target === registerModal) {
+    registerModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && registerModal.classList.contains('active')) {
+    registerModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+});
+
+
+// ─── 8. REGISTRATION FORM ELEMENTS ──────────────────────────
+const fullNamesInput = document.getElementById('fullNames');
+const registerEmailInput = document.getElementById('registerEmail');
+const phoneNumberInput = document.getElementById('phoneNumber');
+const zoneSelect = document.getElementById('zone');
+const registerPasswordInput = document.getElementById('registerPassword');
+const confirmPasswordInput = document.getElementById('confirmPassword');
+
+const fullNamesError = document.getElementById('fullNamesError');
+const registerEmailError = document.getElementById('registerEmailError');
+const phoneNumberError = document.getElementById('phoneNumberError');
+const zoneError = document.getElementById('zoneError');
+const registerPasswordError = document.getElementById('registerPasswordError');
+const confirmPasswordError = document.getElementById('confirmPasswordError');
+
+const toggleRegisterPassword = document.getElementById('toggleRegisterPassword');
+const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+const registerSubmitBtn = registerForm.querySelector('button[type="submit"]');
+
+
+// ─── 9. PASSWORD TOGGLE FOR REGISTRATION ────────────────────
+toggleRegisterPassword.addEventListener('click', function() {
+  if (registerPasswordInput.type === 'password') {
+    registerPasswordInput.type = 'text';
+    toggleRegisterPassword.textContent = 'Hide';
+  } else {
+    registerPasswordInput.type = 'password';
+    toggleRegisterPassword.textContent = 'Show';
+  }
+});
+
+toggleConfirmPassword.addEventListener('click', function() {
+  if (confirmPasswordInput.type === 'password') {
+    confirmPasswordInput.type = 'text';
+    toggleConfirmPassword.textContent = 'Hide';
+  } else {
+    confirmPasswordInput.type = 'password';
+    toggleConfirmPassword.textContent = 'Show';
+  }
+});
+
+
+// ─── 10. REGISTRATION FORM VALIDATION ───────────────────────
+// Real-time validation for full names
+fullNamesInput.addEventListener('input', function() {
+  const value = fullNamesInput.value.trim();
+  if (!value) {
+    fullNamesInput.classList.add('error');
+    fullNamesError.textContent = 'Full names are required';
+    fullNamesError.classList.add('visible');
+  } else if (value.length < 3) {
+    fullNamesInput.classList.add('error');
+    fullNamesError.textContent = 'Please enter your full names';
+    fullNamesError.classList.add('visible');
+  } else {
+    fullNamesInput.classList.remove('error');
+    fullNamesError.classList.remove('visible');
+  }
+});
+
+// Real-time validation for email
+registerEmailInput.addEventListener('input', function() {
+  const value = registerEmailInput.value.trim();
+  if (!value) {
+    registerEmailInput.classList.add('error');
+    registerEmailError.textContent = 'Email address is required';
+    registerEmailError.classList.add('visible');
+  } else if (!emailRegex.test(value)) {
+    registerEmailInput.classList.add('error');
+    registerEmailError.textContent = 'Please enter a valid email address';
+    registerEmailError.classList.add('visible');
+  } else {
+    registerEmailInput.classList.remove('error');
+    registerEmailError.classList.remove('visible');
+  }
+});
+
+// Real-time validation for phone number
+const phoneRegex = /^[0-9+\-\s()]{10,}$/;
+phoneNumberInput.addEventListener('input', function() {
+  const value = phoneNumberInput.value.trim();
+  if (!value) {
+    phoneNumberInput.classList.add('error');
+    phoneNumberError.textContent = 'Phone number is required';
+    phoneNumberError.classList.add('visible');
+  } else if (!phoneRegex.test(value)) {
+    phoneNumberInput.classList.add('error');
+    phoneNumberError.textContent = 'Please enter a valid phone number';
+    phoneNumberError.classList.add('visible');
+  } else {
+    phoneNumberInput.classList.remove('error');
+    phoneNumberError.classList.remove('visible');
+  }
+});
+
+// Real-time validation for zone
+zoneSelect.addEventListener('change', function() {
+  if (!zoneSelect.value) {
+    zoneSelect.classList.add('error');
+    zoneError.classList.add('visible');
+  } else {
+    zoneSelect.classList.remove('error');
+    zoneError.classList.remove('visible');
+  }
+});
+
+// Real-time validation for password
+registerPasswordInput.addEventListener('input', function() {
+  const value = registerPasswordInput.value;
+  
+  if (!value) {
+    registerPasswordInput.classList.add('error');
+    registerPasswordError.textContent = 'Password is required';
+    registerPasswordError.classList.add('visible');
+  } else if (value.length < 8) {
+    registerPasswordInput.classList.add('error');
+    registerPasswordError.textContent = 'Password must be at least 8 characters';
+    registerPasswordError.classList.add('visible');
+  } else if (!/[A-Z]/.test(value)) {
+    registerPasswordInput.classList.add('error');
+    registerPasswordError.textContent = 'Password must contain at least one uppercase letter';
+    registerPasswordError.classList.add('visible');
+  } else if (!/[0-9]/.test(value)) {
+    registerPasswordInput.classList.add('error');
+    registerPasswordError.textContent = 'Password must contain at least one number';
+    registerPasswordError.classList.add('visible');
+  } else {
+    registerPasswordInput.classList.remove('error');
+    registerPasswordError.classList.remove('visible');
+  }
+  
+  // Also check confirm password match if it has a value
+  if (confirmPasswordInput.value) {
+    confirmPasswordInput.dispatchEvent(new Event('input'));
+  }
+});
+
+// Real-time validation for confirm password
+confirmPasswordInput.addEventListener('input', function() {
+  const value = confirmPasswordInput.value;
+  const passwordValue = registerPasswordInput.value;
+  
+  if (!value) {
+    confirmPasswordInput.classList.add('error');
+    confirmPasswordError.textContent = 'Please confirm your password';
+    confirmPasswordError.classList.add('visible');
+  } else if (value !== passwordValue) {
+    confirmPasswordInput.classList.add('error');
+    confirmPasswordError.textContent = 'Passwords do not match';
+    confirmPasswordError.classList.add('visible');
+  } else {
+    confirmPasswordInput.classList.remove('error');
+    confirmPasswordError.classList.remove('visible');
+  }
+});
+
+
+// ─── 11. REGISTRATION FORM SUBMIT ────────────────────────────
+registerForm.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  let valid = true;
+  
+  // Validate full names
+  const fullNames = fullNamesInput.value.trim();
+  if (!fullNames || fullNames.length < 3) {
+    fullNamesInput.classList.add('error');
+    fullNamesError.textContent = fullNames ? 'Please enter your full names' : 'Full names are required';
+    fullNamesError.classList.add('visible');
+    valid = false;
+  } else {
+    fullNamesInput.classList.remove('error');
+    fullNamesError.classList.remove('visible');
+  }
+  
+  // Validate email
+  const email = registerEmailInput.value.trim();
+  if (!email || !emailRegex.test(email)) {
+    registerEmailInput.classList.add('error');
+    registerEmailError.textContent = email ? 'Please enter a valid email address' : 'Email address is required';
+    registerEmailError.classList.add('visible');
+    valid = false;
+  } else {
+    registerEmailInput.classList.remove('error');
+    registerEmailError.classList.remove('visible');
+  }
+  
+  // Validate phone number
+  const phone = phoneNumberInput.value.trim();
+  if (!phone || !phoneRegex.test(phone)) {
+    phoneNumberInput.classList.add('error');
+    phoneNumberError.textContent = phone ? 'Please enter a valid phone number' : 'Phone number is required';
+    phoneNumberError.classList.add('visible');
+    valid = false;
+  } else {
+    phoneNumberInput.classList.remove('error');
+    phoneNumberError.classList.remove('visible');
+  }
+  
+  // Validate zone
+  if (!zoneSelect.value) {
+    zoneSelect.classList.add('error');
+    zoneError.classList.add('visible');
+    valid = false;
+  } else {
+    zoneSelect.classList.remove('error');
+    zoneError.classList.remove('visible');
+  }
+  
+  // Validate password
+  const password = registerPasswordInput.value;
+  if (!password) {
+    registerPasswordInput.classList.add('error');
+    registerPasswordError.textContent = 'Password is required';
+    registerPasswordError.classList.add('visible');
+    valid = false;
+  } else if (password.length < 8) {
+    registerPasswordInput.classList.add('error');
+    registerPasswordError.textContent = 'Password must be at least 8 characters';
+    registerPasswordError.classList.add('visible');
+    valid = false;
+  } else if (!/[A-Z]/.test(password)) {
+    registerPasswordInput.classList.add('error');
+    registerPasswordError.textContent = 'Password must contain at least one uppercase letter';
+    registerPasswordError.classList.add('visible');
+    valid = false;
+  } else if (!/[0-9]/.test(password)) {
+    registerPasswordInput.classList.add('error');
+    registerPasswordError.textContent = 'Password must contain at least one number';
+    registerPasswordError.classList.add('visible');
+    valid = false;
+  } else {
+    registerPasswordInput.classList.remove('error');
+    registerPasswordError.classList.remove('visible');
+  }
+  
+  // Validate confirm password
+  const confirmPassword = confirmPasswordInput.value;
+  if (!confirmPassword) {
+    confirmPasswordInput.classList.add('error');
+    confirmPasswordError.textContent = 'Please confirm your password';
+    confirmPasswordError.classList.add('visible');
+    valid = false;
+  } else if (confirmPassword !== password) {
+    confirmPasswordInput.classList.add('error');
+    confirmPasswordError.textContent = 'Passwords do not match';
+    confirmPasswordError.classList.add('visible');
+    valid = false;
+  } else {
+    confirmPasswordInput.classList.remove('error');
+    confirmPasswordError.classList.remove('visible');
+  }
+  
+  if (!valid) return;
+  
+  // Set loading state
+  registerSubmitBtn.disabled = true;
+  registerSubmitBtn.textContent = 'Creating Account…';
+  registerSubmitBtn.style.opacity = '0.7';
+  
+  try {
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullNames: fullNames,
+        email: email.toLowerCase(),
+        phoneNumber: phone,
+        zone: zoneSelect.value,
+        password: password
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      // Success - show message and close modal
+      alert('Account created successfully! Please sign in with your credentials.');
+      registerModal.classList.remove('active');
+      document.body.style.overflow = '';
+      registerForm.reset();
+      
+      // Optionally pre-fill the login email
+      emailInput.value = email;
+    } else {
+      // Server returned an error
+      alert(data.message || 'Registration failed. Please try again.');
+    }
+    
+  } catch (err) {
+    console.error('Registration error:', err);
+    alert('Unable to connect. Please check your internet connection and try again.');
+    
+  } finally {
+    // Reset button state
+    registerSubmitBtn.disabled = false;
+    registerSubmitBtn.textContent = 'Create Account';
+    registerSubmitBtn.style.opacity = '1';
+  }
+});
