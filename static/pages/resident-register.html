@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resident Registration — Isuku Track</title>
+
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/resident-register.css" />
+</head>
+<body>
+
+  <main class="auth-page auth-page--scroll">
+    <div class="auth-card auth-card--scroll">
+
+      <!-- Branding -->
+      <div class="app-brand">
+        <div class="app-brand__name">Isuku Track</div>
+        <div class="app-brand__subtitle">Waste Collection Management</div>
+      </div>
+
+      <!-- Heading -->
+      <div class="page-heading">
+        <h1>Create your account</h1>
+        <p>Fill in your details to register as a resident</p>
+      </div>
+
+      <!-- Form -->
+      <form id="residentForm" novalidate>
+
+        <!-- Full Name -->
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input
+            type="text"
+            id="fullName"
+            name="fullName"
+            placeholder="Enter your full name"
+            autocomplete="name"
+          />
+          <span class="error-message" id="fullNameError">
+            Full name is required
+          </span>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+          />
+          <span class="error-message" id="emailError">
+            Please enter a valid email address
+          </span>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            placeholder="e.g. 07XXXXXXXX"
+            autocomplete="tel"
+          />
+          <span class="error-message" id="phoneError">
+            Phone number is required
+          </span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Create a password"
+              autocomplete="new-password"
+            />
+            <button type="button" class="toggle-password" id="togglePassword">
+              Show
+            </button>
+          </div>
+          <span class="error-message" id="passwordError">
+            Password must be at least 6 characters
+          </span>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              placeholder="Repeat your password"
+              autocomplete="new-password"
+            />
+            <button type="button" class="toggle-password" id="toggleConfirm">
+              Show
+            </button>
+          </div>
+          <span class="error-message" id="confirmPasswordError">
+            Passwords do not match
+          </span>
+        </div>
+
+        <!-- Zone -->
+        <div class="form-group">
+          <label for="zone">Zone</label>
+          <select id="zone" name="zone">
+            <option value="">Select your zone</option>
+            <!-- Options will be populated dynamically from the backend -->
+            <!-- Each option will show: Zone Name — District, Sector, Cell, Village -->
+            <option value="1">Kimironko Zone A — Gasabo, Kimironko, Kibagabaga, Kamatamu</option>
+            <option value="2">Kimironko Zone B — Gasabo, Kimironko, Bibare, Mulindi</option>
+          </select>
+          <span class="error-message" id="zoneError">
+            Please select your zone
+          </span>
+          <p class="zone-helper">
+            Zone info shows district, sector, cell and village to help you pick the right one
+          </p>
+        </div>
+
+        <!-- Submit -->
+        <div class="submit-wrapper">
+          <button type="submit" class="btn btn-primary">Create Account</button>
+        </div>
+
+      </form>
+
+      <!-- Login link -->
+      <p class="auth-footer">
+        Already have an account?
+        <a href="login.html">Sign in</a>
+      </p>
+
+    </div>
+  </main>
+  <script src="js/resident-register.js"></script>
+
+</body>
+</html>
