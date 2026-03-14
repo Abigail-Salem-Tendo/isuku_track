@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Admin Dashboard - Isuku Track</title>
+	<link rel="stylesheet" href="../../css/base1.css" />
+	<link rel="stylesheet" href="../../css/dashboard.css" />
+	<style>
+		.section-panel { display: none; }
+		.section-panel.active { display: block; }
+		.filters { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px; }
+		.filter-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+		.filter-card label { margin-bottom: 6px; font-size: 12px; color: var(--text-muted); }
+		.actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+		.cell-title { font-weight: 600; color: var(--text-primary); }
+		.cell-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+		@media (min-width: 860px) {
+			.filters { grid-template-columns: repeat(3, 1fr); }
+		}
+	</style>
+</head>
+<body class="dashboard-page">
+	<nav class="navbar">
+		<a href="#" class="navbar__brand">
+			<div class="navbar__brand-icon">
+				<svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5v14M4 4h16v16H4z"/></svg>
+			</div>
+			<span class="navbar__brand-name">Isuku Track Admin</span>
+		</a>
+
+		<div class="navbar__right">
+			<div class="navbar__user">
+				<div class="navbar__avatar" id="adminAvatar">A</div>
+				<span class="navbar__user-name" id="adminName">Administrator</span>
+			</div>
+		</div>
+	</nav>
+
+	<main class="dashboard-main">
+		<div class="page-header">
+			<h1>Operations Dashboard</h1>
+			<p>Monitor collection schedule and manage resident claims from one place.</p>
+		</div>
+
+		<div class="stats-grid">
+			<div class="stat-card">
+				<div class="stat-card__label">Scheduled Pickups (7d)</div>
+				<div class="stat-card__value" id="statSchedules">0</div>
+				<div class="stat-card__sub">Upcoming operations</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-card__label">Open Claims</div>
+				<div class="stat-card__value" id="statOpenClaims">0</div>
+				<div class="stat-card__sub">Require action</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-card__label">In Progress Claims</div>
+				<div class="stat-card__value" id="statProgressClaims">0</div>
+				<div class="stat-card__sub">Assigned to operators</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-card__label">Resolved Claims</div>
+				<div class="stat-card__value" id="statResolvedClaims">0</div>
+				<div class="stat-card__sub">Closed this period</div>
+			</div>
+		</div>
+
+		<div class="tabs" role="tablist" aria-label="Admin dashboard sections">
+			<button class="tab active" data-panel="schedulePanel" role="tab" aria-selected="true">View Schedule</button>
+			<button class="tab" data-panel="claimsPanel" role="tab" aria-selected="false">Resident Claims</button>
+		</div>
+
+		<section id="schedulePanel" class="section-panel active" role="tabpanel">
+			<div class="filters">
+				<div class="filter-card">
+					<label for="scheduleZone">Zone</label>
+					<select id="scheduleZone">
+						<option value="all">All zones</option>
+						<option value="Zone A">Zone A</option>
+						<option value="Zone B">Zone B</option>
+						<option value="Zone C">Zone C</option>
+					</select>
+				</div>
+				<div class="filter-card">
+					<label for="scheduleStatus">Status</label>
+					<select id="scheduleStatus">
+						<option value="all">All statuses</option>
+						<option value="Upcoming">Upcoming</option>
+						<option value="Ongoing">Ongoing</option>
+						<option value="Completed">Completed</option>
+					</select>
+				</div>
+				<div class="filter-card">
+					<label for="scheduleDate">Date</label>
+					<input id="scheduleDate" type="date" />
+					<div class="actions">
+						<button type="button" id="resetScheduleFilters" class="btn-sm btn-sm-secondary">Reset</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="table-wrapper">
+				<table>
+					<thead>
+						<tr>
+							<th>Date</th>
+							<th>Zone</th>
+							<th>Operator</th>
+							<th>Waste Type</th>
+							<th>Status</th>
+						</tr>
+					</thead>
+					<tbody id="scheduleTableBody"></tbody>
+				</table>
+			</div>
+		</section>
+
+		<section id="claimsPanel" class="section-panel" role="tabpanel">
+			<div class="filters">
+				<div class="filter-card">
+					<label for="claimsStatus">Claim Status</label>
+					<select id="claimsStatus">
+						<option value="all">All statuses</option>
+						<option value="Open">Open</option>
+						<option value="In Progress">In Progress</option>
+						<option value="Resolved">Resolved</option>
+					</select>
+				</div>
+				<div class="filter-card">
+					<label for="claimsZone">Zone</label>
+					<select id="claimsZone">
+						<option value="all">All zones</option>
+						<option value="Zone A">Zone A</option>
+						<option value="Zone B">Zone B</option>
+						<option value="Zone C">Zone C</option>
+					</select>
+				</div>
+				<div class="filter-card">
+					<label for="claimsSearch">Resident / Claim ID</label>
+					<input id="claimsSearch" type="text" placeholder="Search resident or claim id" />
+					<div class="actions">
+						<button type="button" id="resetClaimsFilters" class="btn-sm btn-sm-secondary">Reset</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="table-wrapper">
+				<table>
+					<thead>
+						<tr>
+							<th>Claim</th>
+							<th>Resident</th>
+							<th>Zone</th>
+							<th>Submitted</th>
+							<th>Status</th>
+						</tr>
+					</thead>
+					<tbody id="claimsTableBody"></tbody>
+				</table>
+			</div>
+		</section>
+	</main>
+
+	<script src="../../js/admin_dash.js"></script>
+</body>
+</html>
