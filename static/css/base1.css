@@ -52,7 +52,6 @@ a:hover {
    AUTH PAGE LAYOUT — mobile first
    ═══════════════════════════════ */
 
-/* Mobile: simple centered card */
 .auth-page {
   min-height: 100vh;
   display: flex;
@@ -166,6 +165,44 @@ input::placeholder {
   color: #9CA3AF;
 }
 
+/* ── Textarea ── */
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  resize: vertical;
+  min-height: 90px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+textarea.error {
+  border-color: var(--error);
+}
+
+textarea::placeholder {
+  color: #9CA3AF;
+}
+
+/* ── File Input ── */
+input[type="file"] {
+  height: auto;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
 /* ── Error Message ── */
 .error-message {
   font-size: 12px;
@@ -222,23 +259,23 @@ input::placeholder {
   color: var(--text-muted);
 }
 
-/* ── Two-column field row (register form) ── */
+/* ── Two-column field row ── */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-/* ── Shared keyframes ── */
+/* ── Keyframes ── */
 @keyframes float {
-  0%, 100% { transform: translateY(0);    }
+  0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-7px); }
 }
 
 @keyframes ping {
   0%   { box-shadow: 0 0 0 0   rgba(134, 239, 172, 0.5); }
-  70%  { box-shadow: 0 0 0 8px rgba(134, 239, 172, 0);   }
-  100% { box-shadow: 0 0 0 0   rgba(134, 239, 172, 0);   }
+  70%  { box-shadow: 0 0 0 8px rgba(134, 239, 172, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(134, 239, 172, 0); }
 }
 
 @keyframes cardRise {
@@ -246,41 +283,33 @@ input::placeholder {
   to   { opacity: 1; transform: none; }
 }
 
-/* ── Hide the brand panel on mobile ── */
+/* ── Hide brand panel on mobile ── */
 .auth-panel {
   display: none;
 }
 
 /* ═══════════════════════════════════════════════
    DESKTOP — Two-panel split layout (≥ 1024px)
-   Left half  → green brand panel  (.auth-panel)
-   Right half → scrollable card area
    ═══════════════════════════════════════════════ */
 @media (min-width: 1024px) {
 
-  body {
-    overflow: hidden;
-  }
-
-  /* Reveal the brand panel on desktop */
-  .auth-panel {
-    display: flex;
-  }
-
-  /* Full-screen flex row */
+  /* NOTE: overflow hidden only on auth pages, not dashboard pages
+     Auth pages use .auth-page, dashboard pages use .resident-layout etc.
+     We scope overflow:hidden only to the auth layout */
   .auth-page {
+    overflow: hidden;
     padding: 0;
     align-items: stretch;
     justify-content: stretch;
     min-height: 100vh;
   }
 
-  /* ── Left brand panel ── */
+  /* Reveal brand panel */
   .auth-panel {
+    display: flex;
     width: 44%;
     flex-shrink: 0;
     background: linear-gradient(155deg, var(--panel-from) 0%, var(--panel-mid) 45%, var(--panel-to) 100%);
-    display: flex;
     flex-direction: column;
     justify-content: center;
     padding: 60px 52px;
@@ -318,7 +347,7 @@ input::placeholder {
     background: #fff;
   }
 
-  /* Panel brand row */
+  /* Panel brand */
   .auth-panel__brand {
     display: flex;
     align-items: center;
@@ -367,15 +396,10 @@ input::placeholder {
     margin-bottom: 50px;
   }
 
-  /* ── Right side: card area ── */
-  .auth-page {
-    /* already flex row from above; right side fills remaining space */
-  }
-
+  /* Right side card */
   .auth-card {
-    /* override mobile centering — sit inside the right half */
     margin: auto;
-    margin-right: 8vw; /* pull slightly from the right edge */
+    margin-right: 8vw;
     padding: 40px 38px;
     max-width: 440px;
     border-radius: 18px;
