@@ -1,190 +1,227 @@
--- Active: 1772800984989@@mysql-1579901e-alustudent-6e44.f.aivencloud.com@25379@isukuTrack_db
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard — Isuku Track</title>
-  <link rel="stylesheet" href="/static/css/base.css" />
+  <link rel="stylesheet" href="/static/css/base1.css" />
   <link rel="stylesheet" href="/static/css/dashboard.css" />
+  <link rel="stylesheet" href="/static/css/resident.css" />
 </head>
-<body class="dashboard-page">
+<body>
+<div class="resident-layout">
 
-  <!-- ── Navbar ── -->
-  <nav class="navbar">
-    <a href="/static/pages/resident/dashboard.html" class="navbar__brand">
-      <div class="navbar__brand-icon">
+  <!-- ── Sidebar Overlay (mobile) ── -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <a href="/static/pages/resident/resident_dash.html" class="sidebar__brand">
+      <div class="sidebar__brand-icon">
         <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 4h2a2 2 0 0 1 2 2v1H4V6a2 2 0 0 1 2-2h2m0 0V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1M9 4h6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2L19 7"/></svg>
       </div>
-      <span class="navbar__brand-name">Isuku Track</span>
+      <div class="sidebar__brand-text">
+        <span class="sidebar__brand-name">Isuku Track</span>
+        <span class="sidebar__brand-role">Resident</span>
+      </div>
     </a>
 
-    <div class="navbar__right">
-      <!-- Bell -->
-      <button class="navbar__bell" onclick="window.location.href='/static/pages/resident/notifications.html'">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 0 1-6 0v-1m6 0H9"/></svg>
-        <span class="navbar__bell-badge"></span>
+    <!-- My Home -->
+    <div class="sidebar__section">
+      <div class="sidebar__section-label">My Home</div>
+      <a href="/static/pages/resident/resident_dash.html" class="sidebar__nav-item active">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </a>
+      <a href="/static/pages/resident/resident_schedule.html" class="sidebar__nav-item">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Collection Schedule
+      </a>
+      <a href="/static/pages/resident/resident_claims.html" class="sidebar__nav-item">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        My Claims
+      </a>
+    </div>
+
+    <!-- Account -->
+    <div class="sidebar__section">
+      <div class="sidebar__section-label">Account</div>
+      <a href="/static/pages/resident/resident_payments.html" class="sidebar__nav-item">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        Submit Payment
+      </a>
+      <a href="/static/pages/resident/profile.html" class="sidebar__nav-item">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        Profile
+      </a>
+      <button class="sidebar__nav-item logout-btn" id="logoutBtn" style="width:100%;background:none;border:none;cursor:pointer;font-family:inherit;">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Log Out
       </button>
-
-      <!-- User menu -->
-      <div class="navbar__user" id="userMenu">
-        <div class="navbar__avatar" id="userAvatar">R</div>
-        <span class="navbar__user-name" id="userName">Resident</span>
-        <div class="navbar__dropdown" id="userDropdown">
-          <a href="/static/pages/resident/profile.html">My Profile</a>
-          <button class="logout-btn" id="logoutBtn">Log Out</button>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <!-- ── Main Content ── -->
-  <main class="dashboard-main">
-
-    <!-- Page Header -->
-    <div class="page-header">
-      <h1>Good morning, <span id="greetingName">Resident</span> 👋</h1>
-      <p>Here's what's happening in your zone</p>
     </div>
 
-    <!-- Loyalty Points Banner -->
-    <div class="points-banner">
+    <!-- User at bottom -->
+    <div class="sidebar__user">
+      <div class="sidebar__user-avatar" id="sidebarAvatar">R</div>
       <div>
-        <div class="points-banner__label">Your Loyalty Points</div>
-        <div class="points-banner__value" id="loyaltyPoints">0 pts</div>
-      </div>
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-    </div>
-
-    <!-- Stat Cards -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-card__label">Open Claims</div>
-        <div class="stat-card__value" id="openClaims">0</div>
-        <div class="stat-card__sub">Awaiting review</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card__label">Payments</div>
-        <div class="stat-card__value" id="pendingPayments">0</div>
-        <div class="stat-card__sub">Under review</div>
+        <div class="sidebar__user-name" id="sidebarName">Resident</div>
+        <div class="sidebar__user-role" id="sidebarRole">Resident</div>
       </div>
     </div>
+  </aside>
 
-    <!-- Upcoming Schedule -->
-    <div class="section">
-      <div class="section__header">
-        <span class="section__title">Upcoming Collection</span>
-        <a href="/static/pages/resident/schedule.html" class="section__link">See all</a>
-      </div>
+  <!-- ── Page Content ── -->
+  <div class="resident-content">
 
-      <div id="scheduleList">
-        <!-- Fake data — replace with fetch() when backend is ready -->
-        <div class="card">
-          <div class="card__row">
-            <div>
-              <div class="card__title">Monday, March 17</div>
-              <div class="card__sub">8:00 AM — Kimironko Zone A</div>
-            </div>
-            <span class="badge badge--upcoming">Upcoming</span>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card__row">
-            <div>
-              <div class="card__title">Monday, March 10</div>
-              <div class="card__sub">8:00 AM — Kimironko Zone A</div>
-            </div>
-            <span class="badge badge--completed">Completed</span>
-          </div>
-        </div>
-      </div>
+    <!-- Mobile Topbar -->
+    <div class="topbar">
+      <button class="topbar__menu-btn" id="menuBtn">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <span class="topbar__title">Dashboard</span>
+      <button class="topbar__bell">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 0 1-6 0v-1m6 0H9"/></svg>
+        <span class="topbar__bell-badge"></span>
+      </button>
     </div>
 
-    <!-- Recent Claims -->
-    <div class="section">
-      <div class="section__header">
-        <span class="section__title">Recent Claims</span>
-        <a href="/static/pages/resident/claims.html" class="section__link">See all</a>
+    <main class="resident-main">
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1>My Dashboard</h1>
+        <p id="todayDate">Loading...</p>
       </div>
 
-      <div id="claimsList">
-        <div class="card">
-          <div class="card__row">
-            <div>
-              <div class="card__title">Overflow</div>
-              <div class="card__sub">Submitted March 5</div>
-            </div>
-            <span class="badge badge--approved">Approved</span>
+      <!-- Welcome Card -->
+      <div class="welcome-card">
+        <div class="welcome-card__left">
+          <div class="welcome-card__greeting" id="greeting">Good morning</div>
+          <div class="welcome-card__name" id="welcomeName">Resident</div>
+          <div class="welcome-card__zone">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span id="zoneName">Loading...</span>
+            <span class="welcome-card__badge">Active Resident</span>
           </div>
+          <div class="welcome-card__geo" id="zoneGeo"></div>
         </div>
-        <div class="card">
-          <div class="card__row">
-            <div>
-              <div class="card__title">Missed Collection</div>
-              <div class="card__sub">Submitted March 1</div>
-            </div>
-            <span class="badge badge--open">Open</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Recent Payments -->
-    <div class="section">
-      <div class="section__header">
-        <span class="section__title">Recent Payments</span>
-        <a href="/static/pages/resident/payments.html" class="section__link">See all</a>
-      </div>
-
-      <div id="paymentsList">
-        <div class="card">
-          <div class="card__row">
-            <div>
-              <div class="card__title">5,000 RWF</div>
-              <div class="card__sub">Submitted March 3</div>
-            </div>
-            <span class="badge badge--approved">Approved</span>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card__row">
-            <div>
-              <div class="card__title">5,000 RWF</div>
-              <div class="card__sub">Submitted Feb 2</div>
-            </div>
-            <span class="badge badge--under-review">Under Review</span>
+        <div class="welcome-card__right">
+          <div class="welcome-card__zo-label">Zone Operator</div>
+          <div class="welcome-card__zo-name" id="zoName">—</div>
+          <div class="welcome-card__zo-phone" id="zoPhone">—</div>
+          <div class="welcome-card__zo-status">
+            <span class="welcome-card__dot"></span> Zone active
           </div>
         </div>
       </div>
-    </div>
 
-  </main>
+      <!-- Next Collection -->
+      <div class="next-collection">
+        <div class="next-collection__label">Next Collection in Your Zone</div>
+        <div class="next-collection__row">
+          <div class="next-collection__icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--primary)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg>
+          </div>
+          <div class="next-collection__info">
+            <div class="next-collection__time">Today at 14:00 — Route A</div>
+            <div class="next-collection__detail" id="collectionDetail">Loading...</div>
+          </div>
+          <span class="badge badge--upcoming">Not Started Yet</span>
+        </div>
+      </div>
 
-  <!-- ── Bottom Nav (mobile) ── -->
-  <nav class="bottom-nav">
-    <a href="/static/pages/resident/dashboard.html" class="bottom-nav__item active">
-      <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-      Home
-    </a>
-    <a href="/static/pages/resident/schedule.html" class="bottom-nav__item">
-      <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-      Schedule
-    </a>
-    <a href="/static/pages/resident/claims.html" class="bottom-nav__item">
-      <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-      Claims
-    </a>
-    <a href="/static/pages/resident/payments.html" class="bottom-nav__item">
-      <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-      Payments
-    </a>
-    <a href="/static/pages/resident/profile.html" class="bottom-nav__item">
-      <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-      Profile
-    </a>
-  </nav>
+      <!-- Stat Cards -->
+      <div class="stats-grid" style="margin-bottom: 24px;">
+        <div class="stat-card">
+          <div class="stat-card__label">Loyalty Points</div>
+          <div class="stat-card__value" id="loyaltyPoints">45</div>
+          <div class="stat-card__sub">pts earned</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Open Claims</div>
+          <div class="stat-card__value" id="openClaims">2</div>
+          <div class="stat-card__sub">Awaiting review</div>
+        </div>
+      </div>
+
+      <!-- Two column section on desktop -->
+      <div class="dashboard-grid">
+
+        <!-- Submit Claim -->
+        <div class="section">
+          <div class="section__header">
+            <span class="section__title">Submit a Claim</span>
+          </div>
+          <div class="dashboard-form">
+            <form id="quickClaimForm" novalidate>
+              <div class="form-group">
+                <label for="claimType">Issue Type</label>
+                <select id="claimType" name="claimType">
+                  <option value="">— Select issue type —</option>
+                  <option value="overflow">Overflow</option>
+                  <option value="damaged">Damaged Bin</option>
+                  <option value="illegal_dumping">Illegal Dumping</option>
+                  <option value="missed_collection">Missed Collection</option>
+                  <option value="other">Other</option>
+                </select>
+                <span class="error-message" id="claimTypeError">Please select an issue type</span>
+              </div>
+              <div class="form-group">
+                <label for="claimLocation">Location</label>
+                <input type="text" id="claimLocation" placeholder="Enter the location of the issue" />
+                <span class="error-message" id="claimLocationError">Location is required</span>
+              </div>
+              <div class="form-group">
+                <label for="claimDesc">Description</label>
+                <textarea id="claimDesc" placeholder="Describe the issue" rows="3"></textarea>
+                <span class="error-message" id="claimDescError">Description is required</span>
+              </div>
+              <button type="submit" class="btn btn-primary">Submit Claim</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Claim History -->
+        <div class="section">
+          <div class="section__header">
+            <span class="section__title">My Claim History</span>
+            <a href="/static/pages/resident/resident_claims.html" class="section__link">View all →</a>
+          </div>
+          <div class="card">
+            <div class="card__row">
+              <div>
+                <div class="card__title">Overflow</div>
+                <div class="card__sub">Submitted 3 Mar · Approved</div>
+              </div>
+              <span class="badge badge--approved">Approved</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__row">
+              <div>
+                <div class="card__title">Damaged bin</div>
+                <div class="card__sub">Submitted 1 Mar</div>
+              </div>
+              <span class="badge badge--in-progress">In Progress</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__row">
+              <div>
+                <div class="card__title">Missed collection</div>
+                <div class="card__sub">Submitted 20 Feb</div>
+              </div>
+              <span class="badge badge--approved">Resolved</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
 
   <script src="/static/js/auth.js"></script>
-  <script src="/static/js/resident-dashboard.js"></script>
+  <script src="/static/js/resident_dash.js"></script>
 </body>
 </html>
