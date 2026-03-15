@@ -23,3 +23,17 @@ def role_required(*allowed_roles):
             return fn(*args, **kwargs)
         return wrapper
     return decorator
+
+def generate_reset_token(email):
+    # Generate a password reset token for the given email
+    s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+    return s.dumps(email, salt="password-reset")
+
+
+def verify_reset_token(token, max_age=1800):
+    # Verify the token and return the email if valid, or None if invalid/expired
+    s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+    try:
+        return s.loads(token, salt="password-reset", max_age=max_age)
+    except (SignatureExpired, BadSignature):
+        return None
