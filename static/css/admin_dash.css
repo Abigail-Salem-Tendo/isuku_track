@@ -795,3 +795,162 @@ body {
     font-weight: 600;
     color: var(--g1);
   }
+
+  .local-mode {
+    background: #fff7e9;
+    color: #8c5a18;
+    border: 1px solid #f3dab3;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: .78rem;
+    margin-bottom: 14px;
+  }
+
+  .qa:focus-visible,
+  .ca:focus-visible,
+  .claim-badge:focus-visible,
+  .mf-btn:focus-visible,
+  .modal-close:focus-visible {
+    outline: 2px solid var(--g2);
+    outline-offset: 2px;
+  }
+
+  .claim-badge {
+    border: none;
+    cursor: pointer;
+  }
+
+  .ci-ico {
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--g1);
+  }
+
+  .toast {
+    position: fixed;
+    right: 18px;
+    bottom: 22px;
+    background: #10231a;
+    color: #fff;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: .76rem;
+    z-index: 220;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all .2s ease;
+    pointer-events: none;
+  }
+
+  .toast.err {
+    background: #9e3131;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 210;
+    padding: 16px;
+  }
+
+  .modal.open {
+    display: flex;
+  }
+
+  .modal-card {
+    background: #fff;
+    width: 100%;
+    max-width: 440px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-head h3 {
+    font-size: .95rem;
+    color: var(--txt);
+  }
+
+  .modal-close {
+    border: none;
+    background: transparent;
+    color: var(--txt-m);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .modal-form {
+    padding: 14px 16px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .mf-lbl {
+    display: grid;
+    gap: 5px;
+    font-size: .74rem;
+    color: var(--txt-m);
+    font-weight: 600;
+  }
+
+  .mf-in {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    font-size: .84rem;
+    color: var(--txt);
+    padding: 9px 10px;
+    background: #fff;
+  }
+
+  .mf-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 4px;
+  }
+
+  .mf-btn {
+    border: none;
+    border-radius: 9px;
+    background: var(--g1);
+    color: #fff;
+    font-size: .78rem;
+    font-weight: 700;
+    padding: 9px 11px;
+    cursor: pointer;
+  }
+
+  .mf-btn.sec {
+    background: #eef4f0;
+    color: var(--txt-m);
+  }
+
+  @media (max-width: 680px) {
+    .toast {
+      left: 12px;
+      right: 12px;
+      bottom: 80px;
+    }
+
+    .modal-card {
+      max-width: none;
+    }
+  }
