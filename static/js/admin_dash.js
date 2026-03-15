@@ -1,3 +1,11 @@
+/* ── Sidebar toggle (called via inline onclick) ── */
+function toggleSb() {
+  var sb = document.querySelector('.sb');
+  var overlay = document.getElementById('overlay');
+  if (sb) sb.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('open');
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   const scheduleData = [
     { date: '2026-03-15', zone: 'Zone A', operator: 'M. Iradukunda', wasteType: 'Mixed Waste', status: 'Upcoming' },
@@ -86,6 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function applyScheduleFilters() {
+    if (!scheduleEls.body || !scheduleEls.zone) return;
     const zone = scheduleEls.zone.value;
     const status = scheduleEls.status.value;
     const date = scheduleEls.date.value;
@@ -101,9 +110,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function applyClaimsFilters() {
+    if (!claimsEls.body || !claimsEls.zone) return;
     const zone = claimsEls.zone.value;
     const status = claimsEls.status.value;
-    const search = claimsEls.search.value.trim().toLowerCase();
+    const search = claimsEls.search ? claimsEls.search.value.trim().toLowerCase() : '';
 
     const filtered = claimsData.filter(function (item) {
       const zoneMatch = zone === 'all' || item.zone === zone;
@@ -137,27 +147,29 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function bindFilters() {
-    scheduleEls.zone.addEventListener('change', applyScheduleFilters);
-    scheduleEls.status.addEventListener('change', applyScheduleFilters);
-    scheduleEls.date.addEventListener('change', applyScheduleFilters);
+    if (scheduleEls.zone) {
+      scheduleEls.zone.addEventListener('change', applyScheduleFilters);
+      scheduleEls.status.addEventListener('change', applyScheduleFilters);
+      if (scheduleEls.date) scheduleEls.date.addEventListener('change', applyScheduleFilters);
+      if (scheduleEls.resetBtn) scheduleEls.resetBtn.addEventListener('click', function () {
+        scheduleEls.zone.value = 'all';
+        scheduleEls.status.value = 'all';
+        if (scheduleEls.date) scheduleEls.date.value = '';
+        applyScheduleFilters();
+      });
+    }
 
-    scheduleEls.resetBtn.addEventListener('click', function () {
-      scheduleEls.zone.value = 'all';
-      scheduleEls.status.value = 'all';
-      scheduleEls.date.value = '';
-      applyScheduleFilters();
-    });
-
-    claimsEls.zone.addEventListener('change', applyClaimsFilters);
-    claimsEls.status.addEventListener('change', applyClaimsFilters);
-    claimsEls.search.addEventListener('input', applyClaimsFilters);
-
-    claimsEls.resetBtn.addEventListener('click', function () {
-      claimsEls.zone.value = 'all';
-      claimsEls.status.value = 'all';
-      claimsEls.search.value = '';
-      applyClaimsFilters();
-    });
+    if (claimsEls.zone) {
+      claimsEls.zone.addEventListener('change', applyClaimsFilters);
+      claimsEls.status.addEventListener('change', applyClaimsFilters);
+      if (claimsEls.search) claimsEls.search.addEventListener('input', applyClaimsFilters);
+      if (claimsEls.resetBtn) claimsEls.resetBtn.addEventListener('click', function () {
+        claimsEls.zone.value = 'all';
+        claimsEls.status.value = 'all';
+        if (claimsEls.search) claimsEls.search.value = '';
+        applyClaimsFilters();
+      });
+    }
   }
 
   function updateStats() {
@@ -165,10 +177,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const progressClaims = claimsData.filter(function (item) { return item.status === 'In Progress'; }).length;
     const resolvedClaims = claimsData.filter(function (item) { return item.status === 'Resolved'; }).length;
 
-    document.getElementById('statSchedules').textContent = String(scheduleData.length);
-    document.getElementById('statOpenClaims').textContent = String(openClaims);
-    document.getElementById('statProgressClaims').textContent = String(progressClaims);
-    document.getElementById('statResolvedClaims').textContent = String(resolvedClaims);
+    var s1 = document.getElementById('statSchedules');
+    var s2 = document.getElementById('statOpenClaims');
+    var s3 = document.getElementById('statProgressClaims');
+    var s4 = document.getElementById('statResolvedClaims');
+    if (s1) s1.textContent = String(scheduleData.length);
+    if (s2) s2.textContent = String(openClaims);
+    if (s3) s3.textContent = String(progressClaims);
+    if (s4) s4.textContent = String(resolvedClaims);
   }
 
   function hydrateAdminIdentity() {
@@ -181,8 +197,10 @@ document.addEventListener('DOMContentLoaded', function () {
       .toUpperCase()
       .slice(0, 2) || 'A';
 
-    document.getElementById('adminName').textContent = adminName;
-    document.getElementById('adminAvatar').textContent = initials;
+    var nameEl = document.getElementById('adminName');
+    var avatarEl = document.getElementById('adminAvatar');
+    if (nameEl) nameEl.textContent = adminName;
+    if (avatarEl) avatarEl.textContent = initials;
   }
 
   bindTabs();
