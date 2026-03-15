@@ -41,7 +41,7 @@
   display: block;
 }
 
-/* ── Misc login-specific ── */
+/* ── Misc ── */
 .forgot-link {
   display: block;
   text-align: right;
@@ -87,16 +87,29 @@
   color: var(--text-primary);
 }
 
-/* ── Desktop: dot grid background on right side ── */
+/* ── Tablet (768px – 1023px) ── */
+/* No split panel yet but card should be wider and centered */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .auth-card {
+    max-width: 560px;
+    padding: 44px 48px;
+  }
+}
+
+/* ── Desktop (1024px+) ── */
 @media (min-width: 1024px) {
   .auth-page {
     background-image: radial-gradient(circle, rgba(22, 163, 74, 0.055) 1px, transparent 1px);
     background-size: 26px 26px;
   }
 
-  /* Register pane has more fields — allow card to scroll if needed */
+  /* Make card wider and taller on desktop */
   .auth-card {
+    max-width: 520px;
+    padding: 48px 52px;
     overflow-y: auto;
     max-height: 95vh;
+    /* Pull it slightly left from the right edge */
+    margin-right: 6vw;
   }
 }
