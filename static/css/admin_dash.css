@@ -776,3 +776,22 @@ body {
   .sg { grid-template-columns: 1fr; }
   .sc { padding: 13px; }
 }
+
+  /* ════════════════════════════════
+     UTILITY / MISSING CLASSES
+     ════════════════════════════════ */
+  .card--mb { margin-bottom: 18px; }
+
+  /* card body with no top padding (used when table follows header) */
+  .cb--pt { padding-top: 4px; }
+
+  /* push badge to the right inside .ci and .vi rows */
+  .ci-badge { margin-left: auto; flex-shrink: 0; }
+  .vi-badge { margin-left: auto; flex-shrink: 0; }
+
+  /* revenue summary text in card header */
+  .revenue-total {
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--g1);
+  }
