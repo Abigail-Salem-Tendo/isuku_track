@@ -20,8 +20,9 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
-    zone = db.relationship("Zone", back_populates="users")
-
+    # changing this zone = db.relationship("Zone", back_populates="users")
+    # Relationships
+    zone = db.relationship("Zone", foreign_keys=[zone_id], backref="residents")
     def __repr__(self):
         return f"<User {self.username}>"
 
