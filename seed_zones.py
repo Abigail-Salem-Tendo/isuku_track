@@ -18,22 +18,19 @@ with app.app_context():
     # --- Now add the new, correct data ---
     zones_data = [
         {
-            "name": "Kimironko Zone A", 
+            "name": "Kimironko Zone A",
             "district": "Gasabo", "sector": "Kimironko", "cell": "Nyagatovu", "village": "Ubumwe",
-            "latitude": -1.9378, "longitude": 30.0925,
-            "zo_registered_name": "Musa Habimana", "zo_registered_phone": "+250780000001"
+            "latitude": -1.9378, "longitude": 30.0925
         },
         {
-            "name": "Kimironko Zone B", 
+            "name": "Kimironko Zone B",
             "district": "Gasabo", "sector": "Kimironko", "cell": "Kibagabaga", "village": "Karuruma",
-            "latitude": -1.9385, "longitude": 30.0950,
-            "zo_registered_name": "Alice Umutoni", "zo_registered_phone": "+250780000002"
+            "latitude": -1.9385, "longitude": 30.0950
         },
         {
-            "name": "Gikondo Zone A", 
+            "name": "Gikondo Zone A",
             "district": "Kicukiro", "sector": "Gikondo", "cell": "Kanserege", "village": "Marembo",
-            "latitude": -1.9501, "longitude": 30.0552,
-            "zo_registered_name": "Eric Mugisha", "zo_registered_phone": "+250780000003"
+            "latitude": -1.9501, "longitude": 30.0552
         }
         # Add the rest of your zones here...
     ]
