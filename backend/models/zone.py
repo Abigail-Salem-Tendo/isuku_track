@@ -18,7 +18,12 @@ class Zone(db.Model):
     village = db.Column(db.String(100), nullable=False)
 
     # Assigned Zone Operator
+    #zone_operator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+    # Assigned Zone Operator
     zone_operator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+    operator = db.relationship("User", foreign_keys=[zone_operator_id], backref="managed_zones")
 
      # Pre-registered ZO info (for verification during signup)
     zo_registered_name = db.Column(db.String(100), nullable=True)
