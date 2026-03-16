@@ -20,7 +20,14 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
-    # changing this zone = db.relationship("Zone", back_populates="users")
+    #  this zone = db.relationship("Zone", back_populates="users")
+    
+    #fix(models): resolve ambiguous foreign key in User-Zone relationship
+
+    # Replaced `back_populates` with an explicit `foreign_keys=[zone_id]` 
+    # argument and a `backref` in the User model. This resolves the SQLAlchemy AmbiguousForeignKeysError 
+    # caused by the dual linkage (residents vs. operators) between the users and zones tables. 
+
     # Relationships
     zone = db.relationship("Zone", foreign_keys=[zone_id], backref="residents")
     def __repr__(self):
