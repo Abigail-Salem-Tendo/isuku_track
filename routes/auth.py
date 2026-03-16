@@ -45,25 +45,19 @@ def register():
     email = data["email"].strip().lower()
     password = data["password"]
     phone_number = data.get("phone_number", "").strip() or None
-    role = data.get("role", "resident")
-    
+
     # Validate username length
     if len(username) < 3 or len(username) > 50:
         return jsonify({"error": "Username must be 3-50 characters"}), 400
-    
+
     # Validate email format
     if not validate_email(email):
         return jsonify({"error": "Invalid email format"}), 400
-    
+
     # Validate password strength
     is_valid, error_msg = validate_password(password)
     if not is_valid:
         return jsonify({"error": error_msg}), 400
-    
-    # Validate role
-    valid_roles = ["resident", "zone_operator", "admin"]
-    if role not in valid_roles:
-        return jsonify({"error": f"Role must be one of: {', '.join(valid_roles)}"}), 400
     
     # Check if email already exists
     if User.query.filter_by(email=email).first():
@@ -80,7 +74,7 @@ def register():
         email=email,
         password_hash=password_hash,
         phone_number=phone_number,
-        role=role
+        role="resident"
     )
     
     try:
@@ -156,9 +150,9 @@ def refresh():
 
 
 @auth_bp.route("/me", methods=["GET"])
-@jwt_required()
+@role_required("resident", "zone_operator", "admin")
 def get_current_user():
-    """Get current authenticated user profile."""
+    # Get logged in user profile
     current_user_id = get_jwt_identity()
     user = User.query.get(current_user_id)
     
