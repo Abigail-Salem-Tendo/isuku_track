@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Payments — Isuku Track</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/zo_dash.css">
-  <link rel="stylesheet" href="../../css/base1.css">
+  <link rel="stylesheet" href="../../static/css/zo_dash.css">
+  <link rel="stylesheet" href="../../static/css/base1.css">
 </head>
 <body>
 
@@ -257,23 +257,6 @@
   </a>
 </nav>
 
-<script>
-function filterTab(el) {
-  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('on'));
-  el.classList.add('on');
-}
-
-document.querySelectorAll('.pay-actions').forEach(wrap => {
-  const approveBtn = wrap.querySelector('.btn-approve-pay');
-  const rejectBtn  = wrap.querySelector('.btn-reject-pay');
-  if (approveBtn) {
-    approveBtn.addEventListener('click', () => { wrap.innerHTML = '<span class="b ok">Approved</span>'; });
-  }
-  if (rejectBtn) {
-    rejectBtn.addEventListener('click', () => { wrap.innerHTML = '<span class="b op">Rejected</span>'; });
-  }
-});
-</script>
-<script src="../../js/zo_dash.js"></script>
+<script src="../../static/js/zo_dash.js"></script>
 </body>
 </html>
