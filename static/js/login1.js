@@ -191,6 +191,8 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         showError('fullNameError', err);
       } else if (err.includes('Password') || err.includes('password')) {
         showError('regPasswordError', err);
+      } else if (err.includes('Phone') || err.includes('phone')) {
+        showError('phoneError', err);
       } else if (err.includes('zone') || err.includes('Zone')) {
         showError('zoneError', err);
       } else {
