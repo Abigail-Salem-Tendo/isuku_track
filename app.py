@@ -26,6 +26,11 @@ def create_app():
     app.register_blueprint(zone_bp, url_prefix='/api/zones')
     app.register_blueprint(schedule_bp, url_prefix='/api/schedules')
 
+    @app.route("/")
+    @app.route("/login")
+    def login_page():
+        return render_template("login1.html")
+
     return app
 
 app = create_app()
