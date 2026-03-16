@@ -48,9 +48,7 @@ a:hover {
   text-decoration: underline;
 }
 
-/* ═══════════════════════════════
-   AUTH PAGE LAYOUT — mobile first
-   ═══════════════════════════════ */
+/* AUTH PAGE LAYOUT — mobile first */
 
 .auth-page {
   min-height: 100vh;
@@ -288,9 +286,7 @@ input[type="file"] {
   display: none;
 }
 
-/* ═══════════════════════════════════════════════
-   DESKTOP — Two-panel split layout (≥ 1024px)
-   ═══════════════════════════════════════════════ */
+/* DESKTOP — Two-panel split layout (≥ 1024px) */
 @media (min-width: 1024px) {
 
   /* NOTE: overflow hidden only on auth pages, not dashboard pages
