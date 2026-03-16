@@ -12,7 +12,7 @@
 
 .dashboard-main {
   flex: 1;
-  padding: 24px 16px 80px 16px;
+  padding: 20px 16px calc(88px + env(safe-area-inset-bottom, 0px));
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -188,7 +188,8 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  height: 60px;
+  min-height: 60px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   z-index: 10;
 }
 
@@ -228,7 +229,7 @@
 }
 
 .page-header h1 {
-  font-size: 1.3rem;
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.3px;
@@ -276,7 +277,7 @@
 /* ── Stat Cards ── */
 .stats-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 12px;
   margin-bottom: 24px;
 }
@@ -347,9 +348,10 @@
 
 .card__row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .card__title {
@@ -409,10 +411,12 @@
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: 12px;
+  -webkit-overflow-scrolling: touch;
 }
 
 table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
   font-size: 14px;
 }
@@ -471,8 +475,10 @@ tr:hover td { background: var(--background); }
   border-radius: 12px;
   padding: 16px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 24px;
 }
 
@@ -493,8 +499,27 @@ tr:hover td { background: var(--background); }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 20px;
+  padding: 16px;
   margin-bottom: 24px;
+}
+
+@media (min-width: 640px) {
+  .dashboard-main {
+    padding: 24px 20px calc(92px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .points-banner {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .dashboard-form {
+    padding: 20px;
+  }
 }
 
 /* ── Desktop ── */

@@ -11,7 +11,7 @@
 
 /* ── Sidebar ── */
 .sidebar {
-  width: 260px;
+  width: min(82vw, 280px);
   background: #111827;
   color: white;
   display: flex;
@@ -249,7 +249,7 @@
 }
 
 .resident-main {
-  padding: 24px 16px 80px;
+  padding: 20px 16px calc(88px + env(safe-area-inset-bottom, 0px));
   max-width: 900px;
 }
 
@@ -286,8 +286,9 @@
 .welcome-card {
   background: #1a2e1a;
   border-radius: 12px;
-  padding: 24px;
+  padding: 18px;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 20px;
@@ -304,7 +305,7 @@
 
 .welcome-card__name {
   font-family: 'DM Serif Display', serif;
-  font-size: 1.8rem;
+  font-size: clamp(1.5rem, 6vw, 1.8rem);
   color: white;
   margin-bottom: 10px;
 }
@@ -312,6 +313,7 @@
 .welcome-card__zone {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
   color: rgba(255,255,255,0.7);
   font-size: 13px;
@@ -336,7 +338,8 @@
   background: rgba(255,255,255,0.07);
   border-radius: 10px;
   padding: 14px 16px;
-  min-width: 160px;
+  min-width: 0;
+  width: 100%;
   flex-shrink: 0;
 }
 
@@ -397,7 +400,8 @@
 
 .next-collection__row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  flex-direction: column;
   gap: 14px;
 }
 
@@ -407,6 +411,7 @@
 
 .next-collection__info {
   flex: 1;
+  width: 100%;
 }
 
 .next-collection__time {
@@ -425,7 +430,22 @@
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0;
+  gap: 20px;
+}
+
+@media (min-width: 640px) {
+  .resident-main {
+    padding: 24px 20px calc(92px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .welcome-card {
+    padding: 24px;
+  }
+
+  .next-collection__row {
+    flex-direction: row;
+    align-items: center;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -436,6 +456,12 @@
 
   /* Shrink welcome card right panel on smaller desktops */
   .welcome-card__right {
+    width: auto;
     min-width: 140px;
+  }
+
+  .welcome-card {
+    flex-direction: row;
+    align-items: stretch;
   }
 }
