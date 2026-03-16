@@ -14,21 +14,7 @@
 
     <!-- Left green panel — hidden on mobile, visible on desktop -->
     <aside class="auth-panel">
-      <div class="auth-panel__ring auth-panel__ring--1"></div>
-      <div class="auth-panel__ring auth-panel__ring--2"></div>
-      <div class="auth-panel__ring auth-panel__ring--3"></div>
-
-      <div class="auth-panel__dots">
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-      </div>
-
+    
       <div class="auth-panel__brand">
         <div class="auth-panel__brand-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -48,7 +34,6 @@
     </aside>
 
     <!-- Auth card -->
-    <!-- Auth card — same card, content swaps via tabs -->
     <div class="auth-card">
 
       <!-- Branding -->
@@ -66,7 +51,6 @@
       </div>
 
       <!-- Dynamic heading -->
-      <!-- Dynamic heading — updated by JS on tab switch -->
       <div class="page-heading">
         <h1 id="formTitle">Welcome back</h1>
         <p id="formSubtitle">Sign in to your account to continue</p>
@@ -150,10 +134,6 @@
             <label for="zone">Select your Zone</label>
             <select id="zone" name="zone">
               <option value="">— Loading zones... —</option>
-          <div class="form-group">
-            <label for="zone">Select your Zone</label>
-            <select id="zone" name="zone">
-              <option value="">— Loading zones… —</option>
             </select>
             <span class="error-message" id="zoneError">Please select a zone</span>
             <p class="field-note">Geographic info helps you pick the correct zone</p>
@@ -199,10 +179,6 @@
         </p>
       </div>
     </div><!-- /.auth-card -->
-      </div><!-- /#pane-register -->
-
-    </div><!-- /.auth-card -->
-
   </main>
 
   <script src="/static/js/login1.js"></script>
