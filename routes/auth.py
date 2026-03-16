@@ -8,6 +8,8 @@ from flask_jwt_extended import (
 from extensions import db, bcrypt
 from models.user import User
 import re
+from utils.auth_helpers import role_required, generate_reset_token, verify_reset_token
+import secrets
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
@@ -160,3 +162,56 @@ def get_current_user():
         return jsonify({"error": "User not found"}), 404
     
     return jsonify({"user": user.to_dict()}), 200
+
+@auth_bp.route("/create-zone-operator", methods=["POST"])
+@role_required("admin")
+def create_zone_operator():
+    """Admin creates a ZO account with a random password, returns a setup token link."""
+    data = request.get_json()
+
+    required_fields = ["username", "email", "phone_number"]
+    for field in required_fields:
+        if not data.get(field):
+            return jsonify({"error": f"{field} is required"}), 400
+
+    email = data["email"].strip().lower()
+    username = data["username"].strip()
+    phone_number = data["phone_number"].strip()
+
+    if not validate_email(email):
+        return jsonify({"error": "Invalid email format"}), 400
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"error": "Email already registered"}), 409
+
+    if User.query.filter_by(username=username).first():
+        return jsonify({"error": "Username already taken"}), 409
+
+    # Generate a random password the ZO will set their own password via the setup link
+    random_password = secrets.token_urlsafe(16)
+    password_hash = bcrypt.generate_password_hash(random_password).decode("utf-8")
+
+    new_zo = User(
+        username=username,
+        email=email,
+        password_hash=password_hash,
+        phone_number=phone_number,
+        role="zone_operator"
+    )
+
+    try:
+        db.session.add(new_zo)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to create zone operator"}), 500
+
+    # Generate a reset token, ZO will reset their own password
+    reset_token = generate_reset_token(email)
+
+    return jsonify({
+        "message": "Zone operator account created",
+        "user": new_zo.to_dict(),
+        "reset_token": reset_token,
+        "reset_link": f"/reset-password?token={reset_token}"
+    }), 201
