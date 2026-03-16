@@ -48,6 +48,7 @@
     </aside>
 
     <!-- Auth card -->
+    <!-- Auth card — same card, content swaps via tabs -->
     <div class="auth-card">
 
       <!-- Branding -->
@@ -65,6 +66,7 @@
       </div>
 
       <!-- Dynamic heading -->
+      <!-- Dynamic heading — updated by JS on tab switch -->
       <div class="page-heading">
         <h1 id="formTitle">Welcome back</h1>
         <p id="formSubtitle">Sign in to your account to continue</p>
@@ -148,6 +150,14 @@
             <label for="zone">Select your Zone</label>
             <select id="zone" name="zone">
               <option value="">— Loading zones... —</option>
+          <div class="form-group">
+            <label for="zone">Select your Zone</label>
+            <select id="zone" name="zone">
+              <option value="">— Select zone —</option>
+              <option value="A">Zone A — Gasabo · Kimironko · Kibagabaga · Kamatamu</option>
+              <option value="B">Zone B — Gasabo · Kimironko · Bibare · Rwezamenyo</option>
+              <option value="C">Zone C — Gasabo · Kacyiru · Kamatamu · Nyarutarama</option>
+              <option value="D">Zone D — Gasabo · Kimironko · Kibagabaga · Kagugu</option>
             </select>
             <span class="error-message" id="zoneError">Please select a zone</span>
             <p class="field-note">Geographic info helps you pick the correct zone</p>
@@ -193,6 +203,10 @@
         </p>
       </div>
     </div><!-- /.auth-card -->
+      </div><!-- /#pane-register -->
+
+    </div><!-- /.auth-card -->
+
   </main>
 
   <script src="/static/js/login1.js"></script>
