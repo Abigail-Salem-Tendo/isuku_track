@@ -65,19 +65,19 @@
                         }).addTo(map);
                         
                         // Determine if ZO is assigned for the badge styling
-                        const isAssigned = zone.zone_operator_name ? true : false;
+                        const isAssigned = zone.zo_registered_name ? true : false;
                         const badgeClass = isAssigned ? 'status-badge' : 'status-badge pending';
                         const badgeText = isAssigned ? 'Operator Assigned' : 'Pending Assignment';
 
-
+                
                         const popupContent = `
                             <div class="popup-content">
                                 <h3>${zone.name}</h3>
                                 <p><strong>District:</strong> ${zone.district}</p>
                                 <p><strong>Sector:</strong> ${zone.sector}</p>
                                 <p><strong>Cell:</strong> ${zone.cell}</p>
-                                <p><strong>Operator:</strong> ${zone.zone_operator_name || '<i>Not yet assigned</i>'}</p>
-                                <p><strong>Contact:</strong> ${zone.zone_operator_phone || 'N/A'}</p>
+                                <p><strong>Operator:</strong> ${zone.zo_registered_name || '<i>Not yet registered</i>'}</p>
+                                <p><strong>Contact:</strong> ${zone.zo_registered_phone || 'N/A'}</p>
                                 <span class="${badgeClass}">${badgeText}</span>
                             </div>
                         `;
