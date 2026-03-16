@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from extensions import db, migrate, bcrypt, jwt
 from models.user import User
 from models.zone import Zone
@@ -11,6 +12,7 @@ from routes.schedules import schedule_bp
 
 def create_app():
     app = Flask(__name__)
+    CORS(app) # allowing frontend requests
     app.config.from_object(Config)
 
     db.init_app(app)
@@ -30,3 +32,7 @@ app = create_app()
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
