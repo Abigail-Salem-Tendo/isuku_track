@@ -142,6 +142,97 @@ def get_current_user():
     
     return jsonify({"user": user.to_dict()}), 200
 
+@auth_bp.route("/profile", methods=["PUT"])
+@role_required("resident", "zone_operator", "admin")
+def update_profile():
+    # Update logged in user profile information
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request body is required"}), 400
+
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    errors = []
+
+    # Editable profile username
+    if "username" in data:
+        new_username = data["username"].strip()
+        error = validate_username(
+            data["username"],
+            check_duplicate=(new_username != user.username)
+        )
+        if error:
+            errors.append(error)
+        else:
+            user.username = new_username
+
+    # Editable profile phone_number
+    if "phone_number" in data:
+        error = validate_phone(
+            data["phone_number"],
+            required=True,
+            check_duplicate=(data["phone_number"].strip() != (user.phone_number or ""))
+        )
+        if error:
+            errors.append(error)
+        else:
+            user.phone_number = data["phone_number"].strip()
+
+    # Editable profile email
+    if "email" in data:
+        new_email = data["email"].strip().lower()
+        error = validate_email(
+            data["email"],
+            check_duplicate=(new_email != user.email)
+        )
+        if error:
+            errors.append(error)
+        else:
+            user.email = new_email
+
+    # Editable profile password
+    if "new_password" in data:
+        current_password = data.get("current_password", "")
+        if not current_password:
+            errors.append("Current password is required to set a new password")
+        elif not bcrypt.check_password_hash(user.password_hash, current_password):
+            errors.append("Current password is incorrect")
+        else:
+            error = validate_password(data["new_password"])
+            if error:
+                errors.append(error)
+            else:
+                user.password_hash = bcrypt.generate_password_hash(data["new_password"]).decode("utf-8")
+
+    # Editable profile zone only for residents
+    if "zone_id" in data:
+        if user.role != "resident":
+            errors.append("Only residents can change their zone")
+        else:
+            zone = Zone.query.get(data["zone_id"])
+            if not zone:
+                errors.append("Selected zone does not exist")
+            else:
+                user.zone_id = data["zone_id"]
+
+    if errors:
+        return jsonify({"error": errors[0]}), 400
+
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update profile"}), 500
+
+    return jsonify({
+        "message": "Profile updated successfully",
+        "user": user.to_dict()
+    }), 200
+
+
 @auth_bp.route("/create-zone-operator", methods=["POST"])
 @role_required("admin")
 def create_zone_operator():
