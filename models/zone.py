@@ -18,16 +18,7 @@ class Zone(db.Model):
     village = db.Column(db.String(100), nullable=False)
 
     # Assigned Zone Operator
-    #zone_operator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-
-    # Assigned Zone Operator
-    zone_operator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-
-    operator = db.relationship("User", foreign_keys=[zone_operator_id], backref="managed_zones")
-
-     # Pre-registered ZO info (for verification during signup)
-    zo_registered_name = db.Column(db.String(100), nullable=True)
-    zo_registered_phone = db.Column(db.String(20), nullable=True)
+    zone_operator_id = db.Column(db.Integer, db.ForeignKey('users.id', use_alter=True, name='fk_zone_operator'), nullable=True)
 
     
     created_at = db.Column(
@@ -40,6 +31,10 @@ class Zone(db.Model):
         server_default=db.func.now(),
         onupdate=db.func.now()
     )
+
+    # Relationships
+    users = db.relationship("User", foreign_keys="User.zone_id", back_populates="zone")
+    zone_operator = db.relationship("User", foreign_keys=[zone_operator_id], uselist=False)
 
     # indexing for fast location searching
     __table_args__ = (
