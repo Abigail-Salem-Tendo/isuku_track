@@ -233,6 +233,72 @@ def update_profile():
     }), 200
 
 
+@auth_bp.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    # Verify identity with email + phone number, then return reset token
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request body is required"}), 400
+
+    email = data.get("email", "").strip().lower()
+    phone_number = data.get("phone_number", "").strip()
+
+    if not email or not phone_number:
+        return jsonify({"error": "Email and phone number are required"}), 400
+
+    # Find user by email
+    user = User.query.filter_by(email=email).first()
+    if not user or user.phone_number != phone_number:
+        return jsonify({"error": "No account matches that email and phone number"}), 404
+
+    # Both match — generate reset token
+    token = generate_reset_token(email)
+
+    return jsonify({
+        "message": "Identity verified",
+        "reset_token": token
+    }), 200
+
+
+@auth_bp.route("/reset-password", methods=["POST"])
+def reset_password():
+    # Verify reset token and set a new password
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request body is required"}), 400
+
+    token = data.get("token", "")
+    password = data.get("password", "")
+
+    if not token:
+        return jsonify({"error": "Reset token is required"}), 400
+
+    # Verify the token and extract the email
+    email = verify_reset_token(token)
+    if not email:
+        return jsonify({"error": "Invalid or expired reset link"}), 400
+
+    # Validate the new password
+    error = validate_password(password)
+    if error:
+        return jsonify({"error": error}), 400
+
+    # Find user and update password
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    user.password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
+
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to reset password"}), 500
+
+    return jsonify({"message": "Password reset successfully"}), 200
+
+
 @auth_bp.route("/create-zone-operator", methods=["POST"])
 @role_required("admin")
 def create_zone_operator():
