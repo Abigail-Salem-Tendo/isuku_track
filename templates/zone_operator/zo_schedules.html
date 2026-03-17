@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedules — Isuku Track</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../static/css/zo_dash.css">
+  <link rel="stylesheet" href="../../static/css/base1.css">
+</head>
+<body>
+
+<aside class="sb">
+  <div class="sb-top">
+    <div class="sb-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3C12 3 5 9 5 15a7 7 0 0014 0C19 9 12 3 12 3Z" fill="white" opacity=".9"/>
+        <path d="M12 10v6M9.5 14l2.5 2 2.5-2" stroke="#2e7d52" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="sb-name">Isuku Track</div>
+      <div class="sb-role">Zone Operator</div>
+    </div>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">My Zone</div>
+    <a class="sb-a" href="zo_dash.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+      </svg>
+      Dashboard
+    </a>
+    <a class="sb-a on" href="zo_schedules.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Schedules
+    </a>
+    <a class="sb-a" href="zo_claims.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+      </svg>
+      Claims <span class="sb-badge">7</span>
+    </a>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Management</div>
+    <a class="sb-a" href="zo_payments.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="5" width="20" height="14" rx="2"/>
+        <line x1="2" y1="10" x2="22" y2="10"/>
+      </svg>
+      Payments <span class="sb-badge am">3</span>
+    </a>
+    <a class="sb-a" href="zo_residents.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+      </svg>
+      Residents
+    </a>
+    <a class="sb-a" href="zo_report.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/>
+        <line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+      Weekly Report
+    </a>
+  </div>
+
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-av">JP</div>
+      <div>
+        <div class="sb-un">Jean-Pierre K.</div>
+        <div class="sb-ur">Zone A Operator</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="tb-l">
+      <h1>Schedules</h1>
+      <p>Kimironko Zone A · 3 upcoming this week</p>
+    </div>
+    <div class="tb-r">
+      <div class="icon-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <div class="notif-dot"></div>
+      </div>
+      <div class="av">JP</div>
+      <div class="ham" onclick="toggleSb()">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <div class="sg">
+      <div class="sc">
+        <div class="sc-lbl">Upcoming</div>
+        <div class="sc-val">3</div>
+        <div class="sc-sub">this week</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Today</div>
+        <div class="sc-val" style="color:var(--g1)">1</div>
+        <div class="sc-sub">14:00 · Route A</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Completed</div>
+        <div class="sc-val">12</div>
+        <div class="sc-sub">this month</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Completion Rate</div>
+        <div class="sc-val" style="font-size:1.3rem">100%</div>
+        <div class="sc-sub"><span class="up">↑2%</span> vs last month</div>
+      </div>
+    </div>
+
+    <div class="ftabs">
+      <button class="ftab on" onclick="filterTab(this)">All</button>
+      <button class="ftab" onclick="filterTab(this)">Today</button>
+      <button class="ftab" onclick="filterTab(this)">Upcoming</button>
+      <button class="ftab" onclick="filterTab(this)">Completed</button>
+    </div>
+
+    <div class="card">
+      <div class="ch">
+        <div class="ct">Zone A — Full Schedule</div>
+        <span class="b pe" style="font-size:.73rem;">March 2026</span>
+      </div>
+      <div class="cb">
+
+        <div class="si">
+          <div class="si-time"><div class="st">14:00</div><div class="sd">Today</div></div>
+          <div class="si-info">
+            <div class="si-ttl">Route A — Kibagabaga North</div>
+            <div class="si-rt">KG 11 Ave → KG 15 Ave → KN 5 Rd</div>
+            <div class="si-veh">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+              RAD 001A · Priority <strong>8.5/10</strong>
+            </div>
+          </div>
+          <div class="si-right">
+            <span class="b pe" id="s1-badge">Not Started</span>
+            <button class="start-btn" onclick="startRoute(this,'s1-badge')">Start Route</button>
+          </div>
+        </div>
+
+        <div class="si">
+          <div class="si-time"><div class="st">09:00</div><div class="sd">Thu 19</div></div>
+          <div class="si-info">
+            <div class="si-ttl">Route A — Kibagabaga South</div>
+            <div class="si-rt">KG 7 Ave → KG 9 Ave → KN 3 Rd</div>
+            <div class="si-veh">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+              RAD 001A · Priority <strong>6.2/10</strong>
+            </div>
+          </div>
+          <div class="si-right">
+            <span class="b pe">Not Started</span>
+          </div>
+        </div>
+
+        <div class="si">
+          <div class="si-time"><div class="st">07:30</div><div class="sd">Sat 21</div></div>
+          <div class="si-info">
+            <div class="si-ttl">Route B — Market Area Sweep</div>
+            <div class="si-rt">KG 3 Ave → KG 5 Ave → Market Rd</div>
+            <div class="si-veh">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+              RAD 002B · Priority <strong>7.0/10</strong>
+            </div>
+          </div>
+          <div class="si-right">
+            <span class="b pe">Not Started</span>
+          </div>
+        </div>
+
+        <div class="si">
+          <div class="si-time"><div class="st">08:30</div><div class="sd">Mon 16</div></div>
+          <div class="si-info">
+            <div class="si-ttl">Route A — Full Sweep</div>
+            <div class="si-rt">All streets, Kibagabaga Cell</div>
+            <div class="si-veh">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+              RAD 001A · Priority <strong>9.0/10</strong>
+            </div>
+          </div>
+          <div class="si-right">
+            <span class="b ok">Completed</span>
+          </div>
+        </div>
+
+        <div class="si">
+          <div class="si-time"><div class="st">14:00</div><div class="sd">Fri 14</div></div>
+          <div class="si-info">
+            <div class="si-ttl">Route B — Residential East</div>
+            <div class="si-rt">KN 1 Rd → KN 3 Rd → Bypass</div>
+            <div class="si-veh">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+              RAD 002B · Priority <strong>5.8/10</strong>
+            </div>
+          </div>
+          <div class="si-right">
+            <span class="b ok">Completed</span>
+          </div>
+        </div>
+
+        <div class="si">
+          <div class="si-time"><div class="st">09:00</div><div class="sd">Wed 11</div></div>
+          <div class="si-info">
+            <div class="si-ttl">Route A — Kibagabaga South</div>
+            <div class="si-rt">KG 7 Ave → KG 9 Ave · Full sweep</div>
+            <div class="si-veh">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+              RAD 001A · Priority <strong>6.2/10</strong>
+            </div>
+          </div>
+          <div class="si-right">
+            <span class="b ok">Completed</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleSb()"></div>
+
+<nav class="mob-nav">
+  <a class="mn-item" href="zo_dash.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+      <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+    </svg>
+    <span>Dashboard</span>
+  </a>
+  <a class="mn-item active" href="zo_schedules.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    <span>Schedules</span>
+  </a>
+  <a class="mn-item" href="zo_claims.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+    </svg>
+    <span>Claims</span>
+  </a>
+  <a class="mn-item" href="zo_payments.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="5" width="20" height="14" rx="2"/>
+      <line x1="2" y1="10" x2="22" y2="10"/>
+    </svg>
+    <span>Payments</span>
+  </a>
+</nav>
+
+<script src="../../static/js/zo_dash.js"></script>
+</body>
+</html>

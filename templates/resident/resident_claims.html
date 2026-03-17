@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claims — Isuku Track</title>
+  <link rel="stylesheet" href="/static/css/base1.css" />
+  <link rel="stylesheet" href="/static/css/dashboard.css" />
+  <link rel="stylesheet" href="/static/css/resident.css" />
+</head>
+<body>
+<div class="resident-layout">
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <a href="/static/pages/resident/resident_dash.html" class="sidebar__brand">
+      <div class="sidebar__brand-icon">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 4h2a2 2 0 0 1 2 2v1H4V6a2 2 0 0 1 2-2h2m0 0V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1M9 4h6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2L19 7"/></svg>
+      </div>
+      <div class="sidebar__brand-text">
+        <span class="sidebar__brand-name">Isuku Track</span>
+        <span class="sidebar__brand-role">Resident</span>
+      </div>
+    </a>
+    <div class="sidebar__section">
+      <div class="sidebar__section-label">My Home</div>
+      <a href="/static/pages/resident/resident_dash.html" class="sidebar__nav-item">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </a>
+      <a href="/static/pages/resident/resident_schedule.html" class="sidebar__nav-item">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Collection Schedule
+      </a>
+      <a href="/static/pages/resident/resident_claims.html" class="sidebar__nav-item active">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        My Claims
+      </a>
+    </div>
+    <div class="sidebar__section">
+      <div class="sidebar__section-label">Account</div>
+      <a href="/static/pages/resident/resident_payments.html" class="sidebar__nav-item">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        Submit Payment
+      </a>
+      <a href="/static/pages/resident/profile.html" class="sidebar__nav-item">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        Profile
+      </a>
+      <button class="sidebar__nav-item" id="logoutBtn" style="width:100%;background:none;border:none;cursor:pointer;font-family:inherit;color:rgba(255,255,255,0.6);">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Log Out
+      </button>
+    </div>
+    <div class="sidebar__user">
+      <div class="sidebar__user-avatar" id="sidebarAvatar">R</div>
+      <div>
+        <div class="sidebar__user-name" id="sidebarName">Resident</div>
+        <div class="sidebar__user-role">Zone A Resident</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="resident-content">
+    <div class="topbar">
+      <button class="topbar__menu-btn" id="menuBtn">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <span class="topbar__title">My Claims</span>
+      <button class="topbar__bell">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 0 1-6 0v-1m6 0H9"/></svg>
+        <span class="topbar__bell-badge"></span>
+      </button>
+    </div>
+
+    <main class="resident-main">
+      <div class="page-header">
+        <h1>My Claims</h1>
+        <p>Submit a new claim or view your claim history</p>
+      </div>
+
+      <!-- Submit Form -->
+      <div class="section">
+        <div class="section__header">
+          <span class="section__title">Submit a New Claim</span>
+          <button class="tab active" id="toggleForm">Hide</button>
+        </div>
+        <div id="claimFormWrapper" class="dashboard-form">
+          <form id="submitClaimForm" novalidate>
+            <div class="form-group">
+              <label for="claimType">Claim Type</label>
+              <select id="claimType">
+                <option value="">Select claim type</option>
+                <option value="overflow">Overflow</option>
+                <option value="damaged">Damaged Bin</option>
+                <option value="illegal_dumping">Illegal Dumping</option>
+                <option value="missed_collection">Missed Collection</option>
+                <option value="other">Other</option>
+              </select>
+              <span class="error-message" id="claimTypeError">Please select a claim type</span>
+            </div>
+            <div class="form-group">
+              <label for="claimLocation">Location</label>
+              <input type="text" id="claimLocation" placeholder="e.g. KG 11 Ave, near the market" />
+              <span class="error-message" id="claimLocationError">Location is required</span>
+            </div>
+            <div class="form-group">
+              <label for="claimDescription">Description</label>
+              <textarea id="claimDescription" placeholder="Describe the issue in detail" rows="3"></textarea>
+              <span class="error-message" id="claimDescriptionError">Description is required</span>
+            </div>
+            <div class="form-group">
+              <label for="claimPhoto">Photo (optional)</label>
+              <input type="file" id="claimPhoto" accept="image/*" />
+            </div>
+            <div style="margin-top: 8px;">
+              <button type="submit" class="btn btn-primary">Submit Claim</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Claims History -->
+      <div class="section">
+        <div class="section__header">
+          <span class="section__title">Your Claims</span>
+        </div>
+        <div class="tabs">
+          <button class="tab active" data-filter="all">All</button>
+          <button class="tab" data-filter="open">Open</button>
+          <button class="tab" data-filter="in-progress">In Progress</button>
+          <button class="tab" data-filter="approved">Approved</button>
+          <button class="tab" data-filter="rejected">Rejected</button>
+        </div>
+        <div id="claimsList">
+          <div class="card" data-status="approved">
+            <div class="card__row">
+              <div>
+                <div class="card__title">Overflow</div>
+                <div class="card__sub">KG 11 Ave, near the market</div>
+                <div class="card__sub">Submitted March 5</div>
+              </div>
+              <span class="badge badge--approved">Approved</span>
+            </div>
+            <div class="card__points">+5 pts awarded</div>
+          </div>
+          <div class="card" data-status="open">
+            <div class="card__row">
+              <div>
+                <div class="card__title">Missed Collection</div>
+                <div class="card__sub">Kimironko Zone A</div>
+                <div class="card__sub">Submitted March 1</div>
+              </div>
+              <span class="badge badge--open">Open</span>
+            </div>
+          </div>
+          <div class="card" data-status="in-progress">
+            <div class="card__row">
+              <div>
+                <div class="card__title">Illegal Dumping</div>
+                <div class="card__sub">Near KG 15 Ave</div>
+                <div class="card__sub">Submitted Feb 20</div>
+              </div>
+              <span class="badge badge--in-progress">In Progress</span>
+            </div>
+          </div>
+          <div class="card" data-status="rejected">
+            <div class="card__row">
+              <div>
+                <div class="card__title">Damaged Bin</div>
+                <div class="card__sub">Outside Zone A</div>
+                <div class="card__sub">Submitted Feb 10</div>
+              </div>
+              <span class="badge badge--rejected">Rejected</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+  <script src="/static/js/auth.js"></script>
+  <script src="/static/js/resident_claims.js"></script>
+</body>
+</html>

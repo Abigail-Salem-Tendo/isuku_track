@@ -28,9 +28,7 @@ def create_zone():
         village=data['village'],
         latitude=data['latitude'],
         longitude=data['longitude'],
-        # These are optional initially according to our design doc
-        zo_registered_name=data.get('zo_registered_name'),
-        zo_registered_phone=data.get('zo_registered_phone')
+        zone_operator_id=data.get('zone_operator_id')
     )
 
     db.session.add(new_zone)
@@ -63,9 +61,9 @@ def get_zones():
         "village": z.village,
         "latitude": z.latitude,
         "longitude": z.longitude,
-        "zo_registered_name": z.zo_registered_name,
-        "zo_registered_phone": z.zo_registered_phone,
-        "zone_operator_id": z.zone_operator_id
+        "zone_operator_id": z.zone_operator_id,
+        "zone_operator_name": z.zone_operator.username if z.zone_operator else None,
+        "zone_operator_phone": z.zone_operator.phone_number if z.zone_operator else None
     } for z in zones]), 200
 
 
@@ -82,9 +80,9 @@ def get_zone(id):
         "village": z.village,
         "latitude": z.latitude,
         "longitude": z.longitude,
-        "zo_registered_name": z.zo_registered_name,
-        "zo_registered_phone": z.zo_registered_phone,
-        "zone_operator_id": z.zone_operator_id
+        "zone_operator_id": z.zone_operator_id,
+        "zone_operator_name": z.zone_operator.username if z.zone_operator else None,
+        "zone_operator_phone": z.zone_operator.phone_number if z.zone_operator else None
     }), 200
 
 # --- UPDATE: Modify a zone ---
@@ -95,9 +93,8 @@ def update_zone(id):
 
     # Updating only the fields provided in the request
     updatable_fields = [
-        'name', 'district', 'sector', 'cell', 'village', 
-        'latitude', 'longitude', 'zo_registered_name', 
-        'zo_registered_phone', 'zone_operator_id'
+        'name', 'district', 'sector', 'cell', 'village',
+        'latitude', 'longitude', 'zone_operator_id'
     ]
     
     for field in updatable_fields:

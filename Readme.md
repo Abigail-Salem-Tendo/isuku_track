@@ -1,0 +1,10 @@
+# DEVSTRICKERS
+# PROJECT NAME isuku_track
+Waste Management inventory and reporting project
+## TEAM MEMBERS
+- Abigail Salem Tendo
+- Maxime Lilian HIRWA
+- Liliane Uwase
+- Brian MAHUI
+- Fabrice MBARUSHIMANA
+- Bonane NIYIGENA
