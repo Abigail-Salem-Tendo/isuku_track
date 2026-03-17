@@ -9,6 +9,7 @@ from routes.vehicle_routes import vehicle_bp
 from routes.zone_routes import zone_bp
 from config import Config
 from routes.schedules import schedule_bp
+from flask import render_template
 
 def create_app():
     app = Flask(__name__)
