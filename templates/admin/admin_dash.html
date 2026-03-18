@@ -78,11 +78,17 @@
   </div>
 
   <div class="sb-foot">
-    <div class="sb-user">
-      <div class="sb-av">AD</div>
-      <div>
-        <div class="sb-un" id="adminName">Admin</div>
-        <div class="sb-ur">System Administrator</div>
+    <div class="sb-user-wrap" id="adminMenuWrap">
+      <button type="button" class="sb-user" id="adminMenuToggle" aria-haspopup="true" aria-expanded="false" aria-controls="adminMenu">
+        <div class="sb-av">AD</div>
+        <div>
+          <div class="sb-un" id="adminName">Admin</div>
+          <div class="sb-ur">System Administrator</div>
+        </div>
+      </button>
+      <div class="sb-user-menu" id="adminMenu" role="menu" aria-label="Administrator menu">
+        <button type="button" class="sb-user-menu-item" data-admin-action="profile">A. Administrator</button>
+        <button type="button" class="sb-user-menu-item logout" data-admin-action="logout">Logout</button>
       </div>
     </div>
   </div>
