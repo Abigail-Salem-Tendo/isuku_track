@@ -32,6 +32,27 @@ def create_app():
     def login_page():
         return render_template("login1.html")
 
+    # Resident pages
+    @app.route("/static/pages/resident/resident_dash.html")
+    def resident_dashboard():
+        return render_template("resident/resident_dash.html")
+
+    @app.route("/static/pages/resident/resident_schedule.html")
+    def resident_schedule():
+        return render_template("resident/resident_schedule.html")
+
+    @app.route("/static/pages/resident/resident_claims.html")
+    def resident_claims():
+        return render_template("resident/resident_claims.html")
+
+    @app.route("/static/pages/resident/resident_payments.html")
+    def resident_payments():
+        return render_template("resident/resident_dash.html")
+
+    @app.route("/static/pages/resident/profile.html")
+    def resident_profile():
+        return render_template("resident/resident_dash.html") 
+
     return app
 
 app = create_app()
