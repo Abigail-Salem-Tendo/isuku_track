@@ -1,11 +1,16 @@
 from flask import Blueprint, request, jsonify
 from extensions import db
 from models.zone import Zone
+#implementing auth
+from utils.auth_helpers import role_required
 
 zone_bp = Blueprint('zones', __name__)
 
+#The auth logic : Create/Update/Delete: admin only.    Viewing/Reading :admin, zone_operator, and resident (everyone needs to see the map).
+
 # --- CREATE: Add a new zone ---
 @zone_bp.route('/', methods=['POST'], strict_slashes=False)
+@role_required('admin')
 def create_zone():
     data = request.get_json()
     
@@ -39,6 +44,7 @@ def create_zone():
 
     # --- READ: Get all zones ---
 @zone_bp.route('/', methods=['GET'], strict_slashes=False)
+@role_required('admin', 'zone_operator', 'resident')
 def get_zones():
     # allowing frontend to filter by district or sector
     district_filter = request.args.get('district')
@@ -69,6 +75,7 @@ def get_zones():
 
     # --- READ: Getting a single zone ---
 @zone_bp.route('/<int:id>', methods=['GET'], strict_slashes=False)
+@role_required('admin', 'zone_operator', 'resident')
 def get_zone(id):
     z = Zone.query.get_or_404(id)
     return jsonify({
@@ -87,6 +94,7 @@ def get_zone(id):
 
 # --- UPDATE: Modify a zone ---
 @zone_bp.route('/<int:id>', methods=['PUT'], strict_slashes=False)
+@role_required('admin')
 def update_zone(id):
     zone = Zone.query.get_or_404(id)
     data = request.get_json()
@@ -106,6 +114,7 @@ def update_zone(id):
 
     # --- DELETE: Remove a zone ---
 @zone_bp.route('/<int:id>', methods=['DELETE'], strict_slashes=False)
+@role_required('admin')
 def delete_zone(id):
     zone = Zone.query.get_or_404(id)
     db.session.delete(zone)
