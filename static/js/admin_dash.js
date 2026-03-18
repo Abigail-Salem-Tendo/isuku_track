@@ -153,24 +153,70 @@ document.addEventListener('DOMContentLoaded', function () {
     var activeZones = state.zones.length;
     var openClaims = state.claims.filter(function (c) { return c.status === 'Open'; }).length;
     var paymentsWeek = state.reports.reduce(function (sum, r) { return sum + r.payments; }, 0);
+    var zoneOperators = (function () {
+      var operatorKeys = new Set();
+      state.zones.forEach(function (zone) {
+        if (zone.operator) operatorKeys.add(String(zone.operator).trim().toLowerCase());
+      });
+      return operatorKeys.size;
+    })();
 
     var statActiveZones = document.getElementById('statActiveZones');
     var statOpenClaims = document.getElementById('statOpenClaims');
     var statPaymentsWeek = document.getElementById('statPaymentsWeek');
     var statTotalResidents = document.getElementById('statTotalResidents');
+    var statZoneOperators = document.getElementById('statZoneOperators');
     var sbZonesCount = document.getElementById('sbZonesCount');
+    var sbZoneOperatorsCount = document.getElementById('sbZoneOperatorsCount');
     var sbClaimsCount = document.getElementById('sbClaimsCount');
 
     if (statActiveZones) statActiveZones.textContent = String(activeZones);
     if (statOpenClaims) statOpenClaims.textContent = String(openClaims);
     if (statPaymentsWeek) statPaymentsWeek.textContent = String(paymentsWeek);
     if (statTotalResidents) statTotalResidents.textContent = String(state.residents.toLocaleString());
+    if (statZoneOperators) statZoneOperators.textContent = String(zoneOperators);
     if (sbZonesCount) sbZonesCount.textContent = String(activeZones);
+    if (sbZoneOperatorsCount) sbZoneOperatorsCount.textContent = String(zoneOperators);
     if (sbClaimsCount) sbClaimsCount.textContent = String(openClaims);
 
     var revenue = state.reports.reduce(function (sum, r) { return sum + r.revenue; }, 0);
     var revenueTotal = document.querySelector('.revenue-total');
     if (revenueTotal) revenueTotal.textContent = revenue.toLocaleString() + ' RWF this week';
+  }
+
+  function countUniqueZoneOperators(zones) {
+    var keys = new Set();
+    zones.forEach(function (zone) {
+      if (zone.zone_operator_id !== null && zone.zone_operator_id !== undefined) {
+        keys.add('id:' + String(zone.zone_operator_id));
+        return;
+      }
+      if (zone.zone_operator_name) {
+        keys.add('name:' + String(zone.zone_operator_name).trim().toLowerCase());
+      }
+    });
+    return keys.size;
+  }
+
+  function syncZoneOperatorsFromApi() {
+    var statZoneOperators = document.getElementById('statZoneOperators');
+    var sbZoneOperatorsCount = document.getElementById('sbZoneOperatorsCount');
+    if ((!statZoneOperators && !sbZoneOperatorsCount) || typeof fetch !== 'function') return;
+
+    fetch('/api/zones')
+      .then(function (response) {
+        if (!response.ok) throw new Error('Failed to load zones');
+        return response.json();
+      })
+      .then(function (zones) {
+        if (!Array.isArray(zones)) return;
+        var uniqueOperators = String(countUniqueZoneOperators(zones));
+        if (statZoneOperators) statZoneOperators.textContent = uniqueOperators;
+        if (sbZoneOperatorsCount) sbZoneOperatorsCount.textContent = uniqueOperators;
+      })
+      .catch(function () {
+        // Keep local state count if API data is temporarily unavailable.
+      });
   }
 
   function renderAll() {
@@ -435,5 +481,6 @@ document.addEventListener('DOMContentLoaded', function () {
   setDashboardDate();
   bindActions();
   renderAll();
+  syncZoneOperatorsFromApi();
   window.addEventListener('resize', closeSidebarOnDesktop);
 });
