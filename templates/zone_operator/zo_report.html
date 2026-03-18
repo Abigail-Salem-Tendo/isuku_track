@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Report — Isuku Track</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../static/css/zo_dash.css">
+  <link rel="stylesheet" href="../../static/css/base1.css">
+</head>
+<body>
+
+<aside class="sb">
+  <div class="sb-top">
+    <div class="sb-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3C12 3 5 9 5 15a7 7 0 0014 0C19 9 12 3 12 3Z" fill="white" opacity=".9"/>
+        <path d="M12 10v6M9.5 14l2.5 2 2.5-2" stroke="#2e7d52" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="sb-name">Isuku Track</div>
+      <div class="sb-role">Zone Operator</div>
+    </div>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">My Zone</div>
+    <a class="sb-a" href="zo_dash.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+      </svg>
+      Dashboard
+    </a>
+    <a class="sb-a" href="zo_schedules.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Schedules
+    </a>
+    <a class="sb-a" href="zo_claims.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+      </svg>
+      Claims <span class="sb-badge">7</span>
+    </a>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Management</div>
+    <a class="sb-a" href="zo_payments.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="5" width="20" height="14" rx="2"/>
+        <line x1="2" y1="10" x2="22" y2="10"/>
+      </svg>
+      Payments <span class="sb-badge am">3</span>
+    </a>
+    <a class="sb-a" href="zo_residents.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+      </svg>
+      Residents
+    </a>
+    <a class="sb-a on" href="zo_report.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/>
+        <line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+      Weekly Report
+    </a>
+  </div>
+
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-av">JP</div>
+      <div>
+        <div class="sb-un">Jean-Pierre K.</div>
+        <div class="sb-ur">Zone A Operator</div>
+      </div>
+    </div>
+    <button class="sb-logout" onclick="logout()" style="display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:9px;color:#ef4444;font-size:.86rem;font-weight:500;cursor:pointer;text-decoration:none;transition:all .18s;margin-top:10px;border:none;background:transparent;width:100%;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Logout
+    </button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="tb-l">
+      <h1>Weekly Report</h1>
+      <p>Kimironko Zone A · Auto-sends Sunday 20:00</p>
+    </div>
+    <div class="tb-r">
+      <div class="icon-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <div class="notif-dot"></div>
+      </div>
+      <div class="av">JP</div>
+      <div class="ham" onclick="toggleSb()">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <div class="sg">
+      <div class="sc">
+        <div class="sc-lbl">Auto-sends In</div>
+        <div class="sc-val" style="color:var(--g1);font-size:1.2rem">4 days</div>
+        <div class="sc-sub">Sunday 20:00</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Last Report</div>
+        <div class="sc-val" style="font-size:1.1rem">Mar 9</div>
+        <div class="sc-sub">sent on time</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Week Payments</div>
+        <div class="sc-val">28</div>
+        <div class="sc-sub">28,000 RWF</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Zone Rate</div>
+        <div class="sc-val" style="font-size:1.3rem">94%</div>
+        <div class="sc-sub"><span class="up">↑1%</span> vs last week</div>
+      </div>
+    </div>
+
+    <div class="row2">
+
+      <!-- Current week report form -->
+      <div class="card">
+        <div class="ch">
+          <div class="ct">Current Week Remarks</div>
+          <a class="ca">Week of Mar 16–22</a>
+        </div>
+        <div class="cb">
+
+          <div class="deadline">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Report auto-sends in <strong style="color:var(--g1);margin:0 3px;">4 days</strong> · Add remarks before then
+          </div>
+
+          <div class="rsec">
+            <label>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+              </svg>
+              Route Optimization
+            </label>
+            <textarea class="rta" placeholder="Suggest route improvements for next week…"></textarea>
+          </div>
+
+          <div class="rsec">
+            <label>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13"/>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+              </svg>
+              Vehicle Issues
+            </label>
+            <textarea class="rta" placeholder="Note any vehicle problems or maintenance needs…"></textarea>
+          </div>
+
+          <div class="rsec">
+            <label>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+              </svg>
+              Resident Disputes
+            </label>
+            <textarea class="rta" placeholder="Log resident complaints or conflicts…"></textarea>
+          </div>
+
+          <div class="rsec">
+            <label>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14H6L5 6"/>
+              </svg>
+              Collection Issues
+            </label>
+            <textarea class="rta" placeholder="Describe any overflow or missed collection issues…"></textarea>
+          </div>
+
+          <div class="rsec">
+            <label>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              General Notes
+            </label>
+            <textarea class="rta" placeholder="Any other observations or recommendations…"></textarea>
+          </div>
+
+          <button class="btn-save" id="saveBtn">Save Remarks</button>
+        </div>
+      </div>
+
+      <!-- Previous reports -->
+      <div class="card">
+        <div class="ch">
+          <div class="ct">Previous Reports</div>
+          <span class="b ok" style="font-size:.73rem;">12 sent</span>
+        </div>
+        <div class="cb">
+
+          <div class="si">
+            <div class="si-time"><div class="st" style="font-size:.78rem;">Mar 9</div><div class="sd">Sun</div></div>
+            <div class="si-info">
+              <div class="si-ttl">Week of Mar 2–8</div>
+              <div class="si-rt">28 payments · 94% rate · 0 issues</div>
+            </div>
+            <div class="si-right">
+              <span class="b ok">Sent</span>
+            </div>
+          </div>
+
+          <div class="si">
+            <div class="si-time"><div class="st" style="font-size:.78rem;">Mar 2</div><div class="sd">Sun</div></div>
+            <div class="si-info">
+              <div class="si-ttl">Week of Feb 24 – Mar 1</div>
+              <div class="si-rt">25 payments · 91% rate · 2 issues</div>
+            </div>
+            <div class="si-right">
+              <span class="b ok">Sent</span>
+            </div>
+          </div>
+
+          <div class="si">
+            <div class="si-time"><div class="st" style="font-size:.78rem;">Feb 23</div><div class="sd">Sun</div></div>
+            <div class="si-info">
+              <div class="si-ttl">Week of Feb 17–23</div>
+              <div class="si-rt">22 payments · 88% rate · 1 issue</div>
+            </div>
+            <div class="si-right">
+              <span class="b ok">Sent</span>
+            </div>
+          </div>
+
+          <div class="si">
+            <div class="si-time"><div class="st" style="font-size:.78rem;">Feb 16</div><div class="sd">Sun</div></div>
+            <div class="si-info">
+              <div class="si-ttl">Week of Feb 10–16</div>
+              <div class="si-rt">30 payments · 96% rate · 0 issues</div>
+            </div>
+            <div class="si-right">
+              <span class="b ok">Sent</span>
+            </div>
+          </div>
+
+          <div class="si">
+            <div class="si-time"><div class="st" style="font-size:.78rem;">Feb 9</div><div class="sd">Sun</div></div>
+            <div class="si-info">
+              <div class="si-ttl">Week of Feb 3–9</div>
+              <div class="si-rt">19 payments · 82% rate · 3 issues</div>
+            </div>
+            <div class="si-right">
+              <span class="b ok">Sent</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleSb()"></div>
+
+<nav class="mob-nav">
+  <a class="mn-item" href="zo_dash.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+      <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+    </svg>
+    <span>Dashboard</span>
+  </a>
+  <a class="mn-item" href="zo_schedules.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    <span>Schedules</span>
+  </a>
+  <a class="mn-item" href="zo_claims.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+    </svg>
+    <span>Claims</span>
+  </a>
+  <a class="mn-item" href="zo_payments.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="5" width="20" height="14" rx="2"/>
+      <line x1="2" y1="10" x2="22" y2="10"/>
+    </svg>
+    <span>Payments</span>
+  </a>
+</nav>
+
+<script>
+const saveBtn = document.getElementById('saveBtn');
+if (saveBtn) {
+  saveBtn.addEventListener('click', () => {
+    saveBtn.textContent = 'Saved ✓';
+    saveBtn.style.background = 'var(--g1)';
+    setTimeout(() => {
+      saveBtn.textContent = 'Save Remarks';
+      saveBtn.style.background = '';
+    }, 2000);
+  });
+}
+</script>
+<script src="../../static/js/zo_dash.js"></script>
+<script>
+function logout() {
+  if (confirm('Are you sure you want to logout?')) {
+    window.location.href = '/logout';
+  }
+}
+</script>
+</body>
+</html>
