@@ -4,9 +4,11 @@ from extensions import db, migrate, bcrypt, jwt
 from models.user import User
 from models.zone import Zone
 from models.vehicle import Vehicle
+from models.notification import Notification
 from routes.auth import auth_bp
 from routes.vehicle_routes import vehicle_bp
 from routes.zone_routes import zone_bp
+from routes.notification_routes import notification_bp
 from config import Config
 from routes.schedules import schedule_bp
 from flask import render_template
@@ -25,6 +27,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(vehicle_bp, url_prefix='/api/vehicles')
     app.register_blueprint(zone_bp, url_prefix='/api/zones')
+    app.register_blueprint(notification_bp, url_prefix='/api/notifications')
     app.register_blueprint(schedule_bp, url_prefix='/api/schedules')
 
     @app.route("/")
