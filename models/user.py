@@ -1,4 +1,3 @@
-from datetime import datetime
 from extensions import db
 
 
@@ -17,7 +16,7 @@ class User(db.Model):
     phone_number = db.Column(db.String(15), nullable=True)
     zone_id = db.Column(db.Integer, db.ForeignKey("zones.id"), nullable=True)
     loyalty_points = db.Column(db.Integer, default=0)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     # Relationships
     zone = db.relationship("Zone", foreign_keys=[zone_id], back_populates="users")
