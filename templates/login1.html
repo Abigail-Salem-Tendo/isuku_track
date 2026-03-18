@@ -14,21 +14,7 @@
 
     <!-- Left green panel — hidden on mobile, visible on desktop -->
     <aside class="auth-panel">
-      <div class="auth-panel__ring auth-panel__ring--1"></div>
-      <div class="auth-panel__ring auth-panel__ring--2"></div>
-      <div class="auth-panel__ring auth-panel__ring--3"></div>
-
-      <div class="auth-panel__dots">
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-        <div class="auth-panel__dot"></div><div class="auth-panel__dot"></div><div class="auth-panel__dot"></div>
-      </div>
-
+    
       <div class="auth-panel__brand">
         <div class="auth-panel__brand-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -47,7 +33,7 @@
 
     </aside>
 
-    <!-- Auth card — same card, content swaps via tabs -->
+    <!-- Auth card -->
     <div class="auth-card">
 
       <!-- Branding -->
@@ -64,7 +50,7 @@
         </div>
       </div>
 
-      <!-- Dynamic heading — updated by JS on tab switch -->
+      <!-- Dynamic heading -->
       <div class="page-heading">
         <h1 id="formTitle">Welcome back</h1>
         <p id="formSubtitle">Sign in to your account to continue</p>
@@ -143,14 +129,11 @@
             <span class="error-message" id="regEmailError">Please enter a valid email address</span>
           </div>
 
+          <!-- Zone dropdown — populated by backend -->
           <div class="form-group">
             <label for="zone">Select your Zone</label>
             <select id="zone" name="zone">
-              <option value="">— Select zone —</option>
-              <option value="A">Zone A — Gasabo · Kimironko · Kibagabaga · Kamatamu</option>
-              <option value="B">Zone B — Gasabo · Kimironko · Bibare · Rwezamenyo</option>
-              <option value="C">Zone C — Gasabo · Kacyiru · Kamatamu · Nyarutarama</option>
-              <option value="D">Zone D — Gasabo · Kimironko · Kibagabaga · Kagugu</option>
+              <option value="">— Loading zones... —</option>
             </select>
             <span class="error-message" id="zoneError">Please select a zone</span>
             <p class="field-note">Geographic info helps you pick the correct zone</p>
@@ -194,10 +177,8 @@
           Already have an account?
           <a href="#" data-switch="login">Log in</a>
         </p>
-      </div><!-- /#pane-register -->
-
+      </div>
     </div><!-- /.auth-card -->
-
   </main>
 
   <script src="/static/js/login1.js"></script>
