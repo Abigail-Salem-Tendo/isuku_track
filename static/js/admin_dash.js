@@ -343,6 +343,11 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
 
+        if (adminAction === 'settings') {
+          showToast('Settings will be available soon');
+          return;
+        }
+
         if (adminAction === 'logout') {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
