@@ -75,7 +75,7 @@ function handleAuthSuccess(data) {
   } else if (role === 'zone_operator') {
     window.location.href = '/zone-operator/dashboard';
   } else {
-    window.location.href = '/resident/dashboard';
+    window.location.href = '/static/pages/resident/resident_dash.html';
   }
 }
 
