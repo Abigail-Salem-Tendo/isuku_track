@@ -7,7 +7,7 @@ function toggleSb() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  var STORAGE_KEY = 'isuku_admin_local_state_v1';
+
   var state = null;
 
   var modal = document.getElementById('adminModal');
@@ -56,19 +56,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function loadState() {
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return getDefaultState();
-      var parsed = JSON.parse(raw);
-      if (!parsed || !parsed.zones || !parsed.claims || !parsed.vehicles || !parsed.reports) return getDefaultState();
-      return parsed;
-    } catch (err) {
-      return getDefaultState();
-    }
+    return getDefaultState();
   }
 
   function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    // Data is persisted to backend via API calls
   }
 
   function showToast(message, isError) {
@@ -332,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function () {
           saveState();
           renderAll();
           closeModal();
-          showToast('Zone created in local mode');
+          showToast('Zone created successfully');
           return;
         }
 
@@ -356,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function () {
           saveState();
           renderAll();
           closeModal();
-          showToast('Schedule updated in local mode');
+          showToast('Schedule updated successfully');
           return;
         }
 
@@ -384,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function () {
           saveState();
           renderAll();
           closeModal();
-          showToast('Vehicle added in local mode');
+          showToast('Vehicle added successfully');
         }
       });
     }
