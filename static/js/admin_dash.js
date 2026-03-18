@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var modalTitle = document.getElementById('modalTitle');
   var modalClose = document.getElementById('modalClose');
   var toast = document.getElementById('toast');
+  var adminMenuWrap = document.getElementById('adminMenuWrap');
+  var adminMenuToggle = document.getElementById('adminMenuToggle');
 
   function escapeHtml(value) {
     return String(value)
@@ -313,11 +315,44 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function bindActions() {
+    if (adminMenuToggle && adminMenuWrap) {
+      adminMenuToggle.addEventListener('click', function () {
+        var isOpen = adminMenuWrap.classList.toggle('open');
+        adminMenuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+    }
+
     document.body.addEventListener('click', function (event) {
+      if (adminMenuWrap && !adminMenuWrap.contains(event.target)) {
+        adminMenuWrap.classList.remove('open');
+        if (adminMenuToggle) adminMenuToggle.setAttribute('aria-expanded', 'false');
+      }
+
       var actionEl = event.target.closest('[data-action]');
       if (actionEl) {
         event.preventDefault();
         handleQuickAction(actionEl.getAttribute('data-action'));
+      }
+
+      var adminActionEl = event.target.closest('[data-admin-action]');
+      if (adminActionEl) {
+        var adminAction = adminActionEl.getAttribute('data-admin-action');
+
+        if (adminAction === 'profile') {
+          showToast('Administrator menu opened');
+          return;
+        }
+
+        if (adminAction === 'logout') {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('user');
+          localStorage.removeItem('userName');
+          localStorage.removeItem('userRole');
+          localStorage.removeItem('authToken');
+          window.location.href = '/login';
+          return;
+        }
       }
 
       var closeModalEl = event.target.closest('[data-close-modal]');
@@ -336,6 +371,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.body.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && adminMenuWrap) {
+        adminMenuWrap.classList.remove('open');
+        if (adminMenuToggle) adminMenuToggle.setAttribute('aria-expanded', 'false');
+      }
+
       if (event.key !== 'Enter' && event.key !== ' ') return;
       var quick = event.target.closest('.qa[data-action]');
       if (!quick) return;
