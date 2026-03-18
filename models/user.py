@@ -21,6 +21,13 @@ class User(db.Model):
 
     # Relationships
     zone = db.relationship("Zone", foreign_keys=[zone_id], back_populates="users")
+    # Linking user to their Notifications. 
+    notifications = db.relationship(
+        "Notification", 
+        backref="user", 
+        lazy=True, 
+        cascade="all, delete-orphan" 
+    )
 
     def __repr__(self):
         return f"<User {self.username}>"
