@@ -1,10 +1,6 @@
-// js file that handles token check, logout
-
-// Check token then redirect to login if the user is not logged in
-
-const token = localStorage.getItem('authToken');
-const role = localStorage.getItem('userRole');
+const token = localStorage.getItem('access_token');
+const user = JSON.parse(localStorage.getItem('user') || '{}');
 
 if (!token) {
-    window.location.href = '/templates/login1.html';
+    window.location.href = '/login';
 }
