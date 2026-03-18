@@ -4,15 +4,155 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zone Operator Dashboard — Isuku Track</title>
-
-
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-
-
   <link rel="stylesheet" href="../../static/css/zo_dash.css">
   <link rel="stylesheet" href="../../static/css/base1.css">
+  <!-- Chart.js for statistics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Leaflet.js for maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    /* Rejection Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: var(--white, #fff);
+      border-radius: 16px;
+      padding: 24px;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--txt, #1f2937);
+      margin-bottom: 16px;
+    }
+    .modal-label {
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--txt-m, #374151);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .modal-select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border, #e5e7eb);
+      border-radius: 9px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: .85rem;
+      color: var(--txt, #1f2937);
+      margin-bottom: 14px;
+      outline: none;
+      background: #fff;
+    }
+    .modal-select:focus { border-color: var(--g2, #48a870); }
+    .modal-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border, #e5e7eb);
+      border-radius: 9px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: .85rem;
+      color: var(--txt, #1f2937);
+      min-height: 80px;
+      resize: vertical;
+      outline: none;
+      margin-bottom: 18px;
+    }
+    .modal-textarea:focus { border-color: var(--g2, #48a870); }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .modal-btn {
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    .modal-btn.cancel {
+      background: #f3f4f6;
+      color: #374151;
+    }
+    .modal-btn.confirm {
+      background: #b83030;
+      color: #fff;
+    }
+    /* Map container */
+    .map-container {
+      height: 280px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border, #e5e7eb);
+    }
+    /* Chart container */
+    .chart-container {
+      position: relative;
+      height: 200px;
+    }
+    /* Logout button */
+    .sb-logout {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 9px 10px;
+      border-radius: 9px;
+      color: #ef4444;
+      font-size: .86rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .18s;
+      margin-top: 10px;
+      border: none;
+      background: transparent;
+      width: 100%;
+    }
+    .sb-logout:hover { background: rgba(239,68,68,.1); }
+  </style>
 </head>
 <body>
+
+<!-- Rejection Reason Modal -->
+<div class="modal-overlay" id="rejectModal">
+  <div class="modal">
+    <div class="modal-title">Rejection Reason</div>
+    <label class="modal-label">Select a reason</label>
+    <select class="modal-select" id="rejectReason">
+      <option value="">-- Select reason --</option>
+      <option value="invalid_proof">Invalid or unclear proof/receipt</option>
+      <option value="duplicate">Duplicate submission</option>
+      <option value="wrong_amount">Amount mismatch</option>
+      <option value="expired">Expired or outdated claim</option>
+      <option value="out_of_zone">Location outside assigned zone</option>
+      <option value="insufficient_info">Insufficient information provided</option>
+      <option value="already_resolved">Issue already resolved</option>
+      <option value="other">Other (specify below)</option>
+    </select>
+    <label class="modal-label">Additional details (optional)</label>
+    <textarea class="modal-textarea" id="rejectDetails" placeholder="Provide more context if needed..."></textarea>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeRejectModal()">Cancel</button>
+      <button class="modal-btn confirm" onclick="confirmReject()">Confirm Rejection</button>
+    </div>
+  </div>
+</div>
 
 <aside class="sb">
   <div class="sb-top">
@@ -95,6 +235,14 @@
         <div class="sb-ur">Zone A Operator</div>
       </div>
     </div>
+    <button class="sb-logout" onclick="logout()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Logout
+    </button>
   </div>
 </aside>
 
@@ -105,7 +253,7 @@
   <div class="topbar">
     <div class="tb-l">
       <h1>Zone A Dashboard</h1>
-      <p>Wednesday, 11 March 2026 · Kimironko, Kibagabaga</p>
+      <p>Wednesday, 18 March 2026 · Kimironko, Kibagabaga</p>
     </div>
     <div class="tb-r">
       <div class="icon-btn">
@@ -123,7 +271,6 @@
   </div>
 
   <div class="page">
-
 
     <div class="zb">
       <div>
@@ -168,6 +315,60 @@
       </div>
     </div>
 
+    <!-- Statistics Charts Row -->
+    <div class="row2">
+      <div class="card">
+        <div class="ch">
+          <div class="ct">Weekly Collections</div>
+          <span class="b ok" style="font-size:.73rem;">This Week</span>
+        </div>
+        <div class="cb">
+          <div class="chart-container">
+            <canvas id="weeklyChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch">
+          <div class="ct">Payment Status</div>
+        </div>
+        <div class="cb">
+          <div class="chart-container">
+            <canvas id="paymentChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone Map -->
+    <div class="card" style="margin-bottom:18px;">
+      <div class="ch">
+        <div class="ct">Zone Map — Routes & Residents</div>
+        <a class="ca" href="zo_schedules.html">View Routes →</a>
+      </div>
+      <div class="cb">
+        <div class="map-container" id="zoneMap"></div>
+        <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:10px;height:10px;border-radius:50%;background:#48a870;"></div>
+            Active Residents
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></div>
+            Overdue
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:10px;height:3px;background:#3b82f6;"></div>
+            Route A
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:10px;height:3px;background:#f59e0b;"></div>
+            Route B
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Schedules and Claims -->
     <div class="two-col">
 
@@ -201,7 +402,7 @@
           </div>
 
           <div class="si">
-            <div class="si-time"><div class="st">09:00</div><div class="sd">Thu 12</div></div>
+            <div class="si-time"><div class="st">09:00</div><div class="sd">Thu 19</div></div>
             <div class="si-info">
               <div class="si-ttl">Route A — Kibagabaga South</div>
               <div class="si-rt">KG 7 Ave → KG 9 Ave → KN 3 Rd</div>
@@ -221,7 +422,7 @@
           </div>
 
           <div class="si">
-            <div class="si-time"><div class="st">08:30</div><div class="sd">Mon 9</div></div>
+            <div class="si-time"><div class="st">08:30</div><div class="sd">Mon 16</div></div>
             <div class="si-info">
               <div class="si-ttl">Route A — Full sweep</div>
               <div class="si-rt">All streets, Kibagabaga Cell</div>
@@ -265,7 +466,7 @@
             </div>
             <div class="ci-acts">
               <button class="btn-ok">Approve</button>
-              <button class="btn-no">Reject</button>
+              <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
             </div>
           </div>
 
@@ -282,7 +483,7 @@
             </div>
             <div class="ci-acts">
               <button class="btn-ok">Approve</button>
-              <button class="btn-no">Reject</button>
+              <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
             </div>
           </div>
 
@@ -317,7 +518,7 @@
             </div>
             <div class="ci-acts">
               <button class="btn-ok">Approve</button>
-              <button class="btn-no">Reject</button>
+              <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
             </div>
           </div>
 
@@ -345,7 +546,7 @@
             <div class="pi-amt">1,000 RWF</div>
             <div class="pay-actions" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
               <button class="btn-ok btn-approve-pay" style="font-size:.7rem;padding:5px 12px;">Verify &amp; Approve</button>
-              <button class="btn-no btn-reject-pay"  style="font-size:.7rem;padding:5px 12px;">Reject</button>
+              <button class="btn-no btn-reject-pay" style="font-size:.7rem;padding:5px 12px;" onclick="openRejectModal(this)">Reject</button>
             </div>
           </div>
 
@@ -358,7 +559,7 @@
             <div class="pi-amt">2,000 RWF</div>
             <div class="pay-actions" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
               <button class="btn-ok btn-approve-pay" style="font-size:.7rem;padding:5px 12px;">Verify &amp; Approve</button>
-              <button class="btn-no btn-reject-pay"  style="font-size:.7rem;padding:5px 12px;">Reject</button>
+              <button class="btn-no btn-reject-pay" style="font-size:.7rem;padding:5px 12px;" onclick="openRejectModal(this)">Reject</button>
             </div>
           </div>
 
@@ -379,7 +580,7 @@
       <div class="card">
         <div class="ch">
           <div class="ct">Weekly Report Remarks</div>
-          <a class="ca">Auto-sends Sun 20:00</a>
+          <a class="ca" href="zo_report.html">Full Report →</a>
         </div>
         <div class="cb">
           <div class="deadline">
@@ -387,7 +588,7 @@
               <circle cx="12" cy="12" r="10"/>
               <polyline points="12 6 12 12 16 14"/>
             </svg>
-            Report auto-sends in <strong style="color:var(--g1);margin:0 3px;">4 days</strong> · Add remarks before then
+            Report auto-sends in <strong style="color:var(--g1);margin:0 3px;">3 days</strong> · Add remarks before then
           </div>
 
           <div class="rsec">
@@ -469,6 +670,178 @@
 
 <!-- JavaScript -->
 <script src="../../static/js/zo_dash.js"></script>
+<script>
+// ============================================
+// Logout Function
+// ============================================
+function logout() {
+  if (confirm('Are you sure you want to logout?')) {
+    window.location.href = '/logout';
+  }
+}
+
+// ============================================
+// Rejection Modal
+// ============================================
+let currentRejectTarget = null;
+
+function openRejectModal(btn) {
+  currentRejectTarget = btn;
+  document.getElementById('rejectModal').classList.add('show');
+  document.getElementById('rejectReason').value = '';
+  document.getElementById('rejectDetails').value = '';
+}
+
+function closeRejectModal() {
+  document.getElementById('rejectModal').classList.remove('show');
+  currentRejectTarget = null;
+}
+
+function confirmReject() {
+  const reason = document.getElementById('rejectReason').value;
+  const details = document.getElementById('rejectDetails').value;
+
+  if (!reason) {
+    alert('Please select a rejection reason.');
+    return;
+  }
+
+  // Find parent element (ci or pi) and update UI
+  const ci = currentRejectTarget.closest('.ci');
+  const pi = currentRejectTarget.closest('.pi');
+
+  if (ci) {
+    const acts = ci.querySelector('.ci-acts');
+    acts.innerHTML = '<span class="b op">Rejected</span>';
+  } else if (pi) {
+    const payActions = currentRejectTarget.closest('.pay-actions');
+    if (payActions) {
+      payActions.innerHTML = '<span class="b op">Rejected</span>';
+    }
+  }
+
+  closeRejectModal();
+}
+
+// ============================================
+// Initialize Charts
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+  // Weekly Collections Bar Chart
+  const weeklyCtx = document.getElementById('weeklyChart');
+  if (weeklyCtx) {
+    new Chart(weeklyCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Collections',
+          data: [5, 7, 4, 6, 3, 2, 1],
+          backgroundColor: 'rgba(72, 168, 112, 0.8)',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { stepSize: 2 } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Payment Status Doughnut Chart
+  const paymentCtx = document.getElementById('paymentChart');
+  if (paymentCtx) {
+    new Chart(paymentCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Paid', 'Pending', 'Overdue'],
+        datasets: [{
+          data: [132, 10, 6],
+          backgroundColor: ['#48a870', '#f59e0b', '#ef4444'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  // Initialize Zone Map
+  initZoneMap();
+});
+
+// ============================================
+// Initialize Map
+// ============================================
+function initZoneMap() {
+  const mapEl = document.getElementById('zoneMap');
+  if (!mapEl) return;
+
+  // Kibagabaga, Kigali coordinates
+  const center = [-1.9403, 30.1125];
+  const map = L.map('zoneMap').setView(center, 15);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  // Route A (blue line)
+  const routeA = [
+    [-1.9380, 30.1100],
+    [-1.9390, 30.1120],
+    [-1.9405, 30.1130],
+    [-1.9420, 30.1125],
+    [-1.9430, 30.1140]
+  ];
+  L.polyline(routeA, { color: '#3b82f6', weight: 4, opacity: 0.8 })
+    .addTo(map)
+    .bindPopup('<b>Route A</b><br>Kibagabaga North<br>KG 11 Ave → KG 15 Ave');
+
+  // Route B (orange line)
+  const routeB = [
+    [-1.9410, 30.1090],
+    [-1.9420, 30.1105],
+    [-1.9435, 30.1115],
+    [-1.9445, 30.1100]
+  ];
+  L.polyline(routeB, { color: '#f59e0b', weight: 4, opacity: 0.8 })
+    .addTo(map)
+    .bindPopup('<b>Route B</b><br>Market Area');
+
+  // Sample resident markers
+  const residents = [
+    { pos: [-1.9385, 30.1110], name: 'Alice Mutoni', status: 'active', address: 'KG 11 Ave' },
+    { pos: [-1.9395, 30.1125], name: 'Bob Ntwari', status: 'active', address: 'KG 9 Ave' },
+    { pos: [-1.9408, 30.1118], name: 'Grace Keza', status: 'active', address: 'KN 5 Rd' },
+    { pos: [-1.9418, 30.1132], name: 'David Uwimana', status: 'overdue', address: 'Street 4' },
+    { pos: [-1.9425, 30.1108], name: 'Marie Jeannette', status: 'active', address: 'KG 15 Ave' },
+    { pos: [-1.9438, 30.1122], name: 'Claire N.', status: 'overdue', address: 'Market Rd' },
+    { pos: [-1.9400, 30.1140], name: 'Paul Rugamba', status: 'active', address: 'KN 3 Rd' },
+    { pos: [-1.9412, 30.1095], name: 'Sara Odette', status: 'active', address: 'KG 7 Ave' }
+  ];
+
+  residents.forEach(r => {
+    const color = r.status === 'active' ? '#48a870' : '#ef4444';
+    L.circleMarker(r.pos, {
+      radius: 7,
+      fillColor: color,
+      color: '#fff',
+      weight: 2,
+      fillOpacity: 0.9
+    }).addTo(map).bindPopup(`<b>${r.name}</b><br>${r.address}<br>Status: ${r.status}`);
+  });
+}
+</script>
 
 </body>
 </html>
