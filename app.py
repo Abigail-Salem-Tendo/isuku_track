@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_cors import CORS
 from extensions import db, migrate, bcrypt, jwt
@@ -12,8 +13,14 @@ from routes.notification_routes import notification_bp
 from config import Config
 from routes.schedules import schedule_bp
 from flask import render_template
+from dotenv import load_dotenv
 
 def create_app():
+
+    
+    load_dotenv()
+
+
     app = Flask(__name__)
     CORS(app) # allowing frontend requests
     app.config.from_object(Config)
@@ -22,7 +29,10 @@ def create_app():
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    
+
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+        
     # Register blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(vehicle_bp, url_prefix='/api/vehicles')
