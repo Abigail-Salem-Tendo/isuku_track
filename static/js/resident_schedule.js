@@ -2,12 +2,52 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
+  // ── Sidebar toggle (mobile) ──
+  const menuBtn = document.getElementById('menuBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  function closeSidebar() {
+    if (sidebar) {
+      sidebar.classList.remove('open');
+    }
+    if (overlay) {
+      overlay.classList.remove('open');
+    }
+  }
+
+  if (menuBtn && sidebar && overlay) {
+    menuBtn.addEventListener('click', function () {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('open');
+    });
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', closeSidebar);
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function () {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userRole');
+      window.location.href = '/static/pages/login.html';
+    });
+  }
+
   // Set user info from localStorage
-  const name = localStorage.getItem('userName');
-  if (name) {
-    document.getElementById('userName').textContent = name;
+  const name = localStorage.getItem('userName') || 'Resident';
+  const sidebarName = document.getElementById('sidebarName');
+  const sidebarAvatar = document.getElementById('sidebarAvatar');
+
+  if (sidebarName) {
+    sidebarName.textContent = name;
+  }
+
+  if (sidebarAvatar) {
     const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
-    document.getElementById('userAvatar').textContent = initials;
+    sidebarAvatar.textContent = initials;
   }
 
   // ── Filter tabs ──
