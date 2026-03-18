@@ -2,14 +2,19 @@
 from flask import Blueprint, request, jsonify
 from extensions import db
 from models.vehicle import Vehicle
+#implementing auth
+from utils.auth_helpers import role_required
 
 # Initialize the blueprint
 vehicle_bp = Blueprint('vehicles', __name__)
+
+#Auth Logic : Admins get full control (Create, Read, Update, Delete).Zone Operators get operational control (Read, Update status to 'maintenance', etc.), but cannot delete trucks from the system.
 
 
 
 # --- CREATE: Add a new vehicle ---
 @vehicle_bp.route('/', methods=['POST'])
+@role_required('admin')
 def create_vehicle():
     data = request.get_json()
     
@@ -37,6 +42,7 @@ def create_vehicle():
 
     # --- READ: Get all vehicles ---
 @vehicle_bp.route('/', methods=['GET'])
+@role_required('admin', 'zone_operator')
 def get_vehicles():
     #  allow filtering by status via query param (e.g., ?status=available)
     status_filter = request.args.get('status')
@@ -56,6 +62,7 @@ def get_vehicles():
 
 # --- READ: Get a single vehicle by ID ---
 @vehicle_bp.route('/<int:id>', methods=['GET'])
+@role_required('admin', 'zone_operator')
 def get_vehicle(id):
     vehicle = Vehicle.query.get_or_404(id)
     return jsonify({
@@ -69,6 +76,7 @@ def get_vehicle(id):
 
 # --- UPDATE: Modify a vehicle ---
 @vehicle_bp.route('/<int:id>', methods=['PUT'])
+@role_required('admin', 'zone_operator')
 def update_vehicle(id):
     vehicle = Vehicle.query.get_or_404(id)
     data = request.get_json()
@@ -86,6 +94,7 @@ def update_vehicle(id):
 
     # --- DELETE: Remove a vehicle ---
 @vehicle_bp.route('/<int:id>', methods=['DELETE'])
+@role_required('admin')
 def delete_vehicle(id):
     vehicle = Vehicle.query.get_or_404(id)
     db.session.delete(vehicle)
