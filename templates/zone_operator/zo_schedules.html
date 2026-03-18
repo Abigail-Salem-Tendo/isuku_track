@@ -7,6 +7,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../static/css/zo_dash.css">
   <link rel="stylesheet" href="../../static/css/base1.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    .map-container{height:300px;border-radius:12px;overflow:hidden;border:1px solid var(--border,#e5e7eb)}
+    .sb-logout{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:9px;color:#ef4444;font-size:.86rem;font-weight:500;cursor:pointer;text-decoration:none;transition:all .18s;margin-top:10px;border:none;background:transparent;width:100%}
+    .sb-logout:hover{background:rgba(239,68,68,.1)}
+  </style>
 </head>
 <body>
 
@@ -85,6 +92,14 @@
         <div class="sb-ur">Zone A Operator</div>
       </div>
     </div>
+    <button class="sb-logout" onclick="logout()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Logout
+    </button>
   </div>
 </aside>
 
@@ -131,6 +146,35 @@
         <div class="sc-lbl">Completion Rate</div>
         <div class="sc-val" style="font-size:1.3rem">100%</div>
         <div class="sc-sub"><span class="up">↑2%</span> vs last month</div>
+      </div>
+    </div>
+
+    <!-- Route Map -->
+    <div class="card" style="margin-bottom:18px;">
+      <div class="ch">
+        <div class="ct">Collection Routes Map</div>
+        <span class="b ok" style="font-size:.73rem;">Live</span>
+      </div>
+      <div class="cb">
+        <div class="map-container" id="routeMap"></div>
+        <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:12px;height:3px;background:#3b82f6;"></div>
+            Route A (Today)
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:12px;height:3px;background:#f59e0b;"></div>
+            Route B
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:10px;height:10px;border-radius:50%;background:#48a870;"></div>
+            Start Point
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></div>
+            End Point
+          </div>
+        </div>
       </div>
     </div>
 
@@ -298,5 +342,57 @@
 </nav>
 
 <script src="../../static/js/zo_dash.js"></script>
+<script>
+function logout() {
+  if (confirm('Are you sure you want to logout?')) {
+    window.location.href = '/logout';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const mapEl = document.getElementById('routeMap');
+  if (!mapEl) return;
+
+  const center = [-1.9403, 30.1125];
+  const map = L.map('routeMap').setView(center, 15);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  // Route A (blue - today's route)
+  const routeA = [
+    [-1.9380, 30.1100],
+    [-1.9390, 30.1120],
+    [-1.9405, 30.1130],
+    [-1.9420, 30.1125],
+    [-1.9430, 30.1140]
+  ];
+  L.polyline(routeA, { color: '#3b82f6', weight: 5, opacity: 0.9 })
+    .addTo(map)
+    .bindPopup('<b>Route A</b><br>Today 14:00<br>Kibagabaga North');
+
+  // Route B (orange)
+  const routeB = [
+    [-1.9410, 30.1090],
+    [-1.9420, 30.1105],
+    [-1.9435, 30.1115],
+    [-1.9445, 30.1100]
+  ];
+  L.polyline(routeB, { color: '#f59e0b', weight: 4, opacity: 0.8 })
+    .addTo(map)
+    .bindPopup('<b>Route B</b><br>Sat 21 07:30<br>Market Area');
+
+  // Start point marker
+  L.circleMarker(routeA[0], {
+    radius: 10, fillColor: '#48a870', color: '#fff', weight: 3, fillOpacity: 1
+  }).addTo(map).bindPopup('<b>Start Point</b><br>Route A');
+
+  // End point marker
+  L.circleMarker(routeA[routeA.length - 1], {
+    radius: 10, fillColor: '#ef4444', color: '#fff', weight: 3, fillOpacity: 1
+  }).addTo(map).bindPopup('<b>End Point</b><br>Route A');
+});
+</script>
 </body>
 </html>
