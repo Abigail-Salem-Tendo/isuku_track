@@ -10,6 +10,7 @@ from routes.vehicle_routes import vehicle_bp
 from routes.zone_routes import zone_bp
 from config import Config
 from routes.schedules import schedule_bp
+from routes.claims import claims_bp
 from flask import render_template
 
 def create_app():
@@ -27,6 +28,7 @@ def create_app():
     app.register_blueprint(vehicle_bp, url_prefix='/api/vehicles')
     app.register_blueprint(zone_bp, url_prefix='/api/zones')
     app.register_blueprint(schedule_bp, url_prefix='/api/schedules')
+    app.register_blueprint(claims_bp, url_prefix='/api/claims')
 
     @app.route("/")
     @app.route("/login")
