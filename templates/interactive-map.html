@@ -6,12 +6,51 @@
     <title>Isuku Track - Zone Coverage</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
+  
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     
 
     <style>
         body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+        /* Floating Navbar */
+        .map-navbar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .map-navbar a {
+            text-decoration: none;
+            color: #2e7d52;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .map-navbar a:hover { color: #1b4d32; }
+        
+        /* Modernize the Search Bar */
+        .leaflet-control-geocoder {
+            border-radius: 8px !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
+            border: none !important;
+        }
+        .leaflet-control-geocoder-form input {
+            padding: 12px 15px !important;
+            font-size: 15px !important;
+            width: 280px !important;
+            font-family: 'Segoe UI', sans-serif;
+        }
         #map { height: 100vh; width: 100vw; }
         
         /* popup card styling */
@@ -36,7 +75,7 @@
     <div id="map"></div>
 
     
-    
+
     <div id="adminModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;">
         <div style="background: white; padding: 25px; border-radius: 12px; width: 400px; max-width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
