@@ -8,79 +8,33 @@
 </head>
 <body>
 <aside class="sb">
-  <div class="sb-top">
-    <div class="sb-logo"></div>
-    <div>
-      <div class="sb-name">Isuku Track</div>
-      <div class="sb-role">Admin Panel</div>
-    </div>
-  </div>
-
-  <div class="sb-sec">
-    <div class="sb-lbl">Overview</div>
-    <a class="sb-a" href="/admin/dashboard">Dashboard</a>
-    <a class="sb-a on" href="/admin/zones">Zones</a>
-    <a class="sb-a" href="/admin/users">Users</a>
-  </div>
-
-  <div class="sb-sec">
-    <div class="sb-lbl">Operations</div>
-    <a class="sb-a" href="/admin/vehicles">Vehicles</a>
-    <a class="sb-a" href="/admin/claims">Claims</a>
-    <a class="sb-a" href="/admin/payments">Payments</a>
-  </div>
-
-  <div class="sb-foot">
-    <div class="sb-profile" tabindex="0">
-      <div class="sb-user" aria-label="Open administrator menu">
-        <span class="sb-admin-badge" aria-hidden="true">A</span>
-        <button type="button" class="sb-menu-toggle" id="sbMenuToggle" aria-label="Open administrator options" aria-expanded="false" aria-controls="sbProfileMenu">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-      <div class="sb-menu" id="sbProfileMenu" role="menu" aria-label="Administrator actions">
-        <a class="sb-menu-item" href="/admin/dashboard" role="menuitem">Administrator Access</a>
-        <a class="sb-menu-item" href="/admin/dashboard#section-settings" role="menuitem">Settings</a>
-        <a class="sb-menu-item danger" href="/login" role="menuitem">Logout</a>
-      </div>
-    </div>
-  </div>
+  <div class="sb-top"><div class="sb-logo"></div><div><div class="sb-name">Isuku Track</div><div class="sb-role">Admin Panel</div></div></div>
+  <div class="sb-sec"><div class="sb-lbl">Overview</div><a class="sb-a" href="/admin/dashboard">Dashboard</a><a class="sb-a on" href="/admin/zones">Zones</a><a class="sb-a" href="/admin/users">Users</a></div>
+  <div class="sb-sec"><div class="sb-lbl">Operations</div><a class="sb-a" href="/admin/vehicles">Vehicles</a><a class="sb-a" href="/admin/claims">Claims</a><a class="sb-a" href="/admin/payments">Payments</a></div>
+  <div class="sb-foot"><div class="sb-profile" tabindex="0"><div class="sb-user"><span class="sb-admin-badge">A</span><button type="button" class="sb-menu-toggle" id="sbMenuToggle" aria-expanded="false" aria-controls="sbProfileMenu"><span></span><span></span><span></span></button></div><div class="sb-menu" id="sbProfileMenu"><a class="sb-menu-item" href="/admin/dashboard">Administrator Access</a><a class="sb-menu-item" href="/admin/dashboard#section-settings">Settings</a><a class="sb-menu-item danger" href="/login">Logout</a></div></div></div>
 </aside>
 
 <div class="main">
   <div class="topbar">
-    <div class="tb-l">
-      <h1>Zones</h1>
-      <p>Manage all collection zones</p>
-    </div>
-    <div class="tb-r">
-      <div class="ham" onclick="toggleSb()" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </div>
-    </div>
+    <div class="tb-l"><h1>Zones</h1><p>Live data from /api/zones/</p></div>
+    <div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div>
   </div>
 
   <div class="page">
     <div class="card">
-      <div class="ch">
-        <div class="ct">All Zones</div>
-        <a class="ca" href="/admin/dashboard">Back to dashboard</a>
-      </div>
+      <div class="ch"><div class="ct">All Zones</div><a class="ca" href="/admin/dashboard">Back to dashboard</a></div>
       <div class="cb cb--pt" style="overflow-x:auto;">
-        <table class="zt" style="min-width:640px;">
+        <table class="zt" style="min-width:760px;">
           <thead>
             <tr>
               <th>Zone</th>
               <th>District</th>
+              <th>Sector</th>
+              <th>Cell</th>
               <th>Operator</th>
-              <th>Status</th>
             </tr>
           </thead>
-          <tbody>
-            <tr><td><div class="zn">Zone A</div><div class="zg">Kimironko</div></td><td>Gasabo</td><td>Jean P.</td><td><span class="b ok">Active</span></td></tr>
-            <tr><td><div class="zn">Zone B</div><div class="zg">Bibare</div></td><td>Gasabo</td><td>Amina K.</td><td><span class="b go">Running</span></td></tr>
-            <tr><td><div class="zn">Zone C</div><div class="zg">Nyarutarama</div></td><td>Kacyiru</td><td>Eric M.</td><td><span class="b pe">Pending</span></td></tr>
-          </tbody>
+          <tbody id="zonesTableBody"></tbody>
         </table>
       </div>
     </div>
@@ -90,27 +44,32 @@
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
 
 <script>
-function toggleSb() {
-  var sb = document.querySelector('.sb');
-  var overlay = document.getElementById('overlay');
-  if (sb) sb.classList.toggle('open');
-  if (overlay) overlay.classList.toggle('open');
-}
-(function () {
-  var profile = document.querySelector('.sb-profile');
-  var toggle = document.getElementById('sbMenuToggle');
-  if (!profile || !toggle) return;
-  toggle.addEventListener('click', function (e) {
-    e.preventDefault();
-    profile.classList.toggle('open');
-    toggle.setAttribute('aria-expanded', profile.classList.contains('open') ? 'true' : 'false');
-  });
-  document.addEventListener('click', function (e) {
-    if (!profile.contains(e.target)) {
-      profile.classList.remove('open');
-      toggle.setAttribute('aria-expanded', 'false');
-    }
-  });
+function toggleSb(){var sb=document.querySelector('.sb');var ov=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(ov)ov.classList.toggle('open');}
+
+(function(){
+  var profile=document.querySelector('.sb-profile');
+  var toggle=document.getElementById('sbMenuToggle');
+  if(profile&&toggle){
+    toggle.addEventListener('click',function(e){e.preventDefault();profile.classList.toggle('open');toggle.setAttribute('aria-expanded',profile.classList.contains('open')?'true':'false');});
+    document.addEventListener('click',function(e){if(!profile.contains(e.target)){profile.classList.remove('open');toggle.setAttribute('aria-expanded','false');}});
+  }
+
+  var tbody=document.getElementById('zonesTableBody');
+  fetch('/api/zones/')
+    .then(function(res){if(!res.ok) throw new Error('Failed to load zones'); return res.json();})
+    .then(function(zones){
+      if(!zones.length){tbody.innerHTML='<tr><td colspan="5">No zones found.</td></tr>';return;}
+      tbody.innerHTML=zones.map(function(z){
+        return '<tr>'+
+          '<td><div class="zn">'+(z.name||'-')+'</div><div class="zg">'+(z.village||'-')+'</div></td>'+
+          '<td>'+(z.district||'-')+'</td>'+
+          '<td>'+(z.sector||'-')+'</td>'+
+          '<td>'+(z.cell||'-')+'</td>'+
+          '<td>'+(z.zone_operator_name||'Unassigned')+'</td>'+
+        '</tr>';
+      }).join('');
+    })
+    .catch(function(err){tbody.innerHTML='<tr><td colspan="5">'+err.message+'</td></tr>';});
 })();
 </script>
 </body>

@@ -1,7 +1,38 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Claims - Isuku Track</title><link rel="stylesheet" href="/static/css/admin_dash.css" /></head><body>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Claims - Isuku Track</title>
+	<link rel="stylesheet" href="/static/css/admin_dash.css" />
+</head>
+<body>
 <aside class="sb"><div class="sb-top"><div class="sb-logo"></div><div><div class="sb-name">Isuku Track</div><div class="sb-role">Admin Panel</div></div></div><div class="sb-sec"><div class="sb-lbl">Overview</div><a class="sb-a" href="/admin/dashboard">Dashboard</a><a class="sb-a" href="/admin/zones">Zones</a><a class="sb-a" href="/admin/users">Users</a></div><div class="sb-sec"><div class="sb-lbl">Operations</div><a class="sb-a" href="/admin/vehicles">Vehicles</a><a class="sb-a on" href="/admin/claims">Claims</a><a class="sb-a" href="/admin/payments">Payments</a></div><div class="sb-foot"><div class="sb-profile" tabindex="0"><div class="sb-user"><span class="sb-admin-badge">A</span><button type="button" class="sb-menu-toggle" id="sbMenuToggle" aria-expanded="false" aria-controls="sbProfileMenu"><span></span><span></span><span></span></button></div><div class="sb-menu" id="sbProfileMenu"><a class="sb-menu-item" href="/admin/dashboard">Administrator Access</a><a class="sb-menu-item" href="/admin/dashboard#section-settings">Settings</a><a class="sb-menu-item danger" href="/login">Logout</a></div></div></div></aside>
-<div class="main"><div class="topbar"><div class="tb-l"><h1>Claims</h1><p>Track incoming reports</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></div><div class="page"><div class="card"><div class="ch"><div class="ct">Recent Claims</div></div><div class="cb cb--pt" id="claimsList"><div class="ci"><div class="ci-ico">12</div><div><div class="ci-ttl">Overflow at KG 11 Ave</div><div class="ci-meta">Zone A - 2h ago</div></div><span class="b op ci-badge">Open</span></div><div class="ci"><div class="ci-ico">18</div><div><div class="ci-ttl">Illegal dumping - KN 5</div><div class="ci-meta">Zone B - 4h ago</div></div><span class="b go ci-badge">In Progress</span></div><div class="ci"><div class="ci-ico">21</div><div><div class="ci-ttl">Missed collection</div><div class="ci-meta">Zone B - Yesterday</div></div><span class="b ok ci-badge">Resolved</span></div></div></div></div></div>
+<div class="main"><div class="topbar"><div class="tb-l"><h1>Claims</h1><p>Data mapped from /api/schedules/ status</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></div><div class="page"><div class="card"><div class="ch"><div class="ct">Recent Claims</div></div><div class="cb cb--pt" id="claimsList"></div></div></div></div>
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
-<script>function toggleSb(){var sb=document.querySelector('.sb');var ov=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(ov)ov.classList.toggle('open');}(function(){var p=document.querySelector('.sb-profile');var t=document.getElementById('sbMenuToggle');if(!p||!t)return;t.addEventListener('click',function(e){e.preventDefault();p.classList.toggle('open');t.setAttribute('aria-expanded',p.classList.contains('open')?'true':'false');});document.addEventListener('click',function(e){if(!p.contains(e.target)){p.classList.remove('open');t.setAttribute('aria-expanded','false');}});})();</script>
-</body></html>
+<script>
+function toggleSb(){var sb=document.querySelector('.sb');var ov=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(ov)ov.classList.toggle('open');}
+(function(){
+	var p=document.querySelector('.sb-profile');var t=document.getElementById('sbMenuToggle');
+	if(p&&t){t.addEventListener('click',function(e){e.preventDefault();p.classList.toggle('open');t.setAttribute('aria-expanded',p.classList.contains('open')?'true':'false');});document.addEventListener('click',function(e){if(!p.contains(e.target)){p.classList.remove('open');t.setAttribute('aria-expanded','false');}});}
+	var list=document.getElementById('claimsList');
+	fetch('/api/schedules/')
+		.then(function(res){if(!res.ok) throw new Error('Failed to load claims data'); return res.json();})
+		.then(function(items){
+			if(!items.length){list.innerHTML='<p class="ci-meta">No claims available.</p>';return;}
+			list.innerHTML=items.slice(0,12).map(function(it){
+				var st=it.status||'not_started';
+				var label=st==='completed'?'Resolved':(st==='ongoing'?'In Progress':'Open');
+				var cls=st==='completed'?'ok':(st==='ongoing'?'go':'op');
+				return '<div class="ci">'+
+					'<div class="ci-ico">'+String(it.id).padStart(2,'0')+'</div>'+
+					'<div><div class="ci-ttl">Schedule #'+it.id+' issue report</div><div class="ci-meta">Zone '+it.zone_id+' - '+new Date(it.date_time_start).toLocaleDateString()+'</div></div>'+
+					'<span class="b '+cls+' ci-badge">'+label+'</span>'+
+				'</div>';
+			}).join('');
+		})
+		.catch(function(err){list.innerHTML='<p class="ci-meta">'+err.message+'</p>';});
+})();
+</script>
+</body>
+</html>

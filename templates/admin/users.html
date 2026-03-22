@@ -13,14 +13,56 @@
   <div class="sb-sec"><div class="sb-lbl">Operations</div><a class="sb-a" href="/admin/vehicles">Vehicles</a><a class="sb-a" href="/admin/claims">Claims</a><a class="sb-a" href="/admin/payments">Payments</a></div>
   <div class="sb-foot"><div class="sb-profile" tabindex="0"><div class="sb-user"><span class="sb-admin-badge">A</span><button type="button" class="sb-menu-toggle" id="sbMenuToggle" aria-expanded="false" aria-controls="sbProfileMenu"><span></span><span></span><span></span></button></div><div class="sb-menu" id="sbProfileMenu"><a class="sb-menu-item" href="/admin/dashboard">Administrator Access</a><a class="sb-menu-item" href="/admin/dashboard#section-settings">Settings</a><a class="sb-menu-item danger" href="/login">Logout</a></div></div></div>
 </aside>
+
 <div class="main">
-  <div class="topbar"><div class="tb-l"><h1>Users</h1><p>Residents and operators</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></div>
-  <div class="page"><div class="card"><div class="ch"><div class="ct">User Accounts</div></div><div class="cb cb--pt" style="overflow-x:auto;"><table class="zt" style="min-width:620px;"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Zone</th></tr></thead><tbody><tr><td>Claudine U.</td><td>claudine@example.com</td><td><span class="b ok">Resident</span></td><td>Zone B</td></tr><tr><td>Jean P.</td><td>jean@example.com</td><td><span class="b go">Operator</span></td><td>Zone A</td></tr><tr><td>Admin</td><td>admin@example.com</td><td><span class="b pe">Admin</span></td><td>-</td></tr></tbody></table></div></div></div>
+  <div class="topbar"><div class="tb-l"><h1>Users</h1><p>Live data from /api/auth/users</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></div>
+  <div class="page">
+    <div class="card">
+      <div class="ch"><div class="ct">User Accounts</div></div>
+      <div class="cb cb--pt" style="overflow-x:auto;">
+        <table class="zt" style="min-width:700px;">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Phone</th><th>Zone</th></tr></thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
+
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
 <script>
 function toggleSb(){var sb=document.querySelector('.sb');var ov=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(ov)ov.classList.toggle('open');}
-(function(){var p=document.querySelector('.sb-profile');var t=document.getElementById('sbMenuToggle');if(!p||!t)return;t.addEventListener('click',function(e){e.preventDefault();p.classList.toggle('open');t.setAttribute('aria-expanded',p.classList.contains('open')?'true':'false');});document.addEventListener('click',function(e){if(!p.contains(e.target)){p.classList.remove('open');t.setAttribute('aria-expanded','false');}});})();
+
+(function(){
+  var p=document.querySelector('.sb-profile');
+  var t=document.getElementById('sbMenuToggle');
+  if(p&&t){
+    t.addEventListener('click',function(e){e.preventDefault();p.classList.toggle('open');t.setAttribute('aria-expanded',p.classList.contains('open')?'true':'false');});
+    document.addEventListener('click',function(e){if(!p.contains(e.target)){p.classList.remove('open');t.setAttribute('aria-expanded','false');}});
+  }
+
+  var tbody=document.getElementById('usersTableBody');
+  var token=localStorage.getItem('accessToken')||'';
+  var headers=token?{Authorization:'Bearer '+token}:{ };
+
+  fetch('/api/auth/users',{headers:headers})
+    .then(function(res){if(!res.ok) throw new Error('Login as admin to load users'); return res.json();})
+    .then(function(payload){
+      var users=payload.users||[];
+      if(!users.length){tbody.innerHTML='<tr><td colspan="5">No users found.</td></tr>';return;}
+      tbody.innerHTML=users.map(function(u){
+        var roleClass=u.role==='admin'?'pe':(u.role==='zone_operator'?'go':'ok');
+        return '<tr>'+
+          '<td>'+(u.username||'-')+'</td>'+
+          '<td>'+(u.email||'-')+'</td>'+
+          '<td><span class="b '+roleClass+'">'+(u.role||'-')+'</span></td>'+
+          '<td>'+(u.phone_number||'-')+'</td>'+
+          '<td>'+((u.zone_id===null||u.zone_id===undefined)?'-':u.zone_id)+'</td>'+
+        '</tr>';
+      }).join('');
+    })
+    .catch(function(err){tbody.innerHTML='<tr><td colspan="5">'+err.message+'</td></tr>';});
+})();
 </script>
 </body>
 </html>

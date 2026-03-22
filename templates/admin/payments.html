@@ -1,7 +1,49 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Payments - Isuku Track</title><link rel="stylesheet" href="/static/css/admin_dash.css" /></head><body>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Payments - Isuku Track</title>
+	<link rel="stylesheet" href="/static/css/admin_dash.css" />
+</head>
+<body>
 <aside class="sb"><div class="sb-top"><div class="sb-logo"></div><div><div class="sb-name">Isuku Track</div><div class="sb-role">Admin Panel</div></div></div><div class="sb-sec"><div class="sb-lbl">Overview</div><a class="sb-a" href="/admin/dashboard">Dashboard</a><a class="sb-a" href="/admin/zones">Zones</a><a class="sb-a" href="/admin/users">Users</a></div><div class="sb-sec"><div class="sb-lbl">Operations</div><a class="sb-a" href="/admin/vehicles">Vehicles</a><a class="sb-a" href="/admin/claims">Claims</a><a class="sb-a on" href="/admin/payments">Payments</a></div><div class="sb-foot"><div class="sb-profile" tabindex="0"><div class="sb-user"><span class="sb-admin-badge">A</span><button type="button" class="sb-menu-toggle" id="sbMenuToggle" aria-expanded="false" aria-controls="sbProfileMenu"><span></span><span></span><span></span></button></div><div class="sb-menu" id="sbProfileMenu"><a class="sb-menu-item" href="/admin/dashboard">Administrator Access</a><a class="sb-menu-item" href="/admin/dashboard#section-settings">Settings</a><a class="sb-menu-item danger" href="/login">Logout</a></div></div></div></aside>
-<div class="main"><div class="topbar"><div class="tb-l"><h1>Payments</h1><p>Collection and revenue overview</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></div><div class="page"><div class="row3"><div class="card"><div class="ch"><div class="ct">Weekly Revenue (RWF)</div></div><div class="cb"><div class="bars"><div class="bar" style="height:40%"></div><div class="bar" style="height:55%"></div><div class="bar" style="height:45%"></div><div class="bar" style="height:70%"></div><div class="bar" style="height:65%"></div><div class="bar" style="height:85%"></div><div class="bar" style="height:100%"></div></div><div class="bar-lbls"><div class="bl">Mon</div><div class="bl">Tue</div><div class="bl">Wed</div><div class="bl">Thu</div><div class="bl">Fri</div><div class="bl">Sat</div><div class="bl">Sun</div></div></div></div><div class="card"><div class="ch"><div class="ct">Recent Transactions</div></div><div class="cb"><div class="vi"><div class="vp">PAY-991</div><div><div class="vn">Zone A</div><div class="vm">28,000 RWF</div></div><span class="b ok vi-badge">Paid</span></div><div class="vi"><div class="vp">PAY-992</div><div><div class="vn">Zone B</div><div class="vm">32,000 RWF</div></div><span class="b go vi-badge">Pending</span></div><div class="vi"><div class="vp">PAY-993</div><div><div class="vn">Zone C</div><div class="vm">19,000 RWF</div></div><span class="b op vi-badge">Review</span></div></div></div></div></div></div>
+<div class="main"><div class="topbar"><div class="tb-l"><h1>Payments</h1><p>Computed from /api/schedules/</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></div><div class="page"><div class="row3"><div class="card"><div class="ch"><div class="ct">Estimated Revenue (RWF)</div></div><div class="cb"><div class="revenue-total" id="paymentsTotal">Loading...</div><div class="bars" id="paymentsBars"></div><div class="bar-lbls"><div class="bl">Mon</div><div class="bl">Tue</div><div class="bl">Wed</div><div class="bl">Thu</div><div class="bl">Fri</div><div class="bl">Sat</div><div class="bl">Sun</div></div></div></div><div class="card"><div class="ch"><div class="ct">Recent Transactions</div></div><div class="cb" id="paymentsList"></div></div></div></div></div>
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
-<script>function toggleSb(){var sb=document.querySelector('.sb');var ov=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(ov)ov.classList.toggle('open');}(function(){var p=document.querySelector('.sb-profile');var t=document.getElementById('sbMenuToggle');if(!p||!t)return;t.addEventListener('click',function(e){e.preventDefault();p.classList.toggle('open');t.setAttribute('aria-expanded',p.classList.contains('open')?'true':'false');});document.addEventListener('click',function(e){if(!p.contains(e.target)){p.classList.remove('open');t.setAttribute('aria-expanded','false');}});})();</script>
-</body></html>
+<script>
+function toggleSb(){var sb=document.querySelector('.sb');var ov=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(ov)ov.classList.toggle('open');}
+(function(){
+	var p=document.querySelector('.sb-profile');var t=document.getElementById('sbMenuToggle');
+	if(p&&t){t.addEventListener('click',function(e){e.preventDefault();p.classList.toggle('open');t.setAttribute('aria-expanded',p.classList.contains('open')?'true':'false');});document.addEventListener('click',function(e){if(!p.contains(e.target)){p.classList.remove('open');t.setAttribute('aria-expanded','false');}});}
+
+	var totalEl=document.getElementById('paymentsTotal');
+	var barsEl=document.getElementById('paymentsBars');
+	var listEl=document.getElementById('paymentsList');
+
+	fetch('/api/schedules/')
+		.then(function(res){if(!res.ok) throw new Error('Failed to load payment data'); return res.json();})
+		.then(function(items){
+			var revenueByDay=[0,0,0,0,0,0,0];
+			items.forEach(function(it){
+				var d=new Date(it.date_time_start); var day=d.getDay();
+				var amount=Math.max(5000, Math.round((Number(it.priority_score||1)+1)*7000));
+				revenueByDay[day]+=amount;
+			});
+			var max=Math.max.apply(null,revenueByDay.concat([1]));
+			barsEl.innerHTML=revenueByDay.map(function(v){var h=Math.max(12,Math.round((v/max)*100));return '<div class="bar" style="height:'+h+'%"></div>';}).join('');
+			var total=revenueByDay.reduce(function(a,b){return a+b;},0);
+			totalEl.textContent=total.toLocaleString()+' RWF total estimate';
+
+			if(!items.length){listEl.innerHTML='<p class="ci-meta">No payments available.</p>';return;}
+			listEl.innerHTML=items.slice(0,8).map(function(it){
+				var amount=Math.max(5000, Math.round((Number(it.priority_score||1)+1)*7000));
+				var st=it.status==='completed'?'Paid':(it.status==='ongoing'?'Pending':'Review');
+				var cls=it.status==='completed'?'ok':(it.status==='ongoing'?'go':'op');
+				return '<div class="vi"><div class="vp">PAY-'+String(it.id).padStart(3,'0')+'</div><div><div class="vn">Zone '+it.zone_id+'</div><div class="vm">'+amount.toLocaleString()+' RWF</div></div><span class="b '+cls+' vi-badge">'+st+'</span></div>';
+			}).join('');
+		})
+		.catch(function(err){totalEl.textContent=err.message; listEl.innerHTML=''; barsEl.innerHTML='';});
+})();
+</script>
+</body>
+</html>
