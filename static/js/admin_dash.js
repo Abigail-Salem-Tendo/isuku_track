@@ -241,12 +241,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var formHtml = '';
 
     if (action === 'new-zone') {
-      modalTitle.textContent = 'Create New Zone';
-      formHtml =
-        '<label class="mf-lbl">Zone Name<input class="mf-in" name="zoneName" required placeholder="Zone F" /></label>' +
-        '<label class="mf-lbl">District / Sector<input class="mf-in" name="zoneLocation" required placeholder="Gasabo · Gisozi" /></label>' +
-        '<label class="mf-lbl">Operator<input class="mf-in" name="zoneOperator" required placeholder="Nadine T." /></label>' +
-        '<div class="mf-actions"><button type="button" class="mf-btn sec" data-close-modal>Cancel</button><button type="submit" class="mf-btn">Save Zone</button></div>';
+      window.location.href = '/templates/interactive-map.html';
     }
 
     if (action === 'create-schedule') {
