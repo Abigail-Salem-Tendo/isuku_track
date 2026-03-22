@@ -79,15 +79,16 @@ async function submitNewZone() {
 // --- FEATURE 2: FETCH ZONES & ASSIGN OPERATOR EVENTS ---
 async function loadZones() {
     const token = localStorage.getItem('access_token');
-    
-    // DEBUG TOOL: Check the console to see if the token exists
-    console.log("Current Token in Memory: (just know there is a token in memory !)", );
+ 
     
     if (!token) {
         alert("You are not logged in! The map will not load data.");
+         // DEBUG TOOL: Check the console to see if the token exists
+        console.log("Current Token in Memory !)",token );
         return;
     }
-
+       
+   
     try {
         const response = await fetch('http://127.0.0.1:5000/api/zones/', {
             headers: { 'Authorization': `Bearer ${token}` }
