@@ -26,36 +26,99 @@ map.on('click', function(e) {
     });
 
     const createUI = `
-        <div style="text-align: center;">
-            <b>New Zone Preview</b><br>
-            Drag pin to adjust.<br><br>
-            <button onclick="submitNewZone()" style="background: #27ae60; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
-                Confirm & Create
-            </button>
-        </div>
+    <div style="text-align: center;">
+        <b>New Zone Preview</b><br>
+        Drag pin to adjust.<br><br>
+        <button onclick="triggerZoneModal(${lat}, ${lng})" style="background: #27ae60; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+            Confirm & Create
+        </button>
+    </div>
     `;
     tempMarker.bindPopup(createUI).openPopup();
 });
 
 // Function triggered by the popup button
-async function submitNewZone() {
-    const position = tempMarker.getLatLng();
-    const token = localStorage.getItem('access_token'); 
+function triggerZoneModal(lat, lng) {
+    const modal = document.getElementById('adminModal');
+    const form = document.getElementById('modalForm');
+    const title = document.getElementById('modalTitle');
 
-    const zoneName = prompt("Enter a name for this new zone (e.g., Gahanga Central):");
-    if (!zoneName) return; 
+    // 1. Set the Title
+    title.textContent = "Create New Zone";
 
+    // 2. Injecting the Form HTML into our existing dashboard modal
+    // Added a 'Radius' field to future-proof our zone sizing
+    form.innerHTML = `
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 12px; color: #666;">Coordinates Captures</label>
+            <input type="text" value="${lat.toFixed(4)}, ${lng.toFixed(4)}" disabled style="width: 100%; padding: 8px; background: #eee; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        
+        <input type="hidden" id="zoneLat" value="${lat}">
+        <input type="hidden" id="zoneLng" value="${lng}">
+
+        <div style="margin-bottom: 10px;">
+            <label>Zone Name *</label>
+            <input type="text" id="zoneName" required placeholder="e.g., Kimironko Sector A" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <div style="flex: 1;">
+                <label>District *</label>
+                <input type="text" id="zoneDistrict" required placeholder="e.g., Gasabo" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div style="flex: 1;">
+                <label>Sector *</label>
+                <input type="text" id="zoneSector" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <label>Cell</label>
+                <input type="text" id="zoneCell" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div style="flex: 1;">
+                <label>Coverage Radius (meters)</label>
+                <input type="number" id="zoneRadius" value="800" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 10px; background: #2e7d52; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            Save Zone
+        </button>
+    `;
+
+
+    // If your CSS uses a different class to show it, change 'display' here to match.
+    modal.style.display = 'flex'; 
+    modal.setAttribute('aria-hidden', 'false');
+
+    // 4. Attach the submit event listener to the form
+    form.onsubmit = async function(e) {
+        e.preventDefault();
+        await saveZoneToBackend();
+    };
+}
+
+// --- PROCESS THE FORM SUBMISSION ---
+async function saveZoneToBackend() {
+    const token = localStorage.getItem('access_token');
+    
+    
     const zoneData = {
-        name: zoneName,
-        district: "Kigali", 
-        sector: "TBD",
-        cell: "TBD",
-        latitude: position.lat,
-        longitude: position.lng
+        name: document.getElementById('zoneName').value,
+        district: document.getElementById('zoneDistrict').value,
+        sector: document.getElementById('zoneSector').value,
+        cell: document.getElementById('zoneCell').value || "N/A",
+        village: "N/A", // Can add a field for this later if needed
+        latitude: parseFloat(document.getElementById('zoneLat').value),
+        longitude: parseFloat(document.getElementById('zoneLng').value),
+        radius: parseInt(document.getElementById('zoneRadius').value) // For future backend updates
     };
 
     try {
-        const response = await fetch('http://127.0.0.1:5000/api/zones/', {
+        const response = await fetch('/api/zones/', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -65,6 +128,8 @@ async function submitNewZone() {
         });
 
         if (response.ok) {
+            // Hiding modal and refresh map
+            document.getElementById('adminModal').style.display = 'none';
             alert("Zone created successfully!");
             location.reload(); 
         } else {
