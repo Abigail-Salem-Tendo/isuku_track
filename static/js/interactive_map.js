@@ -81,7 +81,7 @@ async function loadZones() {
     const token = localStorage.getItem('access_token');
     
     // DEBUG TOOL: Check the console to see if the token exists
-    console.log("Current Token in Memory:", token);
+    console.log("Current Token in Memory: (just know there is a token in memory !)", );
     
     if (!token) {
         alert("You are not logged in! The map will not load data.");
