@@ -84,7 +84,7 @@ async function loadZones() {
     if (!token) {
         alert("You are not logged in! The map will not load data.");
          // DEBUG TOOL: Check the console to see if the token exists
-        console.log("Current Token in Memory !)",token );
+        console.log("Current Token in Memory :",token );
         return;
     }
        
