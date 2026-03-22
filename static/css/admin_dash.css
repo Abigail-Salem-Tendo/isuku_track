@@ -328,6 +328,57 @@ body {
   position: relative;
 }
 
+.notif-wrap {
+  position: relative;
+}
+
+.notif-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 290px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(16, 31, 23, .16);
+  z-index: 120;
+  overflow: hidden;
+}
+
+.notif-wrap.open .notif-panel {
+  display: block;
+}
+
+.notif-head {
+  padding: 10px 12px;
+  font-size: .76rem;
+  font-weight: 700;
+  color: var(--txt);
+  border-bottom: 1px solid var(--border);
+}
+
+.notif-item {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.notif-item:first-of-type {
+  border-top: 0;
+}
+
+.notif-title {
+  font-size: .78rem;
+  color: var(--txt);
+  font-weight: 600;
+}
+
+.notif-time {
+  margin-top: 2px;
+  font-size: .68rem;
+  color: var(--txt-l);
+}
+
 .notif-dot {
   position: absolute;
   top: 7px;
@@ -905,6 +956,11 @@ body {
   .bars { height: 46px; }
 
   .mob-nav { display: flex; }
+
+  .notif-panel {
+    width: min(88vw, 310px);
+    right: 0;
+  }
 }
 
 /* ════════════════════════════════
