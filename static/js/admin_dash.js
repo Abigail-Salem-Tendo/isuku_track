@@ -258,8 +258,45 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  function sectionByNav(navKey) {
+    if (navKey === 'overview') return document.getElementById('section-overview');
+    if (navKey === 'operations') return document.getElementById('section-operations');
+    if (navKey === 'reports') return document.getElementById('section-reports');
+    if (navKey === 'settings') return document.getElementById('section-settings');
+    return null;
+  }
+
+  function setActiveNav(navKey) {
+    var navItems = document.querySelectorAll('.sb .sb-a[data-nav]');
+    navItems.forEach(function (item) {
+      item.classList.toggle('on', item.getAttribute('data-nav') === navKey);
+    });
+
+    var mobileItems = document.querySelectorAll('.mob-nav .mn-item[data-nav]');
+    mobileItems.forEach(function (item) {
+      item.classList.toggle('active', item.getAttribute('data-nav') === navKey);
+    });
+  }
+
+  function navigateToSection(navKey) {
+    var section = sectionByNav(navKey);
+    if (!section) {
+      showToast('Section is not available yet', true);
+      return;
+    }
+
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setActiveNav(navKey);
+  }
+
   function bindActions() {
     document.body.addEventListener('click', function (event) {
+      var navEl = event.target.closest('[data-nav]');
+      if (navEl) {
+        event.preventDefault();
+        navigateToSection(navEl.getAttribute('data-nav'));
+      }
+
       var actionEl = event.target.closest('[data-action]');
       if (actionEl) {
         event.preventDefault();
@@ -283,6 +320,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.body.addEventListener('keydown', function (event) {
       if (event.key !== 'Enter' && event.key !== ' ') return;
+
+      var navTarget = event.target.closest('[data-nav]');
+      if (navTarget) {
+        event.preventDefault();
+        navigateToSection(navTarget.getAttribute('data-nav'));
+        return;
+      }
+
       var quick = event.target.closest('.qa[data-action]');
       if (!quick) return;
       event.preventDefault();
@@ -426,6 +471,7 @@ document.addEventListener('DOMContentLoaded', function () {
   hydrateAdminIdentity();
   setDashboardDate();
   bindActions();
+  setActiveNav('overview');
   renderAll();
   window.addEventListener('resize', closeSidebarOnDesktop);
 });
