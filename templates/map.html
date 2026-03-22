@@ -37,61 +37,149 @@
     <script>
         // 1. Initializing map centered on Kigali
         const map = L.map('map').setView([-1.95, 30.08], 13);
-
+        let tempMarker = null; // Holds our "Create Zone" draggable pin
+        let tempCircle = null; // Holds the preview coverage area
+    
         // 2. Adding OpenStreetMap base layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors',
             maxZoom: 18
         }).addTo(map);
-
-        // 3. Fetching zones from Flask backend
-        async function loadZones() {
+    
+        // --- FEATURE 1: VISUAL ZONE CREATION (ABSTRACTION) ---
+        map.on('click', function(e) {
+            // If a temp marker already exists, remove it
+            if (tempMarker) map.removeLayer(tempMarker);
+            if (tempCircle) map.removeLayer(tempCircle);
+    
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+    
+            // Draw a preview circle and a draggable marker
+            tempCircle = L.circle([lat, lng], { color: '#e74c3c', fillColor: '#e74c3c', fillOpacity: 0.2, radius: 800 }).addTo(map);
+            tempMarker = L.marker([lat, lng], { draggable: true }).addTo(map);
+    
+            // Update the circle if the user drags the marker
+            tempMarker.on('drag', function(event) {
+                const position = event.target.getLatLng();
+                tempCircle.setLatLng(position);
+            });
+    
+            // The popup with a button to trigger creation
+            const createUI = `
+                <div style="text-align: center;">
+                    <b>New Zone Preview</b><br>
+                    Drag pin to adjust.<br><br>
+                    <button onclick="submitNewZone()" style="background: #27ae60; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                        Confirm & Create
+                    </button>
+                </div>
+            `;
+            tempMarker.bindPopup(createUI).openPopup();
+        });
+    
+        // Function triggered by the popup button
+        async function submitNewZone() {
+            const position = tempMarker.getLatLng();
+            const token = localStorage.getItem('access_token'); // Get your JWT
+    
+            // We use prompt here for simplicity, but a modal is better later
+            const zoneName = prompt("Enter a name for this new zone (e.g., Gahanga Central):");
+            if (!zoneName) return; 
+    
+            const zoneData = {
+                name: zoneName,
+                district: "Kigali", // Hardcoded for demo, you'd want inputs for these
+                sector: "TBD",
+                cell: "TBD",
+                latitude: position.lat,
+                longitude: position.lng
+            };
+    
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/zones/');
+                const response = await fetch('http://127.0.0.1:5000/api/zones/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(zoneData)
+                });
+    
+                if (response.ok) {
+                    alert("Zone created successfully!");
+                    location.reload(); // Refresh map to show permanent blue circle
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.error}`);
+                }
+            } catch (error) {
+                console.error("Creation failed", error);
+            }
+        }
+    
+        // --- FEATURE 2: FETCH ZONES & ASSIGN OPERATOR EVENTS ---
+        async function loadZones() {
+            const token = localStorage.getItem('access_token');
+            
+            if (!token) {
+                alert("You are not logged in! Please login first.");
+                return;
+            }
+    
+            try {
+                // Added the Authorization header to pass the JWT
+                const response = await fetch('http://127.0.0.1:5000/api/zones/', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error("Unauthorized or server error");
                 const zones = await response.json();
-                console.log("Zone data : ",zones);
-
-                // 4. Loop through the zones and plot coverage circles
+    
                 zones.forEach(zone => {
                     if (zone.latitude && zone.longitude) {
-                        
-                        // circle with 800-meter radius
                         const circle = L.circle([zone.latitude, zone.longitude], {
-                            color: '#2980b9',        // Border color (Blue)
-                            fillColor: '#3498db',    // Inside color (Lighter Blue)
-                            fillOpacity: 0.35,       // Transparency
-                            weight: 2,               // Border thickness
-                            radius: 800              // Coverage radius in meters
+                            color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.35, weight: 2, radius: 800
                         }).addTo(map);
                         
-                        // Determine if ZO is assigned for the badge styling
                         const isAssigned = zone.zone_operator_name ? true : false;
                         const badgeClass = isAssigned ? 'status-badge' : 'status-badge pending';
                         const badgeText = isAssigned ? 'Operator Assigned' : 'Pending Assignment';
-
-
+    
+                        // Added the Assign Operator Button to the popup
                         const popupContent = `
                             <div class="popup-content">
                                 <h3>${zone.name}</h3>
                                 <p><strong>District:</strong> ${zone.district}</p>
-                                <p><strong>Sector:</strong> ${zone.sector}</p>
-                                <p><strong>Cell:</strong> ${zone.cell}</p>
-                                <p><strong>Operator:</strong> ${zone.zone_operator_name || '<i>Not yet assigned</i>'}</p>
-                                <p><strong>Contact:</strong> ${zone.zone_operator_phone || 'N/A'}</p>
                                 <span class="${badgeClass}">${badgeText}</span>
+                                <br><br>
+                                <button onclick="triggerAssignModal(${zone.id}, '${zone.name}')" 
+                                        style="width: 100%; padding: 5px; cursor: pointer;">
+                                    ${isAssigned ? 'Reassign Operator' : 'Assign Operator'}
+                                </button>
                             </div>
                         `;
-                        
                         circle.bindPopup(popupContent);
                     }
                 });
             } catch (error) {
                 console.error('Error fetching zones:', error);
-                alert('Could not load zones. Make sure your Flask backend is running on port 5000 and CORS is enabled!');
             }
         }
-
-        // Triggering the fetch when the page loads
+    
+        // Function triggered when an existing zone's button is clicked
+        window.triggerAssignModal = function(zoneId, zoneName) {
+            // This is where you would open an HTML modal containing a list of your Zone Operators
+            // For now, let's prove the plumbing works:
+            const operatorId = prompt(`Assigning operator to ${zoneName}.\nEnter the Operator ID:`);
+            
+            if(operatorId) {
+                console.log(`Sending PUT request to /api/zones/${zoneId} with operator_id: ${operatorId}`);
+                // You would run your fetch PUT request here!
+                alert(`Ready to assign operator ${operatorId} to zone ${zoneId}!`);
+            }
+        };
+    
         loadZones();
     </script>
 </body>
