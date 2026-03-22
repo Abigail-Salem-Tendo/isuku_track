@@ -1,3 +1,5 @@
+const API_BASE = 'http://127.0.0.1:5000'
+
 // 1. Initializing map centered on Kigali
 const map = L.map('map').setView([-1.95, 30.08], 13);
 let tempMarker = null; // Holds our "Create Zone" draggable pin
