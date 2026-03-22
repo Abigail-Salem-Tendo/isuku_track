@@ -145,6 +145,13 @@ body {
   margin-top: auto;
   padding: 14px 10px;
   border-top: 1px solid rgba(255, 255, 255, .06);
+  position: relative;
+}
+
+.sb-profile {
+  position: relative;
+  border-radius: 9px;
+  outline: none;
 }
 
 .sb-user {
@@ -154,6 +161,16 @@ body {
   padding: 8px 10px;
   border-radius: 9px;
   cursor: pointer;
+}
+
+.sb-profile:hover .sb-user,
+.sb-profile:focus-within .sb-user {
+  background: var(--sb-hover);
+}
+
+.sb-caret {
+  margin-left: auto;
+  color: rgba(255, 255, 255, .5);
 }
 
 .sb-av {
@@ -179,6 +196,48 @@ body {
 .sb-ur {
   font-size: .65rem;
   color: rgba(255, 255, 255, .3);
+}
+
+.sb-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 8px);
+  background: #172a20;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 10px;
+  padding: 6px;
+  display: none;
+  z-index: 200;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .25);
+}
+
+.sb-profile:hover .sb-menu,
+.sb-profile:focus-within .sb-menu {
+  display: block;
+}
+
+.sb-menu-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: rgba(255, 255, 255, .82);
+  font-size: .78rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.sb-menu-item:hover,
+.sb-menu-item:focus-visible {
+  background: rgba(255, 255, 255, .08);
+  outline: none;
+}
+
+.sb-menu-item.danger {
+  color: #ffb3b3;
 }
 
 /* ════════════════════════════════
@@ -411,6 +470,12 @@ body {
   text-decoration: none;
 }
 
+.ch-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .cb {
   padding: 16px 20px;
 }
@@ -436,6 +501,28 @@ body {
 .zt {
   width: 100%;
   border-collapse: collapse;
+}
+
+.zo-promote-btn {
+  width: 100%;
+  border: 1px solid var(--g2);
+  background: linear-gradient(135deg, var(--g2), var(--g1));
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.zo-promote-btn:hover {
+  filter: brightness(1.04);
+}
+
+.zo-promote-btn:focus-visible {
+  outline: 3px solid rgba(72, 168, 112, .35);
+  outline-offset: 2px;
 }
 
 .zt th {

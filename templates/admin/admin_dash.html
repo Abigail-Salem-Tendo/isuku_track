@@ -39,6 +39,10 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Users
     </div>
+    <div class="sb-a" data-action="promote-zone-operator" role="button" tabindex="0" aria-label="Promote user to zone operator">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M17 11h6"/></svg>
+      Zone Operator
+    </div>
   </div>
 
   <div class="sb-sec">
@@ -65,7 +69,7 @@
     <div class="sb-lbl">Reports</div>
     <div class="sb-a" data-nav="reports" role="button" tabindex="0" aria-label="Go to reports section">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      Weekly Reports
+      Reports
     </div>
     <div class="sb-a" data-nav="settings" role="button" tabindex="0" aria-label="Go to settings section">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
@@ -74,11 +78,19 @@
   </div>
 
   <div class="sb-foot">
-    <div class="sb-user">
-      <div class="sb-av">AD</div>
-      <div>
-        <div class="sb-un" id="adminName">Admin</div>
-        <div class="sb-ur">System Administrator</div>
+    <div class="sb-profile" tabindex="0">
+      <div class="sb-user" aria-label="Open administrator menu">
+        <div class="sb-av">AD</div>
+        <div>
+          <div class="sb-un" id="adminName">Admin</div>
+          <div class="sb-ur">System Administrator</div>
+        </div>
+        <svg class="sb-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sb-menu" role="menu" aria-label="Administrator actions">
+        <button type="button" class="sb-menu-item" data-profile-action="burger-menu" role="menuitem">Burger Menu</button>
+        <button type="button" class="sb-menu-item" data-profile-action="settings" role="menuitem">Settings</button>
+        <button type="button" class="sb-menu-item danger" data-profile-action="logout" role="menuitem">Logout</button>
       </div>
     </div>
   </div>
@@ -174,9 +186,15 @@
       <div class="card">
         <div class="ch">
           <div class="ct">Zone Overview</div>
-          <a class="ca" data-action="manage-zones">Manage all →</a>
+          <div class="ch-actions">
+            <a class="ca" data-action="promote-zone-operator">Promote User →</a>
+            <a class="ca" data-action="manage-zones">Manage all →</a>
+          </div>
         </div>
         <div class="cb cb--pt">
+          <button type="button" class="zo-promote-btn" data-action="promote-zone-operator" aria-label="Promote user to zone operator">
+            Promote User to Zone Operator
+          </button>
           <table class="zt">
             <thead>
               <tr>
@@ -323,10 +341,10 @@
       </div>
     </div>
 
-    <!-- ── Weekly Reports ── -->
+    <!-- ── Reports ── -->
     <div class="card" id="section-reports">
       <div class="ch">
-        <div class="ct">Latest Weekly Reports from Zone Operators</div>
+        <div class="ct">Latest Reports from Zone Operators</div>
         <a class="ca" data-action="all-reports">All reports →</a>
       </div>
       <div class="cb cb--pt" id="reportsList">
