@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from extensions import db, migrate, bcrypt, jwt
 from models.user import User
 from models.zone import Zone
@@ -23,6 +23,30 @@ def create_app():
     app.register_blueprint(vehicle_bp, url_prefix='/api/vehicles')
     app.register_blueprint(zone_bp, url_prefix='/api/zones')
     app.register_blueprint(schedule_bp, url_prefix='/api/schedules')
+
+    @app.route('/admin/dashboard')
+    def admin_dashboard_page():
+        return render_template('admin/admin_dash.html')
+
+    @app.route('/admin/zones')
+    def admin_zones_page():
+        return render_template('admin/zones.html')
+
+    @app.route('/admin/users')
+    def admin_users_page():
+        return render_template('admin/users.html')
+
+    @app.route('/admin/vehicles')
+    def admin_vehicles_page():
+        return render_template('admin/vehicles.html')
+
+    @app.route('/admin/claims')
+    def admin_claims_page():
+        return render_template('admin/claims.html')
+
+    @app.route('/admin/payments')
+    def admin_payments_page():
+        return render_template('admin/payments.html')
 
     return app
 
