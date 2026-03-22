@@ -213,6 +213,19 @@ document.addEventListener('DOMContentLoaded', function () {
         '<div class="mf-actions"><button type="button" class="mf-btn sec" data-close-modal>Cancel</button><button type="submit" class="mf-btn">Add Vehicle</button></div>';
     }
 
+    if (action === 'promote-zone-operator') {
+      modalTitle.textContent = 'Promote User to Zone Operator';
+      var zoneOptions = ['<option value="">No zone assignment</option>'];
+      state.zones.forEach(function (zone) {
+        zoneOptions.push('<option value="' + String(zone.id) + '">' + escapeHtml(zone.name) + '</option>');
+      });
+
+      formHtml =
+        '<label class="mf-lbl">User Email<input class="mf-in" name="promoteEmail" type="email" required placeholder="resident@example.com" /></label>' +
+        '<label class="mf-lbl">Assign Zone (optional)<select class="mf-in" name="promoteZone">' + zoneOptions.join('') + '</select></label>' +
+        '<div class="mf-actions"><button type="button" class="mf-btn sec" data-close-modal>Cancel</button><button type="submit" class="mf-btn">Promote</button></div>';
+    }
+
     if (!formHtml) return;
 
     modalForm.setAttribute('data-form-action', action);
@@ -228,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function handleQuickAction(action) {
-    if (action === 'new-zone' || action === 'create-schedule' || action === 'add-vehicle') {
+    if (action === 'new-zone' || action === 'create-schedule' || action === 'add-vehicle' || action === 'promote-zone-operator') {
       openModal(action);
       return;
     }
@@ -236,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (action === 'view-reports' || action === 'all-reports') {
       var reports = document.getElementById('reportsList');
       if (reports) reports.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      showToast('Jumped to weekly reports');
+      showToast('Jumped to reports');
       return;
     }
 
@@ -289,12 +302,47 @@ document.addEventListener('DOMContentLoaded', function () {
     setActiveNav(navKey);
   }
 
+  function handleProfileAction(action) {
+    if (action === 'burger-menu') {
+      toggleSb();
+      showToast('Sidebar menu toggled');
+      return;
+    }
+
+    if (action === 'settings') {
+      navigateToSection('settings');
+      return;
+    }
+
+    if (action === 'logout') {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('adminName');
+
+      var isStaticPreview = window.location.protocol === 'file:' || window.location.port === '5500' || window.location.port === '5501';
+      if (isStaticPreview) {
+        showToast('Logged out');
+        return;
+      }
+
+      window.location.href = '/login';
+    }
+  }
+
   function bindActions() {
     document.body.addEventListener('click', function (event) {
       var navEl = event.target.closest('[data-nav]');
       if (navEl) {
         event.preventDefault();
         navigateToSection(navEl.getAttribute('data-nav'));
+      }
+
+      var profileActionEl = event.target.closest('[data-profile-action]');
+      if (profileActionEl) {
+        event.preventDefault();
+        handleProfileAction(profileActionEl.getAttribute('data-profile-action'));
+        return;
       }
 
       var actionEl = event.target.closest('[data-action]');
@@ -328,6 +376,13 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
+      var profileActionTarget = event.target.closest('[data-profile-action]');
+      if (profileActionTarget) {
+        event.preventDefault();
+        handleProfileAction(profileActionTarget.getAttribute('data-profile-action'));
+        return;
+      }
+
       var quick = event.target.closest('.qa[data-action]');
       if (!quick) return;
       event.preventDefault();
@@ -345,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (modalForm) {
-      modalForm.addEventListener('submit', function (event) {
+      modalForm.addEventListener('submit', async function (event) {
         event.preventDefault();
         var formAction = modalForm.getAttribute('data-form-action');
         var formData = new FormData(modalForm);
@@ -422,6 +477,60 @@ document.addEventListener('DOMContentLoaded', function () {
           renderAll();
           closeModal();
           showToast('Vehicle added successfully');
+          return;
+        }
+
+        if (formAction === 'promote-zone-operator') {
+          var email = String(formData.get('promoteEmail') || '').trim().toLowerCase();
+          var zoneIdRaw = String(formData.get('promoteZone') || '').trim();
+
+          if (!email) {
+            showToast('User email is required', true);
+            return;
+          }
+
+          var token = localStorage.getItem('accessToken');
+          if (!token) {
+            showToast('Admin login required to promote user', true);
+            return;
+          }
+
+          var payload = { email: email };
+          if (zoneIdRaw) {
+            payload.zone_id = Number(zoneIdRaw);
+          }
+
+          try {
+            var response = await fetch('/api/auth/promote-zone-operator', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+              },
+              body: JSON.stringify(payload)
+            });
+
+            var responseData = await response.json();
+            if (!response.ok) {
+              showToast(responseData.error || 'Failed to promote user', true);
+              return;
+            }
+
+            if (responseData.zone && responseData.user) {
+              var matchingZone = state.zones.find(function (zone) {
+                return String(zone.id) === String(responseData.zone.id);
+              });
+              if (matchingZone) {
+                matchingZone.operator = responseData.user.username;
+              }
+            }
+
+            renderAll();
+            closeModal();
+            showToast(responseData.message || 'User promoted successfully');
+          } catch (_error) {
+            showToast('Network error while promoting user', true);
+          }
         }
       });
     }

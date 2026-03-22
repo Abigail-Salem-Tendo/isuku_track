@@ -7,6 +7,7 @@ from flask_jwt_extended import (
 )
 from extensions import db, bcrypt
 from models.user import User
+from models.zone import Zone
 import re
 from utils.auth_helpers import role_required, generate_reset_token, verify_reset_token
 import secrets
@@ -215,3 +216,58 @@ def create_zone_operator():
         "reset_token": reset_token,
         "reset_link": f"/reset-password?token={reset_token}"
     }), 201
+
+
+@auth_bp.route("/promote-zone-operator", methods=["POST"])
+@role_required("admin")
+def promote_zone_operator():
+    """Promote an existing user to zone operator and optionally assign a zone."""
+    data = request.get_json() or {}
+
+    email = str(data.get("email", "")).strip().lower()
+    zone_id = data.get("zone_id")
+
+    if not email:
+        return jsonify({"error": "email is required"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if user.role == "admin":
+        return jsonify({"error": "Admin users cannot be reassigned to zone operator"}), 400
+
+    assigned_zone = None
+    if zone_id is not None and str(zone_id).strip() != "":
+        try:
+            zone_id = int(zone_id)
+        except (TypeError, ValueError):
+            return jsonify({"error": "zone_id must be a number"}), 400
+
+        assigned_zone = Zone.query.get(zone_id)
+        if not assigned_zone:
+            return jsonify({"error": "Zone not found"}), 404
+
+        if assigned_zone.zone_operator_id and assigned_zone.zone_operator_id != user.id:
+            return jsonify({"error": "Zone already has an assigned operator"}), 409
+
+    user.role = "zone_operator"
+
+    if assigned_zone:
+        user.zone_id = assigned_zone.id
+        assigned_zone.zone_operator_id = user.id
+
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to promote user to zone operator"}), 500
+
+    return jsonify({
+        "message": "User promoted to zone operator successfully",
+        "user": user.to_dict(),
+        "zone": {
+            "id": assigned_zone.id,
+            "name": assigned_zone.name
+        } if assigned_zone else None
+    }), 200
