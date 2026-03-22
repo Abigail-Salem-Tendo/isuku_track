@@ -70,13 +70,15 @@ function handleAuthSuccess(data) {
   localStorage.setItem('user', JSON.stringify(data.user));
 
   const role = data.user.role;
+  //referencing from the html pages themselves
   if (role === 'admin') {
-    window.location.href = '/admin/dashboard';
+    window.location.href = '/templates/admin/admin_dash.html';
   } else if (role === 'zone_operator') {
-    window.location.href = '/zone-operator/dashboard';
+    window.location.href = '/templates/zone_operator/zo_dash.html';
   } else {
-    window.location.href = '/resident/dashboard';
+    window.location.href = '/templates/resident/resident_dash.html';
   }
+  
 }
 
 // ── Load zones into the dropdown ──
