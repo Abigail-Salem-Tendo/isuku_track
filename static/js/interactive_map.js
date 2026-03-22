@@ -193,6 +193,49 @@ async function loadZones() {
     }
 }
 
+// --- FEATURE 3: SEARCH BAR (GEOCODING) ---
+const geocoder = L.Control.geocoder({
+    defaultMarkGeocode: false, // Red pin instead of blue
+    placeholder: "Search for a sector or landmark in Kigali..."
+}).addTo(map);
+
+// This listens for when the user hits "Enter" on a search result
+geocoder.on('markgeocode', function(e) {
+    const latlng = e.geocode.center;
+    
+    // 1. Fly the map to the searched location and zoom in
+    map.setView(latlng, 15); 
+
+    // 2. Clear any existing temporary pins on the map
+    if (tempMarker) map.removeLayer(tempMarker);
+    if (tempCircle) map.removeLayer(tempCircle);
+
+    const lat = latlng.lat;
+    const lng = latlng.lng;
+
+    // 3. Drop our draggable preview circle and marker right on the searched spot
+    tempCircle = L.circle([lat, lng], { color: '#e74c3c', fillColor: '#e74c3c', fillOpacity: 0.2, radius: 800 }).addTo(map);
+    tempMarker = L.marker([lat, lng], { draggable: true }).addTo(map);
+
+    // Make the circle follow the marker if the Admin drags it to adjust the location
+    tempMarker.on('drag', function(event) {
+        const position = event.target.getLatLng();
+        tempCircle.setLatLng(position);
+    });
+
+    // 4. Bind the popup with the Confirm button
+    const createUI = `
+        <div style="text-align: center;">
+            <b>Location Found!</b><br>
+            Drag pin to fine-tune.<br><br>
+            <button onclick="triggerZoneModal(${lat}, ${lng})" style="background: #27ae60; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                Confirm & Create
+            </button>
+        </div>
+    `;
+    tempMarker.bindPopup(createUI).openPopup();
+});
+
 // Close the modal when the 'X' is clicked
 document.getElementById('modalClose').addEventListener('click', () => {
     document.getElementById('adminModal').style.display = 'none';
