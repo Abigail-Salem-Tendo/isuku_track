@@ -38,21 +38,43 @@ map.on('click', function(e) {
 });
 
 
-// Function triggered by the popup button
-function triggerZoneModal(lat, lng) {
+// ---  MODAL INJECTION WITH AUTO-FILL -
+async function triggerZoneModal(lat, lng) {
     const modal = document.getElementById('adminModal');
     const form = document.getElementById('modalForm');
     const title = document.getElementById('modalTitle');
 
-    // 1. Set the Title
-    title.textContent = "Create New Zone";
+    // Show the modal immediately with a loading state
+    title.textContent = "Locating Address...";
+    form.innerHTML = `<div style="text-align:center; padding: 20px; color: #666;">Fetching district and sector data...</div>`;
+    modal.style.display = 'flex'; 
 
-    // 2. Injecting the Form HTML into our existing dashboard modal
-    // Added a 'Radius' field to future-proof our zone sizing
+    let district = "";
+    let sector = "";
+    let cell = "";
+
+    // REVERSE GEOCODING: Asking OpenStreetMap what is at these coordinates
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1`);
+        const data = await response.json();
+        
+        if (data && data.address) {
+            console.log("OSM Address Data Found:", data.address);
+            // Rwanda's OSM mapping uses these specific tags for administrative levels
+            district = data.address.county || data.address.state_district || data.address.city_district || "";
+            sector = data.address.suburb || data.address.village || data.address.town || data.address.city || "";
+            cell = data.address.neighbourhood || "";
+        }
+    } catch (error) {
+        console.error("Failed to fetch address details", error);
+    }
+
+    //  updating the modal with the actual form, injecting the data we just found
+    title.textContent = "Create New Zone";
     form.innerHTML = `
         <div style="margin-bottom: 10px;">
-            <label style="font-size: 12px; color: #666;">Coordinates Captures</label>
-            <input type="text" value="${lat.toFixed(4)}, ${lng.toFixed(4)}" disabled style="width: 100%; padding: 8px; background: #eee; border: 1px solid #ccc; border-radius: 4px;">
+            <label style="font-size: 12px; color: #666;">Coordinates (Auto-captured)</label>
+            <input type="text" value="${lat.toFixed(5)}, ${lng.toFixed(5)}" disabled style="width: 100%; padding: 8px; background: #eee; border: 1px solid #ccc; border-radius: 4px;">
         </div>
         
         <input type="hidden" id="zoneLat" value="${lat}">
@@ -66,21 +88,21 @@ function triggerZoneModal(lat, lng) {
         <div style="display: flex; gap: 10px; margin-bottom: 10px;">
             <div style="flex: 1;">
                 <label>District *</label>
-                <input type="text" id="zoneDistrict" required placeholder="e.g., Gasabo" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <input type="text" id="zoneDistrict" required value="${district}" placeholder="e.g., Gasabo" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
             <div style="flex: 1;">
                 <label>Sector *</label>
-                <input type="text" id="zoneSector" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <input type="text" id="zoneSector" required value="${sector}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
         </div>
 
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
             <div style="flex: 1;">
-                <label>Cell</label>
-                <input type="text" id="zoneCell" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <label>Cell / Area</label>
+                <input type="text" id="zoneCell" value="${cell}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
             <div style="flex: 1;">
-                <label>Coverage Radius (meters)</label>
+                <label>Radius (meters)</label>
                 <input type="number" id="zoneRadius" value="800" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
         </div>
@@ -90,17 +112,12 @@ function triggerZoneModal(lat, lng) {
         </button>
     `;
 
-
-    // If your CSS uses a different class to show it, change 'display' here to match.
-    modal.style.display = 'flex'; 
-    modal.setAttribute('aria-hidden', 'false');
-
-    // 4. Attach the submit event listener to the form
+    // Attach the submit event listener
     form.onsubmit = async function(e) {
         e.preventDefault();
         await saveZoneToBackend();
     };
-}
+} 
 
 // --- PROCESS THE FORM SUBMISSION ---
 async function saveZoneToBackend() {
