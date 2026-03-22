@@ -85,10 +85,12 @@
           <div class="sb-un" id="adminName">Admin</div>
           <div class="sb-ur">System Administrator</div>
         </div>
-        <svg class="sb-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        <button type="button" class="sb-menu-toggle" id="sbMenuToggle" aria-label="Open administrator options" aria-expanded="false" aria-controls="sbProfileMenu">
+          <span></span><span></span><span></span>
+        </button>
       </div>
-      <div class="sb-menu" role="menu" aria-label="Administrator actions">
-        <button type="button" class="sb-menu-item" data-profile-action="burger-menu" role="menuitem">Burger Menu</button>
+      <div class="sb-menu" id="sbProfileMenu" role="menu" aria-label="Administrator actions">
+        <button type="button" class="sb-menu-item" data-profile-action="administrator-access" role="menuitem">Administrator Access</button>
         <button type="button" class="sb-menu-item" data-profile-action="settings" role="menuitem">Settings</button>
         <button type="button" class="sb-menu-item danger" data-profile-action="logout" role="menuitem">Logout</button>
       </div>

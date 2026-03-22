@@ -15,6 +15,20 @@ document.addEventListener('DOMContentLoaded', function () {
   var modalTitle = document.getElementById('modalTitle');
   var modalClose = document.getElementById('modalClose');
   var toast = document.getElementById('toast');
+  var profileMenu = document.querySelector('.sb-profile');
+  var profileMenuToggle = document.getElementById('sbMenuToggle');
+
+  function closeProfileMenu() {
+    if (!profileMenu) return;
+    profileMenu.classList.remove('open');
+    if (profileMenuToggle) profileMenuToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleProfileMenu() {
+    if (!profileMenu) return;
+    var isOpen = profileMenu.classList.toggle('open');
+    if (profileMenuToggle) profileMenuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
 
   function escapeHtml(value) {
     return String(value)
@@ -303,9 +317,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function handleProfileAction(action) {
-    if (action === 'burger-menu') {
-      toggleSb();
-      showToast('Sidebar menu toggled');
+    if (action === 'administrator-access') {
+      navigateToSection('overview');
+      showToast('Administrator access opened');
       return;
     }
 
@@ -332,6 +346,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function bindActions() {
     document.body.addEventListener('click', function (event) {
+      if (profileMenuToggle && event.target.closest('#sbMenuToggle')) {
+        event.preventDefault();
+        toggleProfileMenu();
+        return;
+      }
+
+      if (profileMenu && profileMenu.classList.contains('open') && !event.target.closest('.sb-profile')) {
+        closeProfileMenu();
+      }
+
       var navEl = event.target.closest('[data-nav]');
       if (navEl) {
         event.preventDefault();
@@ -342,6 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (profileActionEl) {
         event.preventDefault();
         handleProfileAction(profileActionEl.getAttribute('data-profile-action'));
+        closeProfileMenu();
         return;
       }
 
@@ -367,6 +392,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.body.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        closeProfileMenu();
+      }
+
       if (event.key !== 'Enter' && event.key !== ' ') return;
 
       var navTarget = event.target.closest('[data-nav]');
