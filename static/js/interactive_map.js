@@ -138,7 +138,7 @@ async function saveZoneToBackend() {
     };
 
     try {
-        const response = await fetch('/api/zones/', {
+        const response = await fetch(`${API_BASE}/api/zones/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -175,7 +175,7 @@ async function loadZones() {
        
    
     try {
-        const response = await fetch('http://127.0.0.1:5000/api/zones/', {
+        const response = await fetch(`${API_BASE}/api/zones/`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
