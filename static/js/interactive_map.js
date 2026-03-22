@@ -37,9 +37,7 @@ map.on('click', function(e) {
     tempMarker.bindPopup(createUI).openPopup();
 });
 
-document.getElementById('modalClose').addEventListener('click', () => {
-    document.getElementById('adminModal').style.display = 'none';
-});
+
 // Function triggered by the popup button
 function triggerZoneModal(lat, lng) {
     const modal = document.getElementById('adminModal');
