@@ -16,7 +16,7 @@ instance/
 .vscode/
 .idea/
 *.swp
-
+/migrations
 
 .DS_Store
 Thumbs.db
