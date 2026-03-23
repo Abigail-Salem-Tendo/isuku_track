@@ -22,3 +22,13 @@ class Config:
     # JWT Settings
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+
+    # POINTS PER CLAIM CATEGORY
+    POINTS_PER_CATEGORY = {
+        "missed_collection": 10,
+        "overflow": 15,
+        "illegal_dumping": 20,
+        "damaged_infrastructure": 25,
+        "environmental_hazard": 30,
+        "other": 5
+    }
