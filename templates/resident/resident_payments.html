@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard — Isuku Track</title>
+  <title>Payments — Isuku Track</title>
   <link rel="stylesheet" href="/static/css/base1.css" />
   <link rel="stylesheet" href="/static/css/dashboard.css" />
   <link rel="stylesheet" href="/static/css/resident.css" />
@@ -11,10 +11,8 @@
 <body>
 <div class="resident-layout">
 
-  <!-- ── Sidebar Overlay (mobile) ── -->
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <!-- ── Sidebar ── -->
   <aside class="sidebar" id="sidebar">
     <a href="/static/pages/resident/resident_dash.html" class="sidebar__brand">
       <div class="sidebar__brand-icon">
@@ -26,10 +24,9 @@
       </div>
     </a>
 
-    <!-- My Home -->
     <div class="sidebar__section">
       <div class="sidebar__section-label">My Home</div>
-      <a href="/static/pages/resident/resident_dash.html" class="sidebar__nav-item active">
+      <a href="/static/pages/resident/resident_dash.html" class="sidebar__nav-item">
         <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
         Dashboard
       </a>
@@ -43,10 +40,9 @@
       </a>
     </div>
 
-    <!-- Account -->
     <div class="sidebar__section">
       <div class="sidebar__section-label">Account</div>
-      <a href="/static/pages/resident/resident_payments.html" class="sidebar__nav-item">
+      <a href="/static/pages/resident/resident_payments.html" class="sidebar__nav-item active">
         <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
         Submit Payment
       </a>
@@ -60,7 +56,6 @@
       </button>
     </div>
 
-    <!-- User at bottom -->
     <div class="sidebar__user">
       <div class="sidebar__user-avatar" id="sidebarAvatar">R</div>
       <div>
@@ -70,15 +65,13 @@
     </div>
   </aside>
 
-  <!-- ── Page Content ── -->
   <div class="resident-content">
 
-    <!-- Mobile Topbar -->
     <div class="topbar">
       <button class="topbar__menu-btn" id="menuBtn">
         <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
-      <span class="topbar__title">Dashboard</span>
+      <span class="topbar__title">Submit Payment</span>
       <button class="topbar__bell">
         <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 0 1-6 0v-1m6 0H9"/></svg>
         <span class="topbar__bell-badge"></span>
@@ -87,136 +80,109 @@
 
     <main class="resident-main">
 
-      <!-- Page Header -->
       <div class="page-header">
-        <h1>My Dashboard</h1>
-        <p id="todayDate">Loading...</p>
+        <h1>Submit Payment</h1>
+        <p>Record your payment and wait for your Zone Operator to verify it</p>
       </div>
 
-      <!-- Welcome Card -->
-      <div class="welcome-card">
-        <div class="welcome-card__left">
-          <div class="welcome-card__greeting" id="greeting">Good morning</div>
-          <div class="welcome-card__name" id="welcomeName">Resident</div>
-          <div class="welcome-card__zone">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <span id="zoneName">Loading...</span>
-            <span class="welcome-card__badge">Active Resident</span>
-          </div>
-          <div class="welcome-card__geo" id="zoneGeo"></div>
+      <!-- Step indicator -->
+      <div class="payment-steps">
+        <div class="payment-step payment-step--active">
+          <div class="payment-step__num">1</div>
+          <div class="payment-step__label">You pay externally</div>
         </div>
-        <div class="welcome-card__right">
-          <div class="welcome-card__zo-label">Zone Operator</div>
-          <div class="welcome-card__zo-name" id="zoName">—</div>
-          <div class="welcome-card__zo-phone" id="zoPhone">—</div>
-          <div class="welcome-card__zo-status">
-            <span class="welcome-card__dot"></span> Zone active
-          </div>
+        <div class="payment-step__line"></div>
+        <div class="payment-step payment-step--active">
+          <div class="payment-step__num">2</div>
+          <div class="payment-step__label">Submit proof here</div>
         </div>
-      </div>
-
-      <!-- Next Collection -->
-      <div class="next-collection">
-        <div class="next-collection__label">Next Collection in Your Zone</div>
-        <div class="next-collection__row">
-          <div class="next-collection__icon">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--primary)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg>
-          </div>
-          <div class="next-collection__info">
-            <div class="next-collection__time">Today at 14:00 — Route A</div>
-            <div class="next-collection__detail" id="collectionDetail">Loading...</div>
-          </div>
-          <span class="badge badge--upcoming">Not Started Yet</span>
+        <div class="payment-step__line"></div>
+        <div class="payment-step">
+          <div class="payment-step__num">3</div>
+          <div class="payment-step__label">ZO verifies</div>
+        </div>
+        <div class="payment-step__line"></div>
+        <div class="payment-step">
+          <div class="payment-step__num">4</div>
+          <div class="payment-step__label">Approved</div>
         </div>
       </div>
 
-      <!-- Stat Cards -->
-      <div class="stats-grid" style="margin-bottom: 24px;">
-        <div class="stat-card">
-          <div class="stat-card__label">Loyalty Points</div>
-          <div class="stat-card__value" id="loyaltyPoints">45</div>
-          <div class="stat-card__sub">pts earned</div>
+      <!-- Submit Payment Form -->
+      <div class="section">
+        <div class="section__header">
+          <span class="section__title">Payment Details</span>
         </div>
-        <div class="stat-card">
-          <div class="stat-card__label">Open Claims</div>
-          <div class="stat-card__value" id="openClaims">2</div>
-          <div class="stat-card__sub">Awaiting review</div>
-        </div>
-      </div>
+        <div class="dashboard-form">
+          <form id="paymentForm" novalidate>
 
-      <!-- Two column section on desktop -->
-      <div class="dashboard-grid">
-
-        <!-- Submit Claim -->
-        <div class="section">
-          <div class="section__header">
-            <span class="section__title">Submit a Claim</span>
-          </div>
-          <div class="dashboard-form">
-            <form id="quickClaimForm" novalidate>
-              <div class="form-group">
-                <label for="claimType">Issue Type</label>
-                <select id="claimType" name="claimType">
-                  <option value="">— Select issue type —</option>
-                  <option value="overflow">Overflow</option>
-                  <option value="damaged">Damaged Bin</option>
-                  <option value="illegal_dumping">Illegal Dumping</option>
-                  <option value="missed_collection">Missed Collection</option>
-                  <option value="other">Other</option>
-                </select>
-                <span class="error-message" id="claimTypeError">Please select an issue type</span>
-              </div>
-              <div class="form-group">
-                <label for="claimLocation">Location</label>
-                <input type="text" id="claimLocation" placeholder="Enter the location of the issue" />
-                <span class="error-message" id="claimLocationError">Location is required</span>
-              </div>
-              <div class="form-group">
-                <label for="claimDesc">Description</label>
-                <textarea id="claimDesc" placeholder="Describe the issue" rows="3"></textarea>
-                <span class="error-message" id="claimDescError">Description is required</span>
-              </div>
-              <button type="submit" class="btn btn-primary">Submit Claim</button>
-            </form>
-          </div>
-        </div>
-
-        <!-- Claim History -->
-        <div class="section">
-          <div class="section__header">
-            <span class="section__title">My Claim History</span>
-            <a href="/static/pages/resident/resident_claims.html" class="section__link">View all →</a>
-          </div>
-          <div class="card">
-            <div class="card__row">
-              <div>
-                <div class="card__title">Overflow</div>
-                <div class="card__sub">Submitted 3 Mar · Approved</div>
-              </div>
-              <span class="badge badge--approved">Approved</span>
+            <!-- Payer Name -->
+            <div class="form-group">
+              <label for="payerName">Name on Payment</label>
+              <input
+                type="text"
+                id="payerName"
+                name="payerName"
+                placeholder="Name as it appears on the payment"
+              />
+              <span class="error-message" id="payerNameError">Name is required</span>
             </div>
-          </div>
-          <div class="card">
-            <div class="card__row">
-              <div>
-                <div class="card__title">Damaged bin</div>
-                <div class="card__sub">Submitted 1 Mar</div>
-              </div>
-              <span class="badge badge--in-progress">In Progress</span>
+
+            <!-- Payment Time -->
+            <div class="form-group">
+              <label for="paymentTime">Date & Time of Payment</label>
+              <input
+                type="datetime-local"
+                id="paymentTime"
+                name="paymentTime"
+              />
+              <span class="error-message" id="paymentTimeError">Payment date and time is required</span>
             </div>
-          </div>
-          <div class="card">
-            <div class="card__row">
-              <div>
-                <div class="card__title">Missed collection</div>
-                <div class="card__sub">Submitted 20 Feb</div>
-              </div>
-              <span class="badge badge--approved">Resolved</span>
+
+            <!-- Amount -->
+            <div class="form-group">
+              <label for="amount">Amount Paid (RWF)</label>
+              <input
+                type="number"
+                id="amount"
+                name="amount"
+                placeholder="e.g. 5000"
+                min="0"
+              />
+              <span class="error-message" id="amountError">Amount is required</span>
             </div>
+
+            <!-- Submit -->
+            <div style="margin-top: 8px;">
+              <button type="submit" class="btn btn-primary">Submit Payment Proof</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Payment History -->
+      <div class="section">
+        <div class="section__header">
+          <span class="section__title">Payment History</span>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="tabs">
+          <button class="tab active" data-filter="all">All</button>
+          <button class="tab" data-filter="under-review">Under Review</button>
+          <button class="tab" data-filter="approved">Approved</button>
+          <button class="tab" data-filter="rejected">Rejected</button>
+        </div>
+
+        <div id="paymentsList">
+          <div class="empty-state">
+            <p>Your payment history will appear here</p>
           </div>
         </div>
 
       </div>
+
     </main>
   </div>
 </div>
@@ -237,7 +203,7 @@
     </svg>
     <span>Claims</span>
   </a>
-  <a class="mn-item mn-home active" href="/static/pages/resident/resident_dash.html">
+  <a class="mn-item mn-home" href="/static/pages/resident/resident_dash.html">
     <div class="mn-home-inner">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -245,7 +211,7 @@
     </div>
     <span>Home</span>
   </a>
-  <a class="mn-item" href="/static/pages/resident/resident_payments.html">
+  <a class="mn-item active" href="/static/pages/resident/resident_payments.html">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="2" y="5" width="20" height="14" rx="2"/>
       <line x1="2" y1="10" x2="22" y2="10"/>
@@ -293,7 +259,7 @@
 </nav>
 
   <script src="/static/js/auth.js"></script>
-  <script src="/static/js/resident_dash.js"></script>
+  <script src="/static/js/resident_payments.js"></script>
   <script>
     // Profile dropdown toggle
     function toggleProfileDd(e) {
