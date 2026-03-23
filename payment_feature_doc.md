@@ -84,7 +84,7 @@ Request Body:
     "zone_id": 1,
     "amount": 5000,
     "currency": "RWF",
-    "effective_from": "2024-01-01",
+    "effective_from": "2026-01-01",
     "effective_to": null  // optional
 }
 
@@ -136,7 +136,7 @@ Content-Type: application/json
 Request Body:
 {
     "payment_month": 3,
-    "payment_year": 2024,
+    "payment_year": 2026,
     "payment_method": "mobile_money",
     "transaction_reference": "MTN123456789",
     "proof_url": "https://cloudinary.com/receipt.jpg"
@@ -175,7 +175,7 @@ Response: 200 OK
 ```
 GET /api/payments/
 GET /api/payments/?status=pending
-GET /api/payments/?zone_id=1&month=3&year=2024
+GET /api/payments/?zone_id=1&month=3&year=2026
 
 Authorization: Bearer <token>
 - Resident: sees own payments only
@@ -192,7 +192,7 @@ Authorization: Bearer <token>
 #### Get Payment Statistics
 ```
 GET /api/payments/stats
-GET /api/payments/stats?zone_id=1&month=3&year=2024
+GET /api/payments/stats?zone_id=1&month=3&year=2026
 
 Authorization: Bearer <admin_or_zone_operator_token>
 
@@ -499,7 +499,7 @@ flask db upgrade
 ### Complete Payment Cycle
 
 1. **Admin sets price:**
-   - Admin sets 5000 RWF for Zone A starting 2024-01-01
+   - Admin sets 5000 RWF for Zone A starting 2026-01-01
 
 2. **Resident pays:**
    - Resident in Zone A views current price: 5000 RWF
