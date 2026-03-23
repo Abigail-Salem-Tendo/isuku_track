@@ -14,9 +14,11 @@
 <aside class="sb">
   <div class="sb-top">
     <div class="sb-logo">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M12 3C12 3 5 9 5 15a7 7 0 0014 0C19 9 12 3 12 3Z" fill="white" opacity=".9"/>
-        <path d="M12 10v6M9.5 14l2.5 2 2.5-2" stroke="#2e7d52" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line>
+        <line x1="14" y1="11" x2="14" y2="17"></line>
       </svg>
     </div>
     <div>
@@ -27,65 +29,64 @@
 
   <div class="sb-sec">
     <div class="sb-lbl">Overview</div>
-    <div class="sb-a on">
+    <a class="sb-a on" href="/admin/dashboard" aria-label="Go to dashboard">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Dashboard
-    </div>
-    <div class="sb-a">
+    </a>
+    <a class="sb-a" href="/admin/zones" aria-label="Go to zones page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
       Zones <span class="sb-badge am" id="sbZonesCount">8</span>
-    </div>
-    <div class="sb-a">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Zone Operators <span class="sb-badge" id="sbZoneOperatorsCount">0</span>
-    </div>
-    <div class="sb-a">
+    </a>
+    <a class="sb-a" href="/admin/users" aria-label="Go to users page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Users
+    </a>
+    <div class="sb-a" data-action="promote-zone-operator" role="button" tabindex="0" aria-label="Promote user to zone operator">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M17 11h6"/></svg>
+      Zone Operator
     </div>
   </div>
 
   <div class="sb-sec">
     <div class="sb-lbl">Operations</div>
-    <div class="sb-a">
+    <div class="sb-a" data-nav="operations" role="button" tabindex="0" aria-label="Go to operations section">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       Schedules
     </div>
-    <div class="sb-a">
+    <a class="sb-a" href="/admin/vehicles" aria-label="Go to vehicles page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
       Vehicles
-    </div>
-    <div class="sb-a">
+    </a>
+    <a class="sb-a" href="/admin/claims" aria-label="Go to claims page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Claims <span class="sb-badge" id="sbClaimsCount">5</span>
-    </div>
-    <div class="sb-a">
+    </a>
+    <a class="sb-a" href="/admin/payments" aria-label="Go to payments page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
       Payments
-    </div>
+    </a>
   </div>
 
   <div class="sb-sec">
     <div class="sb-lbl">Reports</div>
-    <div class="sb-a">
+    <div class="sb-a" data-nav="reports" role="button" tabindex="0" aria-label="Go to reports section">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Reports
     </div>
   </div>
 
   <div class="sb-foot">
-    <div class="sb-user-wrap" id="adminMenuWrap">
-      <button type="button" class="sb-user" id="adminMenuToggle" aria-haspopup="true" aria-expanded="false" aria-controls="adminMenu">
-        <div class="sb-av">AD</div>
-        <div>
-          <div class="sb-un" id="adminName">Admin</div>
-          <div class="sb-ur">System Administrator</div>
-        </div>
-      </button>
-      <div class="sb-user-menu" id="adminMenu" role="menu" aria-label="Administrator menu">
-        <button type="button" class="sb-user-menu-item" data-admin-action="profile">A. Administrator</button>
-        <button type="button" class="sb-user-menu-item" data-admin-action="settings">Settings</button>
-        <button type="button" class="sb-user-menu-item logout" data-admin-action="logout">Logout</button>
+    <div class="sb-profile" tabindex="0">
+      <div class="sb-user" aria-label="Open administrator menu">
+        <span class="sb-admin-badge" aria-hidden="true">A</span>
+        <button type="button" class="sb-menu-toggle" id="sbMenuToggle" aria-label="Open administrator options" aria-expanded="false" aria-controls="sbProfileMenu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+      <div class="sb-menu" id="sbProfileMenu" role="menu" aria-label="Administrator actions">
+        <button type="button" class="sb-menu-item" data-profile-action="administrator-access" role="menuitem">Administrator Access</button>
+        <button type="button" class="sb-menu-item" data-profile-action="settings" role="menuitem">Settings</button>
+        <button type="button" class="sb-menu-item danger" data-profile-action="logout" role="menuitem">Logout</button>
       </div>
     </div>
   </div>
@@ -101,11 +102,18 @@
       <p id="dashboardDate">Wednesday, 11 March 2026 — Kimironko Sector</p>
     </div>
     <div class="tb-r">
-      <div class="icon-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <div class="notif-dot"></div>
+      <div class="notif-wrap">
+        <button type="button" class="icon-btn" id="notifToggle" aria-label="Open notifications" aria-expanded="false" aria-controls="notifPanel">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div class="notif-dot"></div>
+        </button>
+        <div class="notif-panel" id="notifPanel" role="menu" aria-label="Notifications">
+          <div class="notif-head">Notifications</div>
+          <div class="notif-item"><div class="notif-title">New zone created</div><div class="notif-time">2 min ago</div></div>
+          <div class="notif-item"><div class="notif-title">Vehicle RAD 003C in maintenance</div><div class="notif-time">20 min ago</div></div>
+          <div class="notif-item"><div class="notif-title">3 new claims reported</div><div class="notif-time">1 hour ago</div></div>
+        </div>
       </div>
-      <div class="av" id="adminAvatar">AD</div>
       <div class="ham" onclick="toggleSb()" aria-label="Menu">
         <span></span><span></span><span></span>
       </div>
@@ -114,7 +122,7 @@
 
   <div class="page">
     <!-- ── Stats ── -->
-    <div class="sg">
+    <div class="sg" id="section-overview">
       <div class="sc gr">
         <div class="sc-ico gr">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
@@ -147,18 +155,10 @@
         <div class="sc-val" id="statTotalResidents">1,204</div>
         <div class="sc-sub"><span class="up">+34</span> this week</div>
       </div>
-      <div class="sc bl">
-        <div class="sc-ico bl">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4481c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <div class="sc-lbl">Zone Operators</div>
-        <div class="sc-val" id="statZoneOperators">0</div>
-        <div class="sc-sub">Assigned across active zones</div>
-      </div>
     </div>
 
     <!-- ── Quick Actions ── -->
-    <div class="card card--mb">
+    <div class="card card--mb" id="section-operations">
       <div class="ch">
         <div class="ct">Quick Actions</div>
       </div>
@@ -189,9 +189,15 @@
       <div class="card">
         <div class="ch">
           <div class="ct">Zone Overview</div>
-          <a class="ca" data-action="manage-zones">Manage all →</a>
+          <div class="ch-actions">
+            <a class="ca" data-action="promote-zone-operator">Promote User →</a>
+            <a class="ca" data-action="manage-zones">Manage all →</a>
+          </div>
         </div>
         <div class="cb cb--pt">
+          <button type="button" class="zo-promote-btn" data-action="promote-zone-operator" aria-label="Promote user to zone operator">
+            Promote User to Zone Operator
+          </button>
           <table class="zt">
             <thead>
               <tr>
@@ -338,10 +344,10 @@
       </div>
     </div>
 
-    <!-- ── Weekly Reports ── -->
-    <div class="card">
+    <!-- ── Reports ── -->
+    <div class="card" id="section-reports">
       <div class="ch">
-        <div class="ct">Latest Weekly Reports from Zone Operators</div>
+        <div class="ct">Latest Reports from Zone Operators</div>
         <a class="ca" data-action="all-reports">All reports →</a>
       </div>
       <div class="cb cb--pt" id="reportsList">
@@ -363,6 +369,15 @@
       </div>
     </div>
 
+    <div class="card" id="section-settings">
+      <div class="ch">
+        <div class="ct">Settings</div>
+      </div>
+      <div class="cb">
+        <p class="ci-meta">Configure system preferences, roles, and notifications from this section.</p>
+      </div>
+    </div>
+
   </div><!-- /.page -->
 </div><!-- /.main -->
 
@@ -373,7 +388,7 @@
      MOBILE BOTTOM NAV
      ══════════════════════════════ -->
 <nav class="mob-nav">
-  <div class="mn-item active">
+  <div class="mn-item active" data-nav="overview" role="button" tabindex="0" aria-label="Go to overview section">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
     <span>Overview</span>
   </div>
@@ -389,9 +404,9 @@
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
     <span>Payments</span>
   </div>
-  <div class="mn-item" onclick="toggleSb()">
+  <div class="mn-item" data-nav="settings" role="button" tabindex="0" aria-label="Go to settings section">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    <span>More</span>
+    <span>Settings</span>
   </div>
 </nav>
 
