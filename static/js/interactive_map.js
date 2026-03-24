@@ -6,7 +6,7 @@ const map = L.map('map').setView([-1.95, 30.08], 13);
 // --- CUSTOM ICONS DEFINTIONS ---
 // Using FontAwesome icons wrapped in a Leaflet divIcon
 const operatorIcon = L.divIcon({
-    html: '<div class="custom-map-icon" style="background: #f39c12; color: white; width: 30px; height: 30px;"><i class="fa-solid fa-user-helmet-safety"></i></div>',
+    html: '<div class="custom-map-icon" style="background: #f39c12; color: white; width: 30px; height: 30px;"><i class="fa-solid fa-person"></i></div>',
     className: '',
     iconSize: [30, 30],
     iconAnchor: [15, 15] 
