@@ -203,7 +203,7 @@ async function loadZones() {
         globalZones.forEach(zone => {
             if (zone.latitude && zone.longitude) {
                 
-                // Draw the blue territory circle
+                
                 const circle = L.circle([zone.latitude, zone.longitude], {
                     color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.35, weight: 2, radius: 800
                 }).addTo(map);
