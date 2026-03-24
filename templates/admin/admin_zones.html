@@ -25,22 +25,22 @@
 
   <div class="sb-sec">
     <div class="sb-lbl">Overview</div>
-    <a class="sb-a" href="/admin/dashboard" aria-label="Go to dashboard">Dashboard</a>
-    <a class="sb-a on" href="/admin/zones" aria-current="page" aria-label="Go to zones page">Zones</a>
-    <a class="sb-a" href="/admin/users" aria-label="Go to users page">Users</a>
-    <div class="sb-a" aria-label="Zone operator section">Zone Operator</div>
+    <a class="sb-a" href="admin_dash.html" aria-label="Go to dashboard">Dashboard</a>
+    <a class="sb-a on" href="admin_zones.html" aria-current="page" aria-label="Go to zones page">Zones</a>
+    <a class="sb-a" href="admin_users.html" aria-label="Go to users page">Users</a>
+    <a class="sb-a" href="admin_zone_operator.html" aria-label="Go to zone operator page">Zone Operator</a>
   </div>
 
   <div class="sb-sec">
     <div class="sb-lbl">Operations</div>
-    <a class="sb-a" href="/admin/dashboard#section-operations" aria-label="Go to schedules section">Schedules</a>
-    <a class="sb-a" href="/admin/claims" aria-label="Go to claims page">Claims</a>
-    <a class="sb-a" href="/admin/payments" aria-label="Go to payments page">Payments</a>
+    <a class="sb-a" href="admin_schedules.html" aria-label="Go to schedules page">Schedules</a>
+    <a class="sb-a" href="admin_claims.html" aria-label="Go to claims page">Claims</a>
+    <a class="sb-a" href="admin_payments.html" aria-label="Go to payments page">Payments</a>
   </div>
 
   <div class="sb-sec">
     <div class="sb-lbl">Reports</div>
-    <a class="sb-a" href="/admin/dashboard#section-reports" aria-label="Go to reports section">Reports</a>
+    <a class="sb-a" href="admin_reports.html" aria-label="Go to reports page">Reports</a>
   </div>
 
   <div class="sb-foot">
@@ -66,7 +66,7 @@
   <header class="topbar">
     <div class="tb-l">
       <h1>Zones Management</h1>
-      <p>View and manage all assigned collection zones</p>
+      <p id="dashboardDate" data-subtitle="View and manage all assigned collection zones">View and manage all assigned collection zones</p>
     </div>
     <div class="tb-r">
       <div class="ham" onclick="toggleSb()" aria-label="Open sidebar menu" role="button" tabindex="0">
@@ -76,24 +76,23 @@
   </header>
 
   <main class="page" id="main-content">
-    <section class="card card--mb" aria-labelledby="zonesFiltersTitle">
-      <div class="ch">
-        <div class="ct" id="zonesFiltersTitle">Filters</div>
+    <form class="sg zone-filter-ribbon" aria-label="Filter zones" id="zonesFilterRibbon">
+      <div class="sc gr">
+        <label class="sc-lbl" for="zoneFilterDistrict">District</label>
+        <input class="zone-filter-input" id="zoneFilterDistrict" type="text" name="district" placeholder="Gasabo" />
+        <div class="sc-sub">Filter by district name</div>
       </div>
-      <div class="cb">
-        <form class="qa-grid" aria-label="Filter zones">
-          <label class="mf-lbl">District
-            <input class="mf-in" type="text" name="district" placeholder="Gasabo" />
-          </label>
-          <label class="mf-lbl">Sector
-            <input class="mf-in" type="text" name="sector" placeholder="Kimironko" />
-          </label>
-          <label class="mf-lbl">Operator
-            <input class="mf-in" type="text" name="operator" placeholder="Search operator" />
-          </label>
-        </form>
+      <div class="sc am">
+        <label class="sc-lbl" for="zoneFilterSector">Sector</label>
+        <input class="zone-filter-input" id="zoneFilterSector" type="text" name="sector" placeholder="Kimironko" />
+        <div class="sc-sub">Filter by sector</div>
       </div>
-    </section>
+      <div class="sc bl">
+        <label class="sc-lbl" for="zoneFilterOperator">Operator</label>
+        <input class="zone-filter-input" id="zoneFilterOperator" type="text" name="operator" placeholder="Search operator" />
+        <div class="sc-sub">Filter by operator name</div>
+      </div>
+    </form>
 
     <section class="card" aria-labelledby="zonesTableTitle">
       <div class="ch">
@@ -157,6 +156,20 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
   localStorage.removeItem('adminName');
   window.location.href = '/login';
 });
+
+(function () {
+  var d = document.getElementById('dashboardDate');
+  if (!d) return;
+  var s = d.getAttribute('data-subtitle') || d.textContent.trim();
+  var n = new Date();
+  var l = n.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
+  d.textContent = l + ' — ' + s;
+})();
 </script>
 </body>
 </html>

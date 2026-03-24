@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payments - Admin | Isuku Track</title>
+  <link rel="stylesheet" href="/static/css/admin_dash.css" />
+</head>
+<body>
+<aside class="sb" aria-label="Admin sidebar navigation">
+  <div class="sb-top">
+    <div class="sb-logo" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line>
+        <line x1="14" y1="11" x2="14" y2="17"></line>
+      </svg>
+    </div>
+    <div>
+      <div class="sb-name">Isuku Track</div>
+      <div class="sb-role">Admin Panel</div>
+    </div>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Overview</div>
+    <a class="sb-a" href="admin_dash.html">Dashboard</a>
+    <a class="sb-a" href="admin_zones.html">Zones</a>
+    <a class="sb-a" href="admin_users.html">Users</a>
+    <a class="sb-a" href="admin_zone_operator.html">Zone Operator</a>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Operations</div>
+    <a class="sb-a" href="admin_schedules.html">Schedules</a>
+    <a class="sb-a" href="admin_claims.html">Claims</a>
+    <a class="sb-a on" href="admin_payments.html" aria-current="page">Payments</a>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Reports</div>
+    <a class="sb-a" href="admin_reports.html">Reports</a>
+  </div>
+
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-av">AD</div>
+      <div>
+        <div class="sb-un">Administrator</div>
+        <div class="sb-ur">System Admin</div>
+      </div>
+    </div>
+    <button type="button" class="sb-logout" id="logoutBtn">Logout</button>
+  </div>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <div class="tb-l">
+      <h1>Payment Verifications</h1>
+      <p id="dashboardDate" data-subtitle="Kimironko Zone A · 4 pending verifications">Kimironko Zone A · 4 pending verifications</p>
+    </div>
+    <div class="tb-r">
+      <div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="sg">
+      <div class="sc">
+        <div class="sc-lbl">This Week</div>
+        <div class="sc-val">41</div>
+        <div class="sc-sub"><span class="up">↑5</span> vs last week</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Pending</div>
+        <div class="sc-val" style="color:var(--red)">4</div>
+        <div class="sc-sub">awaiting review</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Revenue (week)</div>
+        <div class="sc-val" style="font-size:1.1rem">46,500</div>
+        <div class="sc-sub">RWF collected</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Collection Rate</div>
+        <div class="sc-val" style="font-size:1.3rem">96%</div>
+        <div class="sc-sub"><span class="up">↑2%</span> vs last week</div>
+      </div>
+    </div>
+
+    <div class="ftabs">
+      <button class="ftab on" data-filter="All">All</button>
+      <button class="ftab" data-filter="Pending">Pending</button>
+      <button class="ftab" data-filter="Approved">Approved</button>
+      <button class="ftab" data-filter="Rejected">Rejected</button>
+    </div>
+
+    <section class="card">
+      <div class="ch">
+        <div class="ct">Payment Verifications</div>
+        <span class="b op" style="font-size:.73rem;">4 pending</span>
+      </div>
+      <div class="cb" id="paymentsList">
+        <div class="pi" data-status="Pending">
+          <div class="pi-av">CU</div>
+          <div>
+            <div class="pi-name">Clarisse Uwase</div>
+            <div class="pi-meta">Submitted 2h ago · 1,500 RWF claimed</div>
+          </div>
+          <div class="pi-amt">1,500 RWF</div>
+          <div class="pay-actions">
+            <button class="btn-ok btn-approve-pay">Verify &amp; Approve</button>
+            <button class="btn-no btn-reject-pay">Reject</button>
+          </div>
+        </div>
+
+        <div class="pi" data-status="Pending">
+          <div class="pi-av">EH</div>
+          <div>
+            <div class="pi-name">Emmanuel Habimana</div>
+            <div class="pi-meta">Submitted 4h ago · 3,000 RWF claimed</div>
+          </div>
+          <div class="pi-amt">3,000 RWF</div>
+          <div class="pay-actions">
+            <button class="btn-ok btn-approve-pay">Verify &amp; Approve</button>
+            <button class="btn-no btn-reject-pay">Reject</button>
+          </div>
+        </div>
+
+        <div class="pi" data-status="Pending">
+          <div class="pi-av">DI</div>
+          <div>
+            <div class="pi-name">Diane Iradukunda</div>
+            <div class="pi-meta">Submitted 6h ago · 2,500 RWF claimed</div>
+          </div>
+          <div class="pi-amt">2,500 RWF</div>
+          <div class="pay-actions">
+            <button class="btn-ok btn-approve-pay">Verify &amp; Approve</button>
+            <button class="btn-no btn-reject-pay">Reject</button>
+          </div>
+        </div>
+
+        <div class="pi" data-status="Pending">
+          <div class="pi-av">SN</div>
+          <div>
+            <div class="pi-name">Samuel Niyonzima</div>
+            <div class="pi-meta">Submitted 8h ago · 1,000 RWF claimed</div>
+          </div>
+          <div class="pi-amt">1,000 RWF</div>
+          <div class="pay-actions">
+            <button class="btn-ok btn-approve-pay">Verify &amp; Approve</button>
+            <button class="btn-no btn-reject-pay">Reject</button>
+          </div>
+        </div>
+
+        <div class="pi" data-status="Approved">
+          <div class="pi-av">AM</div>
+          <div>
+            <div class="pi-name">Aline Mukamana</div>
+            <div class="pi-meta">Submitted yesterday · 1,500 RWF</div>
+          </div>
+          <div class="pi-amt">1,500 RWF</div>
+          <span class="b ok">Approved</span>
+        </div>
+
+        <div class="pi" data-status="Approved">
+          <div class="pi-av">KM</div>
+          <div>
+            <div class="pi-name">Kevin Mugenzi</div>
+            <div class="pi-meta">Submitted 2 days ago · 2,000 RWF</div>
+          </div>
+          <div class="pi-amt">2,000 RWF</div>
+          <span class="b ok">Approved</span>
+        </div>
+
+        <div class="pi" data-status="Rejected">
+          <div class="pi-av">YU</div>
+          <div>
+            <div class="pi-name">Yvette Uwera</div>
+            <div class="pi-meta">Submitted 3 days ago · 500 RWF</div>
+          </div>
+          <div class="pi-amt">500 RWF</div>
+          <span class="b op">Rejected</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleSb()"></div>
+
+<script>
+function toggleSb() {
+  var sb = document.querySelector('.sb');
+  var overlay = document.getElementById('overlay');
+  if (sb) sb.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('open');
+}
+
+document.getElementById('logoutBtn')?.addEventListener('click', function () {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('userRole');
+  localStorage.removeItem('adminName');
+  window.location.href = '/login';
+});
+
+function applyPaymentsFilter(filter) {
+  document.querySelectorAll('#paymentsList .pi').forEach(function (item) {
+    var status = item.getAttribute('data-status') || 'Pending';
+    item.style.display = (filter === 'All' || filter === status) ? '' : 'none';
+  });
+}
+
+document.querySelectorAll('.ftab').forEach(function (tab) {
+  tab.addEventListener('click', function () {
+    document.querySelectorAll('.ftab').forEach(function (t) { t.classList.remove('on'); });
+    tab.classList.add('on');
+    applyPaymentsFilter(tab.getAttribute('data-filter') || 'All');
+  });
+});
+
+document.querySelectorAll('.btn-approve-pay').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var row = btn.closest('.pi');
+    var actions = row ? row.querySelector('.pay-actions') : null;
+    if (!actions || !row) return;
+    row.setAttribute('data-status', 'Approved');
+    actions.outerHTML = '<span class="b ok">Approved</span>';
+  });
+});
+
+document.querySelectorAll('.btn-reject-pay').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var row = btn.closest('.pi');
+    var actions = row ? row.querySelector('.pay-actions') : null;
+    if (!actions || !row) return;
+    row.setAttribute('data-status', 'Rejected');
+    actions.outerHTML = '<span class="b op">Rejected</span>';
+  });
+});
+
+(function () {
+  var d = document.getElementById('dashboardDate');
+  if (!d) return;
+  var s = d.getAttribute('data-subtitle') || d.textContent.trim();
+  var n = new Date();
+  var l = n.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
+  d.textContent = l + ' — ' + s;
+})();
+</script>
+</body>
+</html>

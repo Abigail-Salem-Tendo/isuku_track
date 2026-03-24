@@ -171,11 +171,22 @@
       </div>
     </div>
 
-    <div class="ftabs">
-      <button class="ftab on" onclick="filterTab(this)">All</button>
-      <button class="ftab" onclick="filterTab(this)">Today</button>
-      <button class="ftab" onclick="filterTab(this)">Upcoming</button>
-      <button class="ftab" onclick="filterTab(this)">Completed</button>
+    <div class="sg schedule-status-ribbon ftabs" aria-label="Schedule status filters">
+      <button class="sc ftab" type="button" onclick="filterTab(this)">
+        <div class="sc-lbl">Completed</div>
+        <div class="sc-val" id="schedCompletedCount">0</div>
+        <div class="sc-sub">finished routes</div>
+      </button>
+      <button class="sc ftab" type="button" onclick="filterTab(this)">
+        <div class="sc-lbl">Ongoing</div>
+        <div class="sc-val" id="schedOngoingCount">0</div>
+        <div class="sc-sub">active now</div>
+      </button>
+      <button class="sc ftab on" type="button" onclick="filterTab(this)">
+        <div class="sc-lbl">Pending</div>
+        <div class="sc-val" id="schedPendingCount">0</div>
+        <div class="sc-sub">not started</div>
+      </button>
     </div>
 
     <div class="card">

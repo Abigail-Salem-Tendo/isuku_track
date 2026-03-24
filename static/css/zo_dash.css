@@ -534,6 +534,33 @@ body {
 .ftab.on { background: var(--g1); border-color: var(--g1); color: #fff; }
 .ftab:hover:not(.on) { background: var(--g-pale); border-color: var(--g2); color: var(--g1); }
 
+.schedule-status-ribbon {
+  grid-template-columns: repeat(3, 1fr);
+  margin-bottom: 20px;
+}
+
+.schedule-status-ribbon .ftab {
+  border-radius: 14px;
+  text-align: left;
+  padding: 18px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  display: grid;
+  gap: 6px;
+}
+
+.schedule-status-ribbon .ftab .sc-lbl,
+.schedule-status-ribbon .ftab .sc-sub,
+.schedule-status-ribbon .ftab .sc-val {
+  transition: color .15s ease;
+}
+
+.schedule-status-ribbon .ftab.on .sc-lbl,
+.schedule-status-ribbon .ftab.on .sc-sub,
+.schedule-status-ribbon .ftab.on .sc-val {
+  color: #fff;
+}
+
 /* RESIDENTS */
 .ri { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); }
 .ri:first-child { border-top: none; padding-top: 0; }

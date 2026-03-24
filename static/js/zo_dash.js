@@ -32,10 +32,10 @@ function claimsStatus(item) {
 
 function schedulesStatus(item) {
   const badge = item.querySelector('.si-right .b');
-  if (badge && textOf(badge).toLowerCase().indexOf('completed') !== -1) return 'Completed';
-  const when = textOf(item.querySelector('.si-time .sd')).toLowerCase();
-  if (when.indexOf('today') !== -1) return 'Today';
-  return 'Upcoming';
+  const status = textOf(badge).toLowerCase();
+  if (status.indexOf('completed') !== -1) return 'Completed';
+  if (status.indexOf('ongoing') !== -1) return 'Ongoing';
+  return 'Pending';
 }
 
 function paymentsStatus(item) {
@@ -62,8 +62,25 @@ function applyClaimsFilter(f) {
 }
 function applySchedulesFilter(f) {
   document.querySelectorAll('.si').forEach(item => {
-    item.style.display = (f === 'All' || schedulesStatus(item) === f) ? '' : 'none';
+    item.style.display = (schedulesStatus(item) === f) ? '' : 'none';
   });
+}
+
+function updateScheduleStatusBoxes() {
+  if (!document.querySelector('.schedule-status-ribbon')) return;
+  const all = Array.from(document.querySelectorAll('.si'));
+  const counts = { Completed: 0, Ongoing: 0, Pending: 0 };
+  all.forEach(item => {
+    const status = schedulesStatus(item);
+    if (counts[status] !== undefined) counts[status] += 1;
+  });
+
+  const completedEl = document.getElementById('schedCompletedCount');
+  const ongoingEl = document.getElementById('schedOngoingCount');
+  const pendingEl = document.getElementById('schedPendingCount');
+  if (completedEl) completedEl.textContent = String(counts.Completed);
+  if (ongoingEl) ongoingEl.textContent = String(counts.Ongoing);
+  if (pendingEl) pendingEl.textContent = String(counts.Pending);
 }
 function applyPaymentsFilter(f) {
   document.querySelectorAll('.pi').forEach(item => {
@@ -100,11 +117,13 @@ function startRoute(btn, badgeId) {
   badge.textContent = 'Ongoing';
   btn.textContent = 'Mark Complete';
   btn.classList.add('go');
+  updateScheduleStatusBoxes();
   applyActiveFilter();
   btn.onclick = function() {
     badge.className = 'b ok';
     badge.textContent = 'Completed';
     btn.style.display = 'none';
+    updateScheduleStatusBoxes();
     applyActiveFilter();
   };
 }
@@ -147,6 +166,7 @@ if (saveBtn) {
 }
 
 if (document.querySelector('.ftabs')) applyActiveFilter();
+updateScheduleStatusBoxes();
 
 const residentsSearchInput = document.querySelector('.search-inp');
 if (residentsSearchInput && document.querySelector('.ri')) {

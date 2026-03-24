@@ -560,6 +560,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function setDashboardDate() {
     var dateEl = document.getElementById('dashboardDate');
     if (!dateEl) return;
+    var subtitle = dateEl.getAttribute('data-subtitle') || 'Kimironko Sector';
     var now = new Date();
     var dateLabel = now.toLocaleDateString('en-GB', {
       weekday: 'long',
@@ -567,7 +568,7 @@ document.addEventListener('DOMContentLoaded', function () {
       month: 'long',
       year: 'numeric'
     });
-    dateEl.textContent = dateLabel + ' — Kimironko Sector';
+    dateEl.textContent = dateLabel + ' — ' + subtitle;
   }
 
   function closeSidebarOnDesktop() {
