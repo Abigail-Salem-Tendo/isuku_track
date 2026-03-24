@@ -195,15 +195,12 @@ async function loadZones() {
         const response = await fetch(`${API_BASE}/api/zones/`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        const zones = await response.json();
         
-        const sidebar = document.getElementById('sidebarContent');
-        sidebar.innerHTML = ''; 
-
-        // 1. Building the Active Zones Section in Sidebar
-        let html = `<div class="panel-section-title">Active Zones (${zones.length})</div>`;
-
-        zones.forEach(zone => {
+        // save the data directly into our global state
+        globalZones = await response.json(); 
+        
+        // Draw the circles on the map
+        globalZones.forEach(zone => {
             if (zone.latitude && zone.longitude) {
                 
                 // Draw the blue territory circle
@@ -211,18 +208,18 @@ async function loadZones() {
                     color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.35, weight: 2, radius: 800
                 }).addTo(map);
 
-                
+                // Save reference so the sidebar can trigger it
                 mapLayers[`zone_${zone.id}`] = circle;
 
                 const isAssigned = zone.zone_operator_name ? true : false;
                 
-                // If assigned, drop a Human Icon  for zone operator dead center in the zone
+                // If assigned, drop a Human Icon dead center in the zone
                 if (isAssigned) {
                     const opMarker = L.marker([zone.latitude, zone.longitude], { icon: operatorIcon }).addTo(map);
                     opMarker.bindPopup(`<b>Operator:</b> ${zone.zone_operator_name}<br><b>Zone:</b> ${zone.name}`);
                 }
 
-                
+                // Bind existing Zone Popup
                 const badgeClass = isAssigned ? 'status-badge' : 'status-badge pending';
                 const badgeText = isAssigned ? 'Operator Assigned' : 'Pending Assignment';
                 circle.bindPopup(`
@@ -230,28 +227,10 @@ async function loadZones() {
                         <h3>${zone.name}</h3>
                         <p><strong>District:</strong> ${zone.district}</p>
                         <span class="${badgeClass}">${badgeText}</span>
-                        <br><br>
-                        <button onclick="triggerEditModal(${zone.id})" style="width: 100%; padding: 5px; cursor: pointer; margin-top: 10px;">
-                            Edit & Assign Operator
-                        </button>
                     </div>
                 `);
-
-                // Add to Sidebar HTML
-                html += `
-                    <div class="entity-item" onclick="flyToMapItem(${zone.latitude}, ${zone.longitude}, 'zone_${zone.id}')">
-                        <div class="entity-icon bg-zone"><i class="fa-solid fa-map-location-dot"></i></div>
-                        <div class="entity-details">
-                            <div class="entity-name">${zone.name}</div>
-                            <div class="entity-sub">${zone.district} · ${isAssigned ? zone.zone_operator_name : 'Unassigned'}</div>
-                        </div>
-                    </div>
-                `;
             }
         });
-
-        // Inject the HTML into the sidebar
-        sidebar.innerHTML = html;
 
     } catch (error) {
         console.error('Error fetching zones:', error);
