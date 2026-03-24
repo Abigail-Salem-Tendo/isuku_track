@@ -394,43 +394,40 @@ window.triggerAssignModal = function(zoneId, zoneName) {
 };
 
 
-// FEATURE: DRAG & DROP ASSIGNMENT LOGIC
 
+
+// DRAG & DROP ASSIGNMENT LOGIC
+
+// Init drag data
 window.handleDragStart = function(event, operatorId, operatorName) {
-    // Packaging the operator's data into the drag event
     event.dataTransfer.setData('operatorId', operatorId);
     event.dataTransfer.setData('operatorName', operatorName);
     event.dataTransfer.effectAllowed = 'move';
 };
 
-// 2. Telling the Map Container to accept dropped items
+// Allow drop on map
 const mapContainer = document.getElementById('map');
-
 mapContainer.addEventListener('dragover', function(e) {
-    e.preventDefault(); 
+    e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
 });
 
-
+// Process drop event
 mapContainer.addEventListener('drop', async function(e) {
     e.preventDefault();
     
-
     const operatorId = e.dataTransfer.getData('operatorId');
     const operatorName = e.dataTransfer.getData('operatorName');
+    if (!operatorId) return;
 
-    if (!operatorId) return; // If they dropped something else by accident
-
-    // Converting the screen pixel where the mouse let go into GPS Coordinates
+    // Convert drop coordinates
     const dropLatLng = map.mouseEventToLatLng(e);
-
-    // Check if they dropped the operator inside an existing Zone (800m radius)
     let targetZone = null;
     
+    // Check intersection with zones (800m radius)
     for (let i = 0; i < globalZones.length; i++) {
         const zone = globalZones[i];
         const zoneLatLng = L.latLng(zone.latitude, zone.longitude);
-        
         
         if (dropLatLng.distanceTo(zoneLatLng) <= 800) {
             targetZone = zone;
@@ -439,21 +436,36 @@ mapContainer.addEventListener('drop', async function(e) {
     }
 
     if (targetZone) {
-        // Confirming the assignment
-        if(confirm(`Assign ${operatorName} to ${targetZone.name}?`)) {
+        // Custom confirmation modal
+        const result = await Swal.fire({
+            title: 'Confirm Assignment',
+            text: `Assign ${operatorName} to ${targetZone.name}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2e7d52',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, assign operator'
+        });
+
+        if (result.isConfirmed) {
             await assignOperatorToZone(operatorId, targetZone.id);
         }
     } else {
-        alert("Drop missed! You must drop the operator inside the blue circle of a zone.");
+        // Custom error modal
+        Swal.fire({
+            title: 'Invalid Drop Location',
+            text: 'Operator must be dropped inside a zone radius.',
+            icon: 'warning',
+            confirmButtonColor: '#2e7d52'
+        });
     }
 });
 
-// 4. Sending Assignment to the Backend
+// Execute assignment API call
 async function assignOperatorToZone(operatorId, zoneId) {
     const token = localStorage.getItem('access_token');
     
     try {
-        // Sending a PUT request to update the zone with the new operator_id
         const response = await fetch(`${API_BASE}/api/zones/${zoneId}`, {
             method: 'PUT',
             headers: {
@@ -464,17 +476,182 @@ async function assignOperatorToZone(operatorId, zoneId) {
         });
 
         if (response.ok) {
-            // Success! Refresh the page so the map redraws with the new Orange Human icon inside the zone
-            location.reload(); 
+            // Success toast & reload
+            Swal.fire({
+                title: 'Assigned!',
+                text: 'Zone operator updated successfully.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                location.reload();
+            });
         } else {
             const errorData = await response.json();
-            alert(`Assignment Failed: ${errorData.error}`);
+            Swal.fire('Update Failed', errorData.error, 'error');
         }
     } catch (error) {
-        console.error("Assignment failed", error);
+        console.error("API Error:", error);
+        Swal.fire('Error', 'Network or server error occurred.', 'error');
     }
 }
 
+
+
+// EDIT ZONE MODAL
+
+window.triggerEditModal = function(zoneId) {
+    console.log("Opening modal for Zone ID:", zoneId);
+
+    // Use == so string IDs match integer IDs
+    const zone = globalZones.find(z => z.id == zoneId); 
+    
+    if (!zone) {
+        console.error("Zone not found in global array!");
+        return; 
+    }
+
+    const modal = document.getElementById('adminModal');
+    const form = document.getElementById('modalForm');
+    const title = document.getElementById('modalTitle');
+
+    title.textContent = "Edit Zone Details";
+
+    // Build the dropdown of Operators
+    let operatorOptions = `<option value="">-- Unassigned --</option>`;
+    globalOperators.forEach(op => {
+        if (!op.zone_id || op.zone_id === zone.id) {
+            const isSelected = (op.id === zone.zone_operator_id) ? "selected" : "";
+            operatorOptions += `<option value="${op.id}" ${isSelected}>${op.username} (${op.phone_number || 'No phone'})</option>`;
+        }
+    });
+
+    // Inject the HTML into the modal, INCLUDING the Delete button
+    form.innerHTML = `
+        <input type="hidden" id="editZoneId" value="${zone.id}">
+
+        <div style="margin-bottom: 10px;">
+            <label>Zone Name *</label>
+            <input type="text" id="editZoneName" required value="${zone.name}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <div style="flex: 1;">
+                <label>District</label>
+                <input type="text" value="${zone.district}" disabled style="width: 100%; padding: 8px; background: #eee; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div style="flex: 1;">
+                <label>Sector</label>
+                <input type="text" value="${zone.sector}" disabled style="width: 100%; padding: 8px; background: #eee; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Assign Zone Operator</label>
+            <select id="editZoneOperator" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                ${operatorOptions}
+            </select>
+            <small style="color: #666; display: block; margin-top: 5px;">Note: You can also assign operators by dragging them from the sidebar.</small>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="button" onclick="deleteZone(${zone.id}, '${zone.name}')" style="flex: 1; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-trash"></i> Delete
+            </button>
+            <button type="submit" style="flex: 2; padding: 10px; background: #2980b9; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-save"></i> Save Changes
+            </button>
+        </div>
+    `;
+
+    // Show the modal
+    modal.style.display = 'flex';
+
+    // Handle the form submission (Update)
+    form.onsubmit = async function(e) {
+        e.preventDefault();
+        
+        const updatedName = document.getElementById('editZoneName').value;
+        const selectedOperatorId = document.getElementById('editZoneOperator').value;
+        
+        const payload = { name: updatedName };
+        if (selectedOperatorId) {
+            payload.zone_operator_id = parseInt(selectedOperatorId);
+        } else {
+            payload.zone_operator_id = null;
+        }
+
+        const token = localStorage.getItem('access_token');
+        
+        try {
+            const response = await fetch(`${API_BASE}/api/zones/${zone.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                location.reload(); 
+            } else {
+                const errorData = await response.json();
+                alert(`Update Failed: ${errorData.error}`);
+            }
+        } catch (error) {
+            console.error("Update failed", error);
+        }
+    };
+};
+
+
+// FEATURE: DELETE ZONE LOGIC
+window.deleteZone = async function(zoneId, zoneName) {
+    // Hide the modal first
+    document.getElementById('adminModal').style.display = 'none';
+
+    // Ask for confirmation using SweetAlert
+    const result = await Swal.fire({
+        title: 'Delete Zone?',
+        text: `Are you sure you want to delete ${zoneName}? This cannot be undone.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#7f8c8d',
+        confirmButtonText: 'Yes, delete it'
+    });
+
+    // If they click Yes, send the DELETE request
+    if (result.isConfirmed) {
+        const token = localStorage.getItem('access_token');
+        
+        try {
+            const response = await fetch(`${API_BASE}/api/zones/${zoneId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                Swal.fire({
+                    title: 'Deleted!',
+                    text: `${zoneName} has been removed from the map.`,
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    location.reload(); 
+                });
+            } else {
+                const errorData = await response.json();
+                Swal.fire('Error', errorData.error || 'Failed to delete', 'error');
+            }
+        } catch (error) {
+            console.error("Delete failed", error);
+            Swal.fire('Error', 'Network error occurred.', 'error');
+        }
+    }
+};
 
 async function initializeMapApp() {
     await loadZones();      // Fetch Zones and draw the blue circles
