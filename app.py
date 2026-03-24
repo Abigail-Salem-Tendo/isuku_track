@@ -5,13 +5,17 @@ from models.user import User
 from models.zone import Zone
 from models.vehicle import Vehicle
 from models.claims import Claim
+from models.payment import Payment, MonthlyPrice
+from models.notification import Notification
 from routes.auth import auth_bp
 from routes.vehicle_routes import vehicle_bp
 from routes.zone_routes import zone_bp
 from config import Config
 from routes.schedules import schedule_bp
 from routes.claims import claims_bp
+from routes.payment_routes import payment_bp
 from flask import render_template
+
 
 def create_app():
     app = Flask(__name__)
@@ -29,6 +33,8 @@ def create_app():
     app.register_blueprint(zone_bp, url_prefix='/api/zones')
     app.register_blueprint(schedule_bp, url_prefix='/api/schedules')
     app.register_blueprint(claims_bp, url_prefix='/api/claims')
+    app.register_blueprint(payment_bp, url_prefix='/api/payments')
+
 
     @app.route("/")
     @app.route("/login")
