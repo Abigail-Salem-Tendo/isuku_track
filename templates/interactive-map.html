@@ -114,6 +114,37 @@
             gap: 5px;
         }
         .map-navbar a:hover { color: #1b4d32; }
+
+        /* --- SIDEBAR TABS --- */
+        .panel-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+        .panel-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 13px;
+            font-weight: bold;
+            color: #7f8c8d;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .panel-tab:hover { color: #2e7d52; background: #eee; }
+        .panel-tab.active {
+            color: #2e7d52;
+            border-bottom-color: #2e7d52;
+            background: white;
+        }
+        
+        /* Draggable visual cue */
+        .draggable-item {
+            cursor: grab;
+            border: 1px dashed transparent;
+        }
+        .draggable-item:active { cursor: grabbing; border-color: #2e7d52; }
         
         /* Modernize the Search Bar */
         .leaflet-control-geocoder {
