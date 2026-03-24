@@ -154,6 +154,17 @@ if (residentsSearchInput && document.querySelector('.ri')) {
 }
 
 /* ── Mobile bottom nav active highlight ── */
+const currentPage = window.location.pathname.split('/').pop();
+if (currentPage) {
+  const navLinks = document.querySelectorAll('.mob-nav a.mn-item');
+  navLinks.forEach(link => {
+    const href = link.getAttribute('href') || '';
+    const linkPage = href.split('/').pop();
+    link.classList.remove('active');
+    if (linkPage === currentPage) link.classList.add('active');
+  });
+}
+
 document.querySelectorAll('.mn-item').forEach(el => {
   if (el.tagName === 'A' || el.getAttribute('href')) {
     el.addEventListener('click', () => {
