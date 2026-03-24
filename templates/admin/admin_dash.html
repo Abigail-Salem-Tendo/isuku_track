@@ -76,18 +76,21 @@
   </div>
 
   <div class="sb-foot">
-    <div class="sb-profile" tabindex="0">
-      <div class="sb-user" aria-label="Open administrator menu">
-        <span class="sb-admin-badge" aria-hidden="true">Administrator</span>
-        <button type="button" class="sb-menu-toggle" id="sbMenuToggle" aria-label="Open administrator options" aria-expanded="false" aria-controls="sbProfileMenu">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-      <div class="sb-menu" id="sbProfileMenu" role="menu" aria-label="Administrator actions">
-        <button type="button" class="sb-menu-item" data-profile-action="settings" role="menuitem">Settings</button>
-        <button type="button" class="sb-menu-item danger" data-profile-action="logout" role="menuitem">Logout</button>
+    <div class="sb-user" aria-label="Administrator profile">
+      <div class="sb-av">AD</div>
+      <div>
+        <div class="sb-un">Administrator</div>
+        <div class="sb-ur">System Admin</div>
       </div>
     </div>
+    <button type="button" class="sb-logout" data-profile-action="logout" aria-label="Logout">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Logout
+    </button>
   </div>
 </aside>
 
