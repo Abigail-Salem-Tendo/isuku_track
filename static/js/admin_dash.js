@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function () {
           localStorage.removeItem('userName');
           localStorage.removeItem('userRole');
           localStorage.removeItem('authToken');
-          window.location.href = '/login';
+          window.location.href = 'templates/login1.html';
           return;
         }
       }
