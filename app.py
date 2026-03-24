@@ -22,7 +22,7 @@ def create_app():
 
 
     app = Flask(__name__)
-    CORS(app) # allowing frontend requests
+    CORS(app, resources={r"/api/*": {"origins": "*"}})# allowing frontend requests
     app.config.from_object(Config)
 
     db.init_app(app)
