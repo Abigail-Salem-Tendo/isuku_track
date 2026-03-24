@@ -385,11 +385,6 @@ geocoder.on('markgeocode', function(e) {
     tempMarker.bindPopup(createUI).openPopup();
 });
 
-// Close the modal when the 'X' is clicked
-document.getElementById('modalClose').addEventListener('click', () => {
-    document.getElementById('adminModal').style.display = 'none';
-});
-
 // Global function to trigger assignment
 window.triggerAssignModal = function(zoneId, zoneName) {
     const operatorId = prompt(`Assigning operator to ${zoneName}.\nEnter the Operator ID:`);
