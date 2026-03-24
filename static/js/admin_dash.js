@@ -318,12 +318,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function handleProfileAction(action) {
-    if (action === 'administrator-access') {
-      navigateToSection('overview');
-      showToast('Administrator access opened');
-      return;
-    }
-
     if (action === 'settings') {
       navigateToSection('settings');
       return;
