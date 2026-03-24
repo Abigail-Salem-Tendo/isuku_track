@@ -45,6 +45,28 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   document.getElementById('todayDate').textContent = today;
 
+  // ── Loyalty Points Progress ──
+  function updateLoyaltyProgress(currentPoints, targetPoints = 100) {
+    const percentage = Math.min((currentPoints / targetPoints) * 100, 100);
+    const remaining = Math.max(targetPoints - currentPoints, 0);
+
+    document.getElementById('loyaltyPoints').textContent = currentPoints;
+    document.getElementById('loyaltyTarget').textContent = targetPoints;
+    document.getElementById('loyaltyProgressFill').style.width = percentage + '%';
+    document.getElementById('loyaltyRemaining').textContent = remaining;
+
+    // Update label text based on progress
+    const labelEl = document.querySelector('.loyalty-progress__label');
+    if (remaining === 0) {
+      labelEl.textContent = 'Reward unlocked! 🎉';
+    } else {
+      labelEl.innerHTML = '<span id="loyaltyRemaining">' + remaining + '</span> pts to next reward';
+    }
+  }
+
+  // Initialize with current points (hardcoded for now, replace with API call later)
+  updateLoyaltyProgress(45, 100);
+
   // ── Load zone info from backend ──
   // TODO: replace with real fetch when backend is ready
   // fetch('/api/resident/profile', { headers: { Authorization: 'Bearer ' + localStorage.getItem('authToken') } })
@@ -73,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
       let valid = true;
 
       const type = document.getElementById('claimType');
-      const loc  = document.getElementById('claimLocation');
+      const loc = document.getElementById('claimLocation');
       const desc = document.getElementById('claimDesc');
 
       if (!type.value) {

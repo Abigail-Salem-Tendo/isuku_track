@@ -148,6 +148,31 @@
           </div>
         </div>
 
+        <!-- Loyalty Points Progress -->
+        <div class="loyalty-card">
+          <div class="loyalty-card__header">
+            <div class="loyalty-card__label">Your Loyalty Points</div>
+            <div class="loyalty-card__icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--primary)" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </div>
+          </div>
+          <div class="loyalty-progress">
+            <div class="loyalty-progress__header">
+              <div class="loyalty-progress__current" id="loyaltyPoints">45</div>
+              <div class="loyalty-progress__target">/ <span id="loyaltyTarget">100</span> pts</div>
+            </div>
+            <div class="loyalty-progress__bar">
+              <div class="loyalty-progress__fill" id="loyaltyProgressFill" style="width: 45%;"></div>
+            </div>
+            <div class="loyalty-progress__label">
+              <span id="loyaltyRemaining">55</span> pts to next reward
+            </div>
+          </div>
+        </div>
+
         <!-- Next Collection -->
         <div class="next-collection">
           <div class="next-collection__label">Next Collection in Your Zone</div>
@@ -170,11 +195,6 @@
 
         <!-- Stat Cards -->
         <div class="stats-grid" style="margin-bottom: 24px;">
-          <div class="stat-card">
-            <div class="stat-card__label">Loyalty Points</div>
-            <div class="stat-card__value" id="loyaltyPoints">45</div>
-            <div class="stat-card__sub">pts earned</div>
-          </div>
           <div class="stat-card">
             <div class="stat-card__label">Open Claims</div>
             <div class="stat-card__value" id="openClaims">2</div>
