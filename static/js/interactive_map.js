@@ -181,56 +181,91 @@ async function saveZoneToBackend() {
     }
 }
 
-// --- FEATURE 2: FETCH ZONES & ASSIGN OPERATOR EVENTS ---
+// --- FEATURE: FETCH DATA & BUILD COMMAND CENTRE ---
 async function loadZones() {
     const token = localStorage.getItem('access_token');
- 
-    
-    if (!token) {
-        alert("You are not logged in! The map will not load data.");
-         // DEBUG TOOL: Check the console to see if the token exists
-        console.log("Current Token in Memory :",token );
-        return;
-    }
-       
-   
+    if (!token) return;
+
     try {
         const response = await fetch(`${API_BASE}/api/zones/`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        
-        if (!response.ok) throw new Error("Unauthorized or server error");
         const zones = await response.json();
+        
+        const sidebar = document.getElementById('sidebarContent');
+        sidebar.innerHTML = ''; 
+
+        // 1. Building the Active Zones Section in Sidebar
+        let html = `<div class="panel-section-title">Active Zones (${zones.length})</div>`;
 
         zones.forEach(zone => {
             if (zone.latitude && zone.longitude) {
+                
+                // Draw the blue territory circle
                 const circle = L.circle([zone.latitude, zone.longitude], {
                     color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.35, weight: 2, radius: 800
                 }).addTo(map);
+
                 
+                mapLayers[`zone_${zone.id}`] = circle;
+
                 const isAssigned = zone.zone_operator_name ? true : false;
+                
+                // If assigned, drop a Human Icon  for zone operator dead center in the zone
+                if (isAssigned) {
+                    const opMarker = L.marker([zone.latitude, zone.longitude], { icon: operatorIcon }).addTo(map);
+                    opMarker.bindPopup(`<b>Operator:</b> ${zone.zone_operator_name}<br><b>Zone:</b> ${zone.name}`);
+                }
+
+                
                 const badgeClass = isAssigned ? 'status-badge' : 'status-badge pending';
                 const badgeText = isAssigned ? 'Operator Assigned' : 'Pending Assignment';
-
-                const popupContent = `
+                circle.bindPopup(`
                     <div class="popup-content">
                         <h3>${zone.name}</h3>
                         <p><strong>District:</strong> ${zone.district}</p>
                         <span class="${badgeClass}">${badgeText}</span>
                         <br><br>
-                        <button onclick="triggerAssignModal(${zone.id}, '${zone.name}')" 
-                                style="width: 100%; padding: 5px; cursor: pointer;">
-                            ${isAssigned ? 'Reassign Operator' : 'Assign Operator'}
+                        <button onclick="triggerEditModal(${zone.id})" style="width: 100%; padding: 5px; cursor: pointer; margin-top: 10px;">
+                            Edit & Assign Operator
                         </button>
                     </div>
+                `);
+
+                // Add to Sidebar HTML
+                html += `
+                    <div class="entity-item" onclick="flyToMapItem(${zone.latitude}, ${zone.longitude}, 'zone_${zone.id}')">
+                        <div class="entity-icon bg-zone"><i class="fa-solid fa-map-location-dot"></i></div>
+                        <div class="entity-details">
+                            <div class="entity-name">${zone.name}</div>
+                            <div class="entity-sub">${zone.district} · ${isAssigned ? zone.zone_operator_name : 'Unassigned'}</div>
+                        </div>
+                    </div>
                 `;
-                circle.bindPopup(popupContent);
             }
         });
+
+        // Inject the HTML into the sidebar
+        sidebar.innerHTML = html;
+
     } catch (error) {
         console.error('Error fetching zones:', error);
     }
 }
+
+// Global function to make the map fly to a coordinate and open its popup
+window.flyToMapItem = function(lat, lng, layerId) {
+    map.flyTo([lat, lng], 15, {
+        duration: 1.5
+    });
+    
+    // Wait for the flight to finish, then open the popup
+    setTimeout(() => {
+        if (mapLayers[layerId]) {
+            mapLayers[layerId].openPopup();
+        }
+    }, 1500);
+};
 
 // --- FEATURE 3: SEARCH BAR (GEOCODING) ---
 const geocoder = L.Control.geocoder({
