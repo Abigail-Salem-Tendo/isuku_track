@@ -369,6 +369,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       var navEl = event.target.closest('[data-nav]');
       if (navEl) {
+        if (navEl.tagName === 'A' && navEl.getAttribute('href')) {
+          return;
+        }
         event.preventDefault();
         navigateToSection(navEl.getAttribute('data-nav'));
       }
