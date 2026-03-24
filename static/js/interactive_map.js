@@ -208,7 +208,7 @@ async function loadZones() {
                     color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.35, weight: 2, radius: 800
                 }).addTo(map);
 
-                // Save reference so the sidebar can trigger it
+            
                 mapLayers[`zone_${zone.id}`] = circle;
 
                 const isAssigned = zone.zone_operator_name ? true : false;
@@ -219,14 +219,19 @@ async function loadZones() {
                     opMarker.bindPopup(`<b>Operator:</b> ${zone.zone_operator_name}<br><b>Zone:</b> ${zone.name}`);
                 }
 
-                // Bind existing Zone Popup
+                // Bind existing Zone Popup WITH the Edit Button
                 const badgeClass = isAssigned ? 'status-badge' : 'status-badge pending';
                 const badgeText = isAssigned ? 'Operator Assigned' : 'Pending Assignment';
+                
                 circle.bindPopup(`
-                    <div class="popup-content">
-                        <h3>${zone.name}</h3>
-                        <p><strong>District:</strong> ${zone.district}</p>
-                        <span class="${badgeClass}">${badgeText}</span>
+                    <div class="popup-content" style="text-align: center;">
+                        <h3 style="margin-bottom: 5px; color: #2c3e50;">${zone.name}</h3>
+                        <p style="margin: 5px 0; color: #7f8c8d; font-size: 13px;"><strong>District:</strong> ${zone.district}</p>
+                        <span class="${badgeClass}" style="display: inline-block; margin-bottom: 15px;">${badgeText}</span>
+                        <br>
+                        <button onclick="triggerEditModal(${zone.id})" style="width: 100%; padding: 8px; background: #2980b9; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit / Delete Zone
+                        </button>
                     </div>
                 `);
             }
