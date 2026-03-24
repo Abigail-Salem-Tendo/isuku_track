@@ -347,21 +347,31 @@ def create_zone_operator():
         "reset_link": f"/reset-password?token={reset_token}"
     }), 201
 
+#  THE PREFLIGHT CATCHER 
+@auth_bp.route("/users", methods=["OPTIONS"], strict_slashes=False)
+def get_users_preflight():
+    response = jsonify()
+    # Explicitly allowing  frontend port and the Authorization header
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
+    return response, 200
+
+#  ACTUAL DATA ROUTE (Protected)
 @auth_bp.route("/users", methods=["GET"], strict_slashes=False)
 @jwt_required()
 @role_required("admin")
 def get_users():
     """Admin endpoint to fetch users, optionally filtered by role."""
-    # Look for a query parameter like ?role=zone_operator
     role_filter = request.args.get("role")
-    
     query = User.query
     
-    # If a role is requested, filter the database query
     if role_filter:
         query = query.filter_by(role=role_filter)
         
     users = query.all()
     
-    # Use the to_dict() method you already defined in your User model!
-    return jsonify([user.to_dict() for user in users]), 200
+    #  appending the CORS header to the final response
+    response = jsonify([user.to_dict() for user in users])
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response, 200
