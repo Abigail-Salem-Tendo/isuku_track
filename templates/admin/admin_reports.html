@@ -15,22 +15,40 @@
   <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
 </aside>
 <div class="main"><header class="topbar"><div class="tb-l"><h1>Reports</h1><p id="dashboardDate" data-subtitle="View system and zone operator reports">View system and zone operator reports</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
+  <div class="sg status-ribbon reports-status-ribbon" aria-label="Report status filters">
+    <button class="sc ftab on" type="button" data-report-filter="Completed">
+      <div class="sc-lbl">Completed</div>
+      <div class="sc-val" id="repCompletedCount">0</div>
+      <div class="sc-sub">finalized reports</div>
+    </button>
+    <button class="sc ftab" type="button" data-report-filter="Ongoing">
+      <div class="sc-lbl">Ongoing</div>
+      <div class="sc-val" id="repOngoingCount">0</div>
+      <div class="sc-sub">in review</div>
+    </button>
+    <button class="sc ftab" type="button" data-report-filter="Pending">
+      <div class="sc-lbl">Pending</div>
+      <div class="sc-val" id="repPendingCount">0</div>
+      <div class="sc-sub">awaiting review</div>
+    </button>
+  </div>
+
   <section class="card" id="section-reports">
     <div class="ch">
       <div class="ct">Latest Reports from Zone Operators</div>
     </div>
     <div class="cb cb--pt" id="reportsList">
-      <div class="rr">
+      <div class="rr" data-report-status="Completed">
         <div><div class="rz">Zone A — Jean P.</div><div class="rm">Submitted Sun 8 Mar · Auto-generated</div></div>
         <div class="rs"><div>Claims: <span>12</span></div><div>Resolved: <span>10</span></div><div>Payments: <span>28</span></div><div>Revenue: <span>28,000 RWF</span></div></div>
-        <span class="b ok">Reviewed</span>
+        <span class="b ok">Completed</span>
       </div>
-      <div class="rr">
+      <div class="rr" data-report-status="Ongoing">
         <div><div class="rz">Zone B — Amina K.</div><div class="rm">Submitted Sun 8 Mar · Vehicle issue noted</div></div>
         <div class="rs"><div>Claims: <span>18</span></div><div>Resolved: <span>13</span></div><div>Payments: <span>32</span></div><div>Revenue: <span>32,000 RWF</span></div></div>
-        <span class="b pe">Pending</span>
+        <span class="b go">Ongoing</span>
       </div>
-      <div class="rr">
+      <div class="rr" data-report-status="Pending">
         <div><div class="rz">Zone C — Eric M.</div><div class="rm">Submitted Sun 8 Mar · Route optimization suggested</div></div>
         <div class="rs"><div>Claims: <span>7</span></div><div>Resolved: <span>7</span></div><div>Payments: <span>19</span></div><div>Revenue: <span>19,000 RWF</span></div></div>
         <span class="b pe">Pending</span>
@@ -39,6 +57,49 @@
   </section>
 </main></div>
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
-<script>function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();</script>
+<script>
+function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}
+document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});
+(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();
+
+(function(){
+  var tabs=Array.from(document.querySelectorAll('.reports-status-ribbon .ftab'));
+  var rows=Array.from(document.querySelectorAll('#reportsList .rr'));
+  if(!tabs.length||!rows.length)return;
+
+  function rowStatus(row){
+    var status=row.getAttribute('data-report-status')||'';
+    if(status)return status;
+    var badge=row.querySelector('.b');
+    return badge?badge.textContent.trim():'Pending';
+  }
+
+  function updateCounts(){
+    var counts={Completed:0,Ongoing:0,Pending:0};
+    rows.forEach(function(row){var s=rowStatus(row);if(counts[s]!==undefined)counts[s]+=1;});
+    var c=document.getElementById('repCompletedCount');
+    var o=document.getElementById('repOngoingCount');
+    var p=document.getElementById('repPendingCount');
+    if(c)c.textContent=String(counts.Completed);
+    if(o)o.textContent=String(counts.Ongoing);
+    if(p)p.textContent=String(counts.Pending);
+  }
+
+  function applyFilter(status){
+    rows.forEach(function(row){row.style.display=rowStatus(row)===status?'':'none';});
+  }
+
+  tabs.forEach(function(tab){
+    tab.addEventListener('click',function(){
+      tabs.forEach(function(t){t.classList.remove('on');});
+      tab.classList.add('on');
+      applyFilter(tab.getAttribute('data-report-filter')||'Completed');
+    });
+  });
+
+  updateCounts();
+  applyFilter('Completed');
+})();
+</script>
 </body>
 </html>

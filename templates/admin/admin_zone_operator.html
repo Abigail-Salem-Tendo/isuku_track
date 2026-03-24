@@ -18,6 +18,24 @@
   <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
 </aside>
 <div class="main"><header class="topbar"><div class="tb-l"><h1>Zone Operator Management</h1><p id="dashboardDate" data-subtitle="Assign and monitor zone operators">Assign and monitor zone operators</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
+  <div class="sg status-ribbon zone-operator-status-ribbon" aria-label="Zone schedule status filters">
+    <button class="sc ftab on" type="button" data-zo-filter="Completed">
+      <div class="sc-lbl">Completed</div>
+      <div class="sc-val" id="zoCompletedCount">0</div>
+      <div class="sc-sub">finished schedules</div>
+    </button>
+    <button class="sc ftab" type="button" data-zo-filter="Ongoing">
+      <div class="sc-lbl">Ongoing</div>
+      <div class="sc-val" id="zoOngoingCount">0</div>
+      <div class="sc-sub">active schedules</div>
+    </button>
+    <button class="sc ftab" type="button" data-zo-filter="Pending">
+      <div class="sc-lbl">Pending</div>
+      <div class="sc-val" id="zoPendingCount">0</div>
+      <div class="sc-sub">not started</div>
+    </button>
+  </div>
+
   <section class="card">
     <div class="ch">
       <div class="ct">Zone Overview</div>
@@ -32,18 +50,61 @@
             <th>Claims</th>
           </tr>
         </thead>
-        <tbody>
-          <tr><td><div class="zn">Zone A</div><div class="zg">Gasabo · Kimironko</div></td><td>Jean P.</td><td><span class="b ok">Completed</span></td><td>2</td></tr>
-          <tr><td><div class="zn">Zone B</div><div class="zg">Gasabo · Bibare</div></td><td>Amina K.</td><td><span class="b go">Ongoing</span></td><td>5</td></tr>
-          <tr><td><div class="zn">Zone C</div><div class="zg">Kacyiru · Nyarutarama</div></td><td>Eric M.</td><td><span class="b pe">Pending</span></td><td>1</td></tr>
-          <tr><td><div class="zn">Zone D</div><div class="zg">Gasabo · Kibagabaga</div></td><td>Diane U.</td><td><span class="b ok">Completed</span></td><td>0</td></tr>
-          <tr><td><div class="zn">Zone E</div><div class="zg">Gasabo · Rwezamenyo</div></td><td>Patrick N.</td><td><span class="b go">Ongoing</span></td><td>3</td></tr>
+        <tbody id="zoneOperatorTableBody">
+          <tr data-zo-status="Completed"><td><div class="zn">Zone A</div><div class="zg">Gasabo · Kimironko</div></td><td>Jean P.</td><td><span class="b ok">Completed</span></td><td>2</td></tr>
+          <tr data-zo-status="Ongoing"><td><div class="zn">Zone B</div><div class="zg">Gasabo · Bibare</div></td><td>Amina K.</td><td><span class="b go">Ongoing</span></td><td>5</td></tr>
+          <tr data-zo-status="Pending"><td><div class="zn">Zone C</div><div class="zg">Kacyiru · Nyarutarama</div></td><td>Eric M.</td><td><span class="b pe">Pending</span></td><td>1</td></tr>
+          <tr data-zo-status="Completed"><td><div class="zn">Zone D</div><div class="zg">Gasabo · Kibagabaga</div></td><td>Diane U.</td><td><span class="b ok">Completed</span></td><td>0</td></tr>
+          <tr data-zo-status="Ongoing"><td><div class="zn">Zone E</div><div class="zg">Gasabo · Rwezamenyo</div></td><td>Patrick N.</td><td><span class="b go">Ongoing</span></td><td>3</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 </main></div>
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
-<script>function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();</script>
+<script>
+function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}
+document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});
+(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();
+
+(function(){
+  var tabs=Array.from(document.querySelectorAll('.zone-operator-status-ribbon .ftab'));
+  var rows=Array.from(document.querySelectorAll('#zoneOperatorTableBody tr'));
+  if(!tabs.length||!rows.length)return;
+
+  function rowStatus(row){
+    var status=row.getAttribute('data-zo-status')||'';
+    if(status)return status;
+    var badge=row.querySelector('td:nth-child(3) .b');
+    return badge?badge.textContent.trim():'Pending';
+  }
+
+  function updateCounts(){
+    var counts={Completed:0,Ongoing:0,Pending:0};
+    rows.forEach(function(row){var s=rowStatus(row);if(counts[s]!==undefined)counts[s]+=1;});
+    var c=document.getElementById('zoCompletedCount');
+    var o=document.getElementById('zoOngoingCount');
+    var p=document.getElementById('zoPendingCount');
+    if(c)c.textContent=String(counts.Completed);
+    if(o)o.textContent=String(counts.Ongoing);
+    if(p)p.textContent=String(counts.Pending);
+  }
+
+  function applyFilter(status){
+    rows.forEach(function(row){row.style.display=rowStatus(row)===status?'':'none';});
+  }
+
+  tabs.forEach(function(tab){
+    tab.addEventListener('click',function(){
+      tabs.forEach(function(t){t.classList.remove('on');});
+      tab.classList.add('on');
+      applyFilter(tab.getAttribute('data-zo-filter')||'Completed');
+    });
+  });
+
+  updateCounts();
+  applyFilter('Completed');
+})();
+</script>
 </body>
 </html>
