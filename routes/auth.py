@@ -346,3 +346,23 @@ def create_zone_operator():
         "reset_token": reset_token,
         "reset_link": f"/reset-password?token={reset_token}"
     }), 201
+
+
+@auth_bp.route("/users", methods=["GET"])
+@jwt_required()
+@role_required("admin")
+def get_users():
+    """Admin endpoint to fetch users, optionally filtered by role."""
+    # Look for a query parameter like ?role=zone_operator
+    role_filter = request.args.get("role")
+    
+    query = User.query
+    
+    # If a role is requested, filter the database query
+    if role_filter:
+        query = query.filter_by(role=role_filter)
+        
+    users = query.all()
+    
+    # Use the to_dict() method you already defined in your User model!
+    return jsonify([user.to_dict() for user in users]), 200
