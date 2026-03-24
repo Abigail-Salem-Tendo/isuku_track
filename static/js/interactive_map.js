@@ -265,11 +265,11 @@ async function loadOperators() {
 
     try {
     
-        // It should return users where role == 'zone_operator'
-        const response = await fetch(`${API_BASE}/api/users/?role=zone_operator`, {
+       // Change the URL in your loadOperators() function to this:
+        const response = await fetch(`${API_BASE}/api/auth/users?role=zone_operator`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+                
         if (response.ok) {
             globalOperators = await response.json();
         } else {
@@ -413,6 +413,88 @@ window.triggerAssignModal = function(zoneId, zoneName) {
         console.log(`Ready to assign operator ${operatorId} to zone ${zoneId}!`);
     }
 };
+
+
+// FEATURE: DRAG & DROP ASSIGNMENT LOGIC
+
+window.handleDragStart = function(event, operatorId, operatorName) {
+    // Packaging the operator's data into the drag event
+    event.dataTransfer.setData('operatorId', operatorId);
+    event.dataTransfer.setData('operatorName', operatorName);
+    event.dataTransfer.effectAllowed = 'move';
+};
+
+// 2. Telling the Map Container to accept dropped items
+const mapContainer = document.getElementById('map');
+
+mapContainer.addEventListener('dragover', function(e) {
+    e.preventDefault(); 
+    e.dataTransfer.dropEffect = 'move';
+});
+
+
+mapContainer.addEventListener('drop', async function(e) {
+    e.preventDefault();
+    
+
+    const operatorId = e.dataTransfer.getData('operatorId');
+    const operatorName = e.dataTransfer.getData('operatorName');
+
+    if (!operatorId) return; // If they dropped something else by accident
+
+    // Converting the screen pixel where the mouse let go into GPS Coordinates
+    const dropLatLng = map.mouseEventToLatLng(e);
+
+    // Check if they dropped the operator inside an existing Zone (800m radius)
+    let targetZone = null;
+    
+    for (let i = 0; i < globalZones.length; i++) {
+        const zone = globalZones[i];
+        const zoneLatLng = L.latLng(zone.latitude, zone.longitude);
+        
+        
+        if (dropLatLng.distanceTo(zoneLatLng) <= 800) {
+            targetZone = zone;
+            break; 
+        }
+    }
+
+    if (targetZone) {
+        // Confirming the assignment
+        if(confirm(`Assign ${operatorName} to ${targetZone.name}?`)) {
+            await assignOperatorToZone(operatorId, targetZone.id);
+        }
+    } else {
+        alert("Drop missed! You must drop the operator inside the blue circle of a zone.");
+    }
+});
+
+// 4. Sending Assignment to the Backend
+async function assignOperatorToZone(operatorId, zoneId) {
+    const token = localStorage.getItem('access_token');
+    
+    try {
+        // Sending a PUT request to update the zone with the new operator_id
+        const response = await fetch(`${API_BASE}/api/zones/${zoneId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ zone_operator_id: parseInt(operatorId) })
+        });
+
+        if (response.ok) {
+            // Success! Refresh the page so the map redraws with the new Orange Human icon inside the zone
+            location.reload(); 
+        } else {
+            const errorData = await response.json();
+            alert(`Assignment Failed: ${errorData.error}`);
+        }
+    } catch (error) {
+        console.error("Assignment failed", error);
+    }
+}
 
 
 async function initializeMapApp() {
