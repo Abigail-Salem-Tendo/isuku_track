@@ -6,6 +6,12 @@ function toggleSb() {
   if (overlay) overlay.classList.toggle('open');
 }
 
+function toggleMobileProfileDd(event) {
+  event.stopPropagation();
+  var dd = document.getElementById('mobileProfileDd');
+  if (dd) dd.classList.toggle('show');
+}
+
 document.addEventListener('DOMContentLoaded', function () {
 
   var state = null;
@@ -36,6 +42,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!profileMenu) return;
     profileMenu.classList.remove('open');
     if (profileMenuToggle) profileMenuToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  function closeMobileProfileDd() {
+    var dd = document.getElementById('mobileProfileDd');
+    if (dd) dd.classList.remove('show');
   }
 
   function toggleProfileMenu() {
@@ -361,6 +372,10 @@ document.addEventListener('DOMContentLoaded', function () {
         closeProfileMenu();
       }
 
+      if (!event.target.closest('.mn-profile-wrap')) {
+        closeMobileProfileDd();
+      }
+
       var navEl = event.target.closest('[data-nav]');
       if (navEl) {
         if (navEl.tagName === 'A' && navEl.getAttribute('href')) {
@@ -375,6 +390,7 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         handleProfileAction(profileActionEl.getAttribute('data-profile-action'));
         closeProfileMenu();
+        closeMobileProfileDd();
         return;
       }
 
@@ -403,6 +419,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (event.key === 'Escape') {
         closeProfileMenu();
         closeNotifications();
+        closeMobileProfileDd();
       }
 
       if (event.key !== 'Enter' && event.key !== ' ') return;
@@ -568,5 +585,17 @@ document.addEventListener('DOMContentLoaded', function () {
   bindActions();
   setActiveNav('overview');
   renderAll();
+
+  document.querySelectorAll('.mob-nav .mn-item[href]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      document.querySelectorAll('.mob-nav .mn-item').forEach(function (x) { x.classList.remove('active'); });
+      el.classList.add('active');
+    });
+  });
+
+  document.addEventListener('click', function () {
+    closeMobileProfileDd();
+  });
+
   window.addEventListener('resize', closeSidebarOnDesktop);
 });

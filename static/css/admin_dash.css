@@ -885,16 +885,14 @@ body {
 .mob-nav {
   display: none;
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 0; left: 0; right: 0;
   background: var(--white);
   border-top: 1px solid var(--border);
-  padding: 8px 10px max(8px, env(safe-area-inset-bottom));
-  z-index: 80;
+  padding: 0 0 max(4px, env(safe-area-inset-bottom));
+  z-index: 1000;
   flex-direction: row;
-  align-items: flex-end;
-  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, .09);
 }
 
 .mn-item {
@@ -902,53 +900,157 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 6px 4px;
+  justify-content: center;
+  gap: 1px;
+  padding: 2px 4px 3px;
   cursor: pointer;
   color: var(--txt-l);
   transition: color .18s;
   text-decoration: none;
+  position: relative;
+  min-height: auto;
 }
 
 .mn-item.active { color: var(--g2); }
 
-.mn-item-home {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(max(8px, env(safe-area-inset-bottom)) + 2px);
-  flex: 0 0 72px;
-  width: 72px;
-  height: 72px;
-  border-radius: 999px;
-  border: 3px solid #ffffff;
-  background: linear-gradient(145deg, #39a94f, #1f7f36);
-  color: #ffffff;
-  justify-content: center;
-  gap: 2px;
-  padding: 10px 6px 8px;
-  box-shadow: 0 8px 18px rgba(31, 127, 54, .35);
-}
-
-.mn-item-home svg {
-  width: 26px;
-  height: 26px;
-}
-
-.mn-item-home span {
-  font-size: .56rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.mn-item-home.active {
-  color: #ffffff;
-}
+.mn-item svg { width: 22px; height: 22px; }
 
 .mn-item span {
   font-size: .58rem;
   font-weight: 600;
   letter-spacing: .2px;
+}
+
+.mn-item.mn-home {
+  flex: 0 0 70px;
+  padding-bottom: 2px;
+}
+
+.mn-home-inner {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--g2), var(--g1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 18px rgba(72, 168, 112, .5);
+  transition: transform .2s, box-shadow .2s;
+  margin-bottom: 1px;
+}
+
+.mn-home-inner svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mn-item.mn-home:hover .mn-home-inner,
+.mn-item.mn-home.active .mn-home-inner {
+  transform: scale(1.08);
+  box-shadow: 0 6px 22px rgba(72, 168, 112, .6);
+}
+
+.mn-item.mn-home span {
+  color: var(--g1);
+  font-weight: 700;
+}
+
+.mn-profile-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mn-profile-dd {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 4px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, .16);
+  padding: 8px;
+  min-width: 200px;
+  display: none;
+  z-index: 200;
+  animation: adminDdSlide .18s ease;
+}
+
+.mn-profile-dd.show {
+  display: block;
+}
+
+@keyframes adminDdSlide {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dd-user {
+  padding: 12px 12px 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+
+.dd-user-av {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2d5c8a, #1a3a5c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .88rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.dd-user-name {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--txt);
+}
+
+.dd-user-role {
+  font-size: .7rem;
+  color: var(--txt-l);
+  margin-top: 2px;
+}
+
+.dd-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-size: .83rem;
+  font-weight: 500;
+  color: var(--txt-m);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background .15s;
+  text-decoration: none;
+}
+
+.dd-item:hover {
+  background: var(--g-pale);
+  color: var(--txt);
+}
+
+.dd-item.dd-logout {
+  color: var(--red);
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.dd-item.dd-logout:hover {
+  background: rgba(239, 68, 68, .12);
 }
 
 /* ════════════════════════════════
