@@ -1,5 +1,10 @@
 const API_BASE = 'http://127.0.0.1:5000'
 
+// --- GLOBAL STATE ---
+let globalZones = [];
+let globalOperators = [];
+let currentTab = 'zones';
+
 // 1. Initializing map centered on Kigali
 const map = L.map('map').setView([-1.95, 30.08], 13);
 
@@ -7,9 +12,9 @@ const map = L.map('map').setView([-1.95, 30.08], 13);
 // Using FontAwesome icons wrapped in a Leaflet divIcon
 const operatorIcon = L.divIcon({
     html: '<div class="custom-map-icon" style="background: #f39c12; color: white; width: 30px; height: 30px;"><i class="fa-solid fa-person"></i></div>',
-    className: '',
+    className: '', 
     iconSize: [30, 30],
-    iconAnchor: [15, 15] 
+    iconAnchor: [15, 15]
 });
 
 const vehicleIcon = L.divIcon({
