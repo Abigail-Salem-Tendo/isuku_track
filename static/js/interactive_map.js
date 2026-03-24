@@ -2,6 +2,26 @@ const API_BASE = 'http://127.0.0.1:5000'
 
 // 1. Initializing map centered on Kigali
 const map = L.map('map').setView([-1.95, 30.08], 13);
+
+// --- CUSTOM ICONS DEFINTIONS ---
+// Using FontAwesome icons wrapped in a Leaflet divIcon
+const operatorIcon = L.divIcon({
+    html: '<div class="custom-map-icon" style="background: #f39c12; color: white; width: 30px; height: 30px;"><i class="fa-solid fa-user-helmet-safety"></i></div>',
+    className: '',
+    iconSize: [30, 30],
+    iconAnchor: [15, 15] 
+});
+
+const vehicleIcon = L.divIcon({
+    html: '<div class="custom-map-icon" style="background: #9b59b6; color: white; width: 30px; height: 30px;"><i class="fa-solid fa-truck-ramp-box"></i></div>',
+    className: '',
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
+});
+
+// A global array to store references to all our map markers/circles so we can open their popups later
+const mapLayers = {};
+
 let tempMarker = null; // Holds our "Create Zone" draggable pin
 let tempCircle = null; // Holds the preview coverage area
 
