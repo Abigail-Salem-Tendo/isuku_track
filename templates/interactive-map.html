@@ -207,13 +207,14 @@
         <span style="font-weight: 600; color: #333;">Zone Creation Map</span>
     </div>
 
-    <div id="adminModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;">
-        <div style="background: white; padding: 25px; border-radius: 12px; width: 400px; max-width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-                <h3 id="modalTitle" style="margin: 0; color: #2c3e50;">Create New Zone</h3>
-                <button id="modalClose" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #7f8c8d;">&times;</button>
+    <div id="adminModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 999999; justify-content: center; align-items: center; font-family: 'Segoe UI', sans-serif;">
+        <div style="background: white; padding: 25px; border-radius: 12px; width: 400px; max-width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 id="modalTitle" style="margin: 0; color: #2c3e50;">Modal Title</h3>
+                <button type="button" onclick="document.getElementById('adminModal').style.display='none'" style="border: none; background: none; font-size: 24px; cursor: pointer; color: #7f8c8d;">&times;</button>
             </div>
-            <form id="modalForm" style="display: flex; flex-direction: column; gap: 15px;"></form>
+            <form id="modalForm">
+                </form>
         </div>
     </div>
     
