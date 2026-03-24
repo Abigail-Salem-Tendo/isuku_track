@@ -347,8 +347,7 @@ def create_zone_operator():
         "reset_link": f"/reset-password?token={reset_token}"
     }), 201
 
-
-@auth_bp.route("/users", methods=["GET"])
+@auth_bp.route("/users", methods=["GET", "OPTIONS"], strict_slashes=False)
 @jwt_required()
 @role_required("admin")
 def get_users():
