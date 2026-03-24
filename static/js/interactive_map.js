@@ -258,6 +258,92 @@ async function loadZones() {
     }
 }
 
+// --- FETCH OPERATORS FROM BACKEND ---
+async function loadOperators() {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+    
+        // It should return users where role == 'zone_operator'
+        const response = await fetch(`${API_BASE}/api/users/?role=zone_operator`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+            globalOperators = await response.json();
+        } else {
+            console.error("Failed to fetch operators. Are they set up in the backend?");
+            // FAKE DATA FOR TESTING DRAG & DROP (Remove this once backend is wired)
+            globalOperators = [
+                { id: 101, username: "Jean Paul", phone_number: "0788123456", zone_id: null },
+                { id: 102, username: "Amina K.", phone_number: "0722987654", zone_id: 1 },
+                { id: 103, username: "Eric M.", phone_number: "0755456789", zone_id: null }
+            ];
+        }
+    } catch (error) {
+        console.error('Error fetching operators:', error);
+    }
+}
+
+// --- TAB SWITCHER LOGIC ---
+window.switchTab = function(tabName) {
+    currentTab = tabName;
+    
+    // Update active tab visuals
+    document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+
+    const sidebar = document.getElementById('sidebarContent');
+    let html = '';
+
+    if (tabName === 'zones') {
+        html = `<div class="panel-section-title">Active Zones (${globalZones.length})</div>`;
+        globalZones.forEach(zone => {
+            const isAssigned = zone.zone_operator_name ? true : false;
+            html += `
+                <div class="entity-item" onclick="flyToMapItem(${zone.latitude}, ${zone.longitude}, 'zone_${zone.id}')">
+                    <div class="entity-icon bg-zone"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <div class="entity-details">
+                        <div class="entity-name">${zone.name}</div>
+                        <div class="entity-sub">${zone.district} · ${isAssigned ? zone.zone_operator_name : 'Unassigned'}</div>
+                    </div>
+                </div>
+            `;
+        });
+    } 
+    
+    else if (tabName === 'operators') {
+        html = `<div class="panel-section-title">Personnel Roster (${globalOperators.length})</div>`;
+        html += `<div style="font-size: 11px; color: #e67e22; margin-bottom: 10px; text-align: center;">
+                    <i class="fa-solid fa-hand-pointer"></i> Drag an operator onto a Zone to assign them.
+                 </div>`;
+                 
+        globalOperators.forEach(op => {
+            const statusText = op.zone_id ? "Assigned" : "Unassigned / Available";
+            const borderStyle = op.zone_id ? "" : "border-left: 4px solid #f39c12;";
+            
+            // Notice the draggable="true" and data attributes! This is the magic for Drag & Drop.
+            html += `
+                <div class="entity-item draggable-item" draggable="true" ondragstart="handleDragStart(event, ${op.id}, '${op.username}')" style="${borderStyle}">
+                    <div class="entity-icon bg-operator"><i class="fa-solid fa-person"></i></div>
+                    <div class="entity-details">
+                        <div class="entity-name">${op.username}</div>
+                        <div class="entity-sub">${op.phone_number || 'No phone'} · <b>${statusText}</b></div>
+                    </div>
+                    <div style="color: #ccc;"><i class="fa-solid fa-grip-vertical"></i></div>
+                </div>
+            `;
+        });
+    }
+
+    else if (tabName === 'fleet') {
+        html = `<div style="text-align:center; padding: 20px; color:#999;">Fleet tracking coming soon...</div>`;
+    }
+
+    sidebar.innerHTML = html;
+};
+
 // Global function to make the map fly to a coordinate and open its popup
 window.flyToMapItem = function(lat, lng, layerId) {
     map.flyTo([lat, lng], 15, {
@@ -328,5 +414,11 @@ window.triggerAssignModal = function(zoneId, zoneName) {
     }
 };
 
-// Fire the load function on startup
-loadZones();
+
+async function initializeMapApp() {
+    await loadZones();      // Fetch Zones and draw the blue circles
+    await loadOperators();  // Fetch the Operator roster
+    switchTab('zones');     // Render the sidebar UI
+}
+
+initializeMapApp();
