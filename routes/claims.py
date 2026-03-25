@@ -9,6 +9,26 @@ from datetime import datetime, timezone
 
 claims_bp = Blueprint("claims", __name__)
 
+# Helper function to apply date filters to a query
+def apply_date_filters(query):
+    date_from = request.args.get("from")
+    if date_from:
+        try:
+            from_dt = datetime.strptime(date_from, "%Y-%m-%d")
+            query = query.filter(Claim.reported_at >= from_dt)
+        except ValueError:
+            return None, jsonify({"error": "Invalid 'from' date format. Use YYYY-MM-DD"}), 400
+
+    date_to = request.args.get("to")
+    if date_to:
+        try:
+            to_dt = datetime.strptime(date_to, "%Y-%m-%d").replace(hour=23, minute=59, second=59)
+            query = query.filter(Claim.reported_at <= to_dt)
+        except ValueError:
+            return None, jsonify({"error": "Invalid 'to' date format. Use YYYY-MM-DD"}), 400
+
+    return query, None, None
+
 
 # --- CREATE: Resident submits a claim ---
 @claims_bp.route("/", methods=["POST"])
@@ -154,6 +174,14 @@ def get_claims():
     if category_filter:
         query = query.filter_by(claim_category=category_filter)
 
+    suggestion_category_filter = request.args.get("suggestion_category")
+    if suggestion_category_filter:
+        query = query.filter_by(suggestion_category=suggestion_category_filter)
+
+    query, error, status = apply_date_filters(query)
+    if error:
+        return error, status
+
     claims = query.order_by(Claim.reported_at.desc()).all()
     return jsonify([c.to_dict() for c in claims]), 200
 
@@ -177,6 +205,10 @@ def get_claim_stats():
     # Admin sees all claims (not suggestions in stats)
     else:
         query = query.filter_by(type="claim")
+
+    query, error, status = apply_date_filters(query)
+    if error:
+        return error, status
 
     claims = query.all()
     stats = {"open": 0, "under_review": 0, "approved": 0, "rejected": 0}
