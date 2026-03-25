@@ -25,11 +25,12 @@ const vehicleIcon = L.divIcon({
     iconAnchor: [15, 15]
 });
 
+
 const residentIcon = L.divIcon({
-    html: '<div class="custom-map-icon" style="background: #e74c3c; color: white; width: 24px; height: 24px; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"><i class="fa-solid fa-house-chimney-crack"></i></div>',
+    html: '<div style="background: #e74c3c; border: 1.5px solid white; border-radius: 50%; width: 10px; height: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.4);"></div>',
     className: '',
-    iconSize: [24, 24],
-    iconAnchor: [12, 12]
+    iconSize: [10, 10],
+    iconAnchor: [5, 5] // Centers the dot exactly on the coordinate
 });
 
 // A global array to store references to all our map markers/circles so we can open their popups later
@@ -957,6 +958,87 @@ window.deleteVehicle = async function(vId, plate) {
         }
     }
 };
+
+
+// --- SIMULATE MAP TELEMETRY (CONTEXT-AWARE) ---
+function simulateMapEntities() {
+    if (globalZones.length === 0) return; // Zones anchoring simulation!
+
+ 
+    function getRandomOffset(maxRadius, minRadius = 0) {
+        const angle = Math.random() * 2 * Math.PI;
+        // The square root ensures dots don't artificially clump directly in the dead center
+        const r = Math.sqrt(Math.random()) * (maxRadius - minRadius) + minRadius;
+        return {
+            latOffset: r * Math.cos(angle),
+            lngOffset: r * Math.sin(angle)
+        };
+    }
+
+    // 1. Fleet (Anchored to Zones: 1 inside, 1 near)
+    globalVehicles.forEach((v, index) => {
+        // Cycle through the zones so vehicles are distributed evenly across the city
+        const targetZone = globalZones[index % globalZones.length];
+        
+        let offset;
+        // Even index trucks go strictly INSIDE the zone (< 800m)
+        if (index % 2 === 0) {
+            offset = getRandomOffset(0.0065); 
+        } 
+        // Odd index trucks go NEAR the zone, but outside the immediate radius (1km - 2.5km away)
+        else {
+            offset = getRandomOffset(0.02, 0.008); 
+        }
+
+        const vLat = targetZone.latitude + offset.latOffset;
+        const vLng = targetZone.longitude + offset.lngOffset;
+        
+        let statusColor = "#95a5a6";
+        if (v.status === 'available') statusColor = "#27ae60";
+        if (v.status === 'in_use') statusColor = "#2980b9";
+        if (v.status === 'maintenance') statusColor = "#e74c3c";
+
+        const marker = L.marker([vLat, vLng], { icon: vehicleIcon }).addTo(map);
+        marker.bindPopup(`
+            <div style="text-align:center;">
+                <h3 style="margin:0;">${v.plate_number}</h3>
+                <p style="margin:5px 0; color:#666;">Driver: ${v.driver_name}</p>
+                <p style="margin:5px 0; font-size: 11px; color:#999;">Operating near: ${targetZone.name}</p>
+                <span style="background:${statusColor}; color:white; padding:3px 8px; border-radius:12px; font-size:11px;">
+                    ${v.status.toUpperCase()}
+                </span>
+            </div>
+        `);
+    });
+
+    // 2.  Residents (Inside, Periphery, and Between Zones)
+    globalResidents.forEach((res, index) => {
+        // Anchor them to their assigned zone, or distribute unassigned users evenly
+        let targetZone = globalZones.find(z => z.id === res.zone_id);
+        if (!targetZone) {
+            targetZone = globalZones[index % globalZones.length];
+        }
+
+        
+        // This allows them to land inside the 800m zone, right on the border, 
+        // or in the immediate periphery where they would realistically still seek service.
+        const offset = getRandomOffset(0.015); 
+        const rLat = targetZone.latitude + offset.latOffset;
+        const rLng = targetZone.longitude + offset.lngOffset;
+        
+        const marker = L.marker([rLat, rLng], { icon: residentIcon }).addTo(map);
+        marker.bindPopup(`
+            <div style="text-align:center;">
+                <h4 style="margin:0; color:#2c3e50;">${res.username}</h4>
+                <p style="margin:5px 0; font-size:12px;">Phone: ${res.phone_number || 'N/A'}</p>
+                <span style="color:#e74c3c; font-weight:bold; font-size:11px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Pickup Required
+                </span>
+            </div>
+        `);
+    });
+
+}
 
 async function initializeMapApp() {
     await loadZones();      // Fetch Zones and draw the blue circles
