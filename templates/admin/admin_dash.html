@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard — Isuku Track</title>
   <link rel="stylesheet" href="/static/css/admin_dash.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
 
@@ -183,6 +184,16 @@
             <div class="qa-lbl">View Reports</div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ── Zone Coverage Map ── -->
+    <div class="card" id="section-map">
+      <div class="ch">
+        <div class="ct">Zone Coverage Map</div>
+      </div>
+      <div class="cb" style="padding:0;height:350px;">
+        <div id="dashboardZoneMap" style="height:100%;width:100%;"></div>
       </div>
     </div>
 
@@ -439,6 +450,34 @@
   </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+  var mapContainer=document.getElementById('dashboardZoneMap');
+  if(!mapContainer)return;
+  var dashboardMap=L.map('dashboardZoneMap').setView([-1.95,30.08],14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors',maxZoom:18}).addTo(dashboardMap);
+  
+  async function loadDashboardZones(){
+    try{
+      var response=await fetch('/api/zones/');
+      var zones=await response.json();
+      zones.forEach(function(zone){
+        if(zone.latitude && zone.longitude && zone.sector==='Kimironko'){
+          var circle=L.circle([zone.latitude,zone.longitude],{color:'#2e7d52',fillColor:'#48a870',fillOpacity:0.35,weight:2,radius:800}).addTo(dashboardMap);
+          var isAssigned=zone.zone_operator_name?true:false;
+          var badgeText=isAssigned?'Operator Assigned':'Pending Assignment';
+          var popupContent='<div style="font-size:.85rem;"><h3 style="margin:0 0 6px 0;color:#2c3e50;border-bottom:1px solid #eee;padding-bottom:4px;">'+zone.name+'</h3><p style="margin:4px 0;color:#34495e;"><strong>District:</strong> '+zone.district+'</p><p style="margin:4px 0;color:#34495e;"><strong>Sector:</strong> '+zone.sector+'</p><p style="margin:4px 0;color:#34495e;"><strong>Cell:</strong> '+zone.cell+'</p><p style="margin:4px 0;color:#34495e;"><strong>Operator:</strong> '+(zone.zone_operator_name||'<i>Not yet assigned</i>')+'</p><p style="margin:4px 0;color:#34495e;"><strong>Contact:</strong> '+(zone.zone_operator_phone||'N/A')+'</p><span style="display:inline-block;margin-top:6px;padding:2px 6px;background-color:'+(isAssigned?'#e8f8f5':'#fdf2e9')+';color:'+(isAssigned?'#117a65':'#d35400')+';border-radius:12px;font-size:11px;font-weight:bold;">'+badgeText+'</span></div>';
+          circle.bindPopup(popupContent);
+        }
+      });
+    }catch(error){
+      console.error('Error loading zones:',error);
+    }
+  }
+  loadDashboardZones();
+})();
+</script>
 <script src="/static/js/admin_dash.js"></script>
 </body>
 </html>

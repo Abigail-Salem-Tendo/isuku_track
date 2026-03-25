@@ -14,7 +14,7 @@
   <div class="sb-sec"><div class="sb-lbl">Reports</div><a class="sb-a" href="admin_reports.html">Reports</a></div>
   <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
 </aside>
-<div class="main"><header class="topbar"><div class="tb-l"><h1>Schedules Management</h1><p id="dashboardDate" data-subtitle="Manage collection schedules across zones">Manage collection schedules across zones</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
+<div class="main"><header class="topbar"><div class="tb-l"><h1>Schedules Management</h1><p id="dashboardDate" data-subtitle="Manage collection schedules across zones">Manage collection schedules across zones</p></div><div class="tb-r"><button type="button" id="createSchedBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Create new schedule">+ Create Schedule</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
   <form class="sg zone-filter-ribbon" aria-label="Filter schedules" id="schedulesFilterRibbon">
     <div class="sc gr">
       <label class="sc-lbl" for="scheduleFilterZone">Zone</label>
@@ -64,6 +64,27 @@
   </section>
 </main></div>
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
-<script>function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();</script>
+
+<div class="modal" id="schedModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="schedModalTitle">Create Schedule</h3>
+      <button type="button" class="modal-close" id="schedModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="schedModalForm" class="modal-form"></form>
+  </div>
+</div>
+
+<script>function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();
+
+var schedModal=document.getElementById('schedModal');var schedModalForm=document.getElementById('schedModalForm');var schedModalClose=document.getElementById('schedModalClose');var createSchedBtn=document.getElementById('createSchedBtn');
+
+function closeSchedModal(){if(!schedModal)return;schedModal.classList.remove('open');schedModal.setAttribute('aria-hidden','true');if(schedModalForm)schedModalForm.innerHTML='';}
+
+function openSchedModal(){if(!schedModal||!schedModalForm)return;var formHtml='<label class="mf-lbl">Zone<input class="mf-in" name="schedZone" required placeholder="Zone A" /></label>'+'<label class="mf-lbl">Schedule Date<input class="mf-in" name="schedDate" type="date" required /></label>'+'<label class="mf-lbl">Day of Collection<select class="mf-in" name="schedDay" required><option value="">Select day</option><option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option><option value="Friday">Friday</option><option value="Saturday">Saturday</option><option value="Sunday">Sunday</option></select></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="schedFormCancel">Cancel</button><button type="submit" class="mf-btn">Create Schedule</button></div>';schedModalForm.innerHTML=formHtml;schedModal.classList.add('open');schedModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('schedFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeSchedModal);}}
+
+if(createSchedBtn){createSchedBtn.addEventListener('click',openSchedModal);}
+if(schedModalClose){schedModalClose.addEventListener('click',closeSchedModal);}
+if(schedModalForm){schedModalForm.addEventListener('submit',function(e){e.preventDefault();var zone=schedModalForm.querySelector('input[name="schedZone"]').value;var date=schedModalForm.querySelector('input[name="schedDate"]').value;var day=schedModalForm.querySelector('select[name="schedDay"]').value;console.log('Creating schedule:',{zone:zone,date:date,day:day});closeSchedModal();var successMsg='Schedule for '+zone+' created successfully!';if(schedModal){var toast=document.createElement('div');toast.className='toast show';toast.textContent=successMsg;document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);}});}</script>
 </body>
 </html>

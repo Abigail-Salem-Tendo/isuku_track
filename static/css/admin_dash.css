@@ -452,10 +452,14 @@ body {
   margin-bottom: 22px;
 }
 
+.report-filters {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 .sc {
   background: var(--white);
   border-radius: 14px;
-  padding: 20px;
+  padding: 18px;
   border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
@@ -495,7 +499,7 @@ body {
 .sc-ico.rd { background: #fdeaea; }
 
 .sc-lbl {
-  font-size: .7rem;
+  font-size: .65rem;
   font-weight: 600;
   color: var(--txt-l);
   text-transform: uppercase;
@@ -503,15 +507,15 @@ body {
 }
 
 .sc-val {
-  font-size: 1.9rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: var(--txt);
-  margin: 5px 0 3px;
+  margin: 4px 0 2px;
   line-height: 1;
 }
 
 .sc-sub {
-  font-size: .74rem;
+  font-size: .68rem;
   color: var(--txt-l);
 }
 
@@ -621,7 +625,7 @@ body {
 }
 
 .ch {
-  padding: 16px 20px 13px;
+  padding: 14px 18px 11px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -629,13 +633,13 @@ body {
 }
 
 .ct {
-  font-size: .93rem;
+  font-size: .85rem;
   font-weight: 700;
   color: var(--txt);
 }
 
 .ca {
-  font-size: .76rem;
+  font-size: .72rem;
   color: var(--g2);
   font-weight: 600;
   background: var(--g-light);
@@ -652,7 +656,7 @@ body {
 }
 
 .cb {
-  padding: 16px 20px;
+  padding: 14px 18px;
 }
 
 /* ── Layouts ── */
@@ -831,7 +835,7 @@ body {
   display: flex;
   align-items: center;
   gap: 11px;
-  padding: 9px 0;
+  padding: 8px 0;
   border-top: 1px solid var(--border);
 }
 
@@ -869,7 +873,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 8px 0;
   border-top: 1px solid var(--border);
 }
 
@@ -879,13 +883,13 @@ body {
 }
 
 .rz {
-  font-size: .86rem;
+  font-size: .78rem;
   font-weight: 600;
   color: var(--txt);
 }
 
 .rm {
-  font-size: .7rem;
+  font-size: .65rem;
   color: var(--txt-l);
   margin-top: 2px;
 }
@@ -893,11 +897,50 @@ body {
 .rs {
   display: flex;
   gap: 12px;
-  font-size: .75rem;
+  font-size: .7rem;
   color: var(--txt-m);
 }
 
 .rs span {
+  font-weight: 700;
+  color: var(--txt);
+}
+
+/* ════════════════════════════════
+   VEHICLE PERFORMANCE
+   ════════════════════════════════ */
+.vi-plate {
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--txt);
+  letter-spacing: 1px;
+}
+
+.vi-driver {
+  font-size: .66rem;
+  color: var(--txt-l);
+  margin-top: 1px;
+}
+
+.vi-stats {
+  display: flex;
+  gap: 14px;
+  font-size: .68rem;
+  color: var(--txt-m);
+  margin: 0 auto;
+}
+
+.vi-stats div {
+  display: flex;
+  gap: 4px;
+}
+
+.vi-label {
+  color: var(--txt-l);
+  font-weight: 600;
+}
+
+.vi-stats span:not(.vi-label) {
   font-weight: 700;
   color: var(--txt);
 }
@@ -931,7 +974,7 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, .45);
-  z-index: 90;
+  z-index: 95;
 }
 
 /* ════════════════════════════════
@@ -1128,14 +1171,16 @@ body {
     transform: translateX(-100%);
     transition: transform .28s cubic-bezier(.4, 0, .2, 1);
     z-index: 100;
+    min-height: 100vh;
   }
 
   .sb.open {
     transform: translateX(0);
     box-shadow: 4px 0 24px rgba(0, 0, 0, .25);
+    z-index: 1001;
   }
 
-  .overlay.open { display: block; }
+  .overlay.open { display: block; z-index: 999; }
 
   .main { margin-left: 0; }
 
