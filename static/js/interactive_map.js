@@ -350,20 +350,25 @@ window.switchTab = function(tabName) {
         html = `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <div class="panel-section-title" style="margin: 0; border: none; padding: 0;">Personnel (${globalOperators.length})</div>
+                ${userRole === 'admin' ? `
                 <button onclick="openOperatorModal()" style="background: #2e7d52; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;">
                     <i class="fa-solid fa-plus"></i> Add New
-                </button>
+                </button>` : ''}
             </div>
+            ${userRole === 'admin' ? `
             <div style="font-size: 11px; color: #e67e22; margin-bottom: 10px; text-align: center;">
                 <i class="fa-solid fa-hand-pointer"></i> Drag an operator onto a Zone to assign them.
-            </div>`;
+            </div>` : ''}`;
                  
         globalOperators.forEach(op => {
             const statusText = op.zone_id ? "Assigned" : "Unassigned";
             const borderStyle = op.zone_id ? "" : "border-left: 4px solid #f39c12;";
             
+            // Only allow dragging if it's an admin
+            const draggableAttr = userRole === 'admin' ? `draggable="true" ondragstart="handleDragStart(event, ${op.id}, '${op.username}')"` : '';
+
             html += `
-                <div class="entity-item draggable-item" draggable="true" ondragstart="handleDragStart(event, ${op.id}, '${op.username}')" style="${borderStyle}; display: flex; justify-content: space-between; align-items: center;">
+                <div class="entity-item draggable-item" ${draggableAttr} style="${borderStyle}; display: flex; justify-content: space-between; align-items: center;">
                     <div style="display: flex; align-items: center;">
                         <div class="entity-icon bg-operator"><i class="fa-solid fa-person"></i></div>
                         <div class="entity-details">
@@ -371,18 +376,57 @@ window.switchTab = function(tabName) {
                             <div class="entity-sub">${op.phone_number || 'No phone'} · <b>${statusText}</b></div>
                         </div>
                     </div>
+                    ${userRole === 'admin' ? `
                     <button onclick="openOperatorModal(${op.id})" style="background: none; border: none; color: #7f8c8d; cursor: pointer; padding: 5px;">
                         <i class="fa-solid fa-pen"></i>
-                    </button>
+                    </button>` : ''}
                 </div>
             `;
         });
     }
 
     else if (tabName === 'fleet') {
-        html = `<div style="text-align:center; padding: 20px; color:#999;">Fleet tracking coming soon...</div>`;
-    }
+        html = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div class="panel-section-title" style="margin: 0; border: none; padding: 0;">Global Fleet (${globalVehicles.length})</div>
+                ${userRole === 'admin' ? `
+                <button onclick="openVehicleModal()" style="background: #2e7d52; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;">
+                    <i class="fa-solid fa-plus"></i> Add Vehicle
+                </button>` : ''}
+            </div>`;
 
+        globalVehicles.forEach(v => {
+            let statusColor = "#95a5a6";
+            if (v.status === 'available') statusColor = "#27ae60";
+            if (v.status === 'in_use') statusColor = "#2980b9";
+            if (v.status === 'maintenance') statusColor = "#e74c3c";
+
+            html += `
+                <div class="entity-item" style="border-left: 4px solid ${statusColor}; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center;">
+                        <div class="entity-icon bg-vehicle"><i class="fa-solid fa-truck"></i></div>
+                        <div class="entity-details">
+                            <div class="entity-name">${v.plate_number}</div>
+                            <div class="entity-sub">
+                                ${v.driver_name} (${v.driver_phone})<br>
+                                <span style="color: ${statusColor}; font-weight: bold; font-size: 11px; text-transform: uppercase;">
+                                    ${v.status.replace('_', ' ')}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    ${userRole === 'admin' ? `
+                    <button onclick="openVehicleModal(${v.id})" style="background: none; border: none; color: #7f8c8d; cursor: pointer; padding: 5px;">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>` : ''}
+                </div>
+            `;
+        });
+
+        if (globalVehicles.length === 0) {
+            html += `<div style="text-align:center; padding: 20px; color:#999;">No vehicles found in fleet.</div>`;
+        }
+    }
     sidebar.innerHTML = html;
 };
 
