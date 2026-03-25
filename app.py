@@ -11,6 +11,8 @@ from routes.zone_routes import zone_bp
 from config import Config
 from routes.schedules import schedule_bp
 from routes.claims import claims_bp
+from routes.upload import upload_bp
+from routes.reports import reports_bp
 from flask import render_template
 
 def create_app():
@@ -22,13 +24,14 @@ def create_app():
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    
     # Register blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(vehicle_bp, url_prefix='/api/vehicles')
     app.register_blueprint(zone_bp, url_prefix='/api/zones')
     app.register_blueprint(schedule_bp, url_prefix='/api/schedules')
     app.register_blueprint(claims_bp, url_prefix='/api/claims')
+    app.register_blueprint(upload_bp, url_prefix='/api/upload')
+    app.register_blueprint(reports_bp, url_prefix='/api/reports')
 
     @app.route("/")
     @app.route("/login")
