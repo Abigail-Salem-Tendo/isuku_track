@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard — Isuku Track</title>
   <link rel="stylesheet" href="/static/css/admin_dash.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #dashboardZoneMap .leaflet-control {
+      z-index: 400 !important;
+    }
+    #dashboardZoneMap .leaflet-control-container {
+      z-index: 400 !important;
+    }
+  </style>
 </head>
 <body>
 
@@ -14,9 +23,11 @@
 <aside class="sb">
   <div class="sb-top">
     <div class="sb-logo">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M12 3C12 3 5 9 5 15a7 7 0 0014 0C19 9 12 3 12 3Z" fill="white" opacity=".9"/>
-        <path d="M12 10v6M9.5 14l2.5 2 2.5-2" stroke="#2e7d52" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line>
+        <line x1="14" y1="11" x2="14" y2="17"></line>
       </svg>
     </div>
     <div>
@@ -27,67 +38,68 @@
 
   <div class="sb-sec">
     <div class="sb-lbl">Overview</div>
-    <div class="sb-a on">
+    <a class="sb-a on" href="admin_dash.html" aria-label="Go to dashboard">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Dashboard
-    </div>
-    <div class="sb-a">
+    </a>
+    <a class="sb-a" href="admin_zones.html" aria-label="Go to zones page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
       Zones <span class="sb-badge am" id="sbZonesCount">8</span>
-    </div>
-    <div class="sb-a">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Zone Operators <span class="sb-badge" id="sbZoneOperatorsCount">0</span>
-    </div>
-    <div class="sb-a">
+    </a>
+    <a class="sb-a" href="admin_users.html" aria-label="Go to users page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Users
-    </div>
+    </a>
+    <a class="sb-a" href="admin_zone_operator.html" aria-label="Go to zone operator page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M17 11h6"/></svg>
+      Zone Operator
+    </a>
   </div>
 
   <div class="sb-sec">
     <div class="sb-lbl">Operations</div>
-    <div class="sb-a">
+    <a class="sb-a" href="admin_schedules.html" aria-label="Go to schedules page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       Schedules
-    </div>
-    <div class="sb-a">
+    </a>
+    <a class="sb-a" href="admin_vehicles.html" aria-label="Go to vehicles page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
       Vehicles
-    </div>
-    <div class="sb-a">
+    </a>
+    <a class="sb-a" href="admin_claims.html" aria-label="Go to claims page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Claims <span class="sb-badge" id="sbClaimsCount">5</span>
-    </div>
-    <div class="sb-a">
+    </a>
+    <a class="sb-a" href="admin_payments.html" aria-label="Go to payments page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
       Payments
-    </div>
+    </a>
   </div>
 
   <div class="sb-sec">
     <div class="sb-lbl">Reports</div>
-    <div class="sb-a">
+    <a class="sb-a" href="admin_reports.html" aria-label="Go to reports page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Reports
-    </div>
+    </a>
   </div>
 
   <div class="sb-foot">
-    <div class="sb-user-wrap" id="adminMenuWrap">
-      <button type="button" class="sb-user" id="adminMenuToggle" aria-haspopup="true" aria-expanded="false" aria-controls="adminMenu">
-        <div class="sb-av">AD</div>
-        <div>
-          <div class="sb-un" id="adminName">Admin</div>
-          <div class="sb-ur">System Administrator</div>
-        </div>
-      </button>
-      <div class="sb-user-menu" id="adminMenu" role="menu" aria-label="Administrator menu">
-        <button type="button" class="sb-user-menu-item" data-admin-action="profile">A. Administrator</button>
-        <button type="button" class="sb-user-menu-item" data-admin-action="settings">Settings</button>
-        <button type="button" class="sb-user-menu-item logout" data-admin-action="logout">Logout</button>
+    <div class="sb-user" aria-label="Administrator profile">
+      <div class="sb-av">AD</div>
+      <div>
+        <div class="sb-un">Administrator</div>
+        <div class="sb-ur">System Admin</div>
       </div>
     </div>
+    <button type="button" class="sb-logout" data-profile-action="logout" aria-label="Logout">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Logout
+    </button>
   </div>
 </aside>
 
@@ -98,14 +110,21 @@
   <div class="topbar">
     <div class="tb-l">
       <h1>System Overview</h1>
-      <p id="dashboardDate">Wednesday, 11 March 2026 — Kimironko Sector</p>
+      <p id="dashboardDate" data-subtitle="Kimironko Sector">Wednesday, 11 March 2026 — Kimironko Sector</p>
     </div>
     <div class="tb-r">
-      <div class="icon-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <div class="notif-dot"></div>
+      <div class="notif-wrap">
+        <button type="button" class="icon-btn" id="notifToggle" aria-label="Open notifications" aria-expanded="false" aria-controls="notifPanel">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div class="notif-dot"></div>
+        </button>
+        <div class="notif-panel" id="notifPanel" role="menu" aria-label="Notifications">
+          <div class="notif-head">Notifications</div>
+          <div class="notif-item"><div class="notif-title">New zone created</div><div class="notif-time">2 min ago</div></div>
+          <div class="notif-item"><div class="notif-title">Vehicle RAD 003C in maintenance</div><div class="notif-time">20 min ago</div></div>
+          <div class="notif-item"><div class="notif-title">3 new claims reported</div><div class="notif-time">1 hour ago</div></div>
+        </div>
       </div>
-      <div class="av" id="adminAvatar">AD</div>
       <div class="ham" onclick="toggleSb()" aria-label="Menu">
         <span></span><span></span><span></span>
       </div>
@@ -114,8 +133,8 @@
 
   <div class="page">
     <!-- ── Stats ── -->
-    <div class="sg">
-      <div class="sc gr">
+    <div class="sg" id="section-overview">
+      <div class="sc gr" data-action="stat-zones" role="button" tabindex="0" aria-label="Open zones page">
         <div class="sc-ico gr">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
         </div>
@@ -123,7 +142,7 @@
         <div class="sc-val" id="statActiveZones">8</div>
         <div class="sc-sub"><span class="up">+2</span> added this month</div>
       </div>
-      <div class="sc am">
+      <div class="sc am" data-action="stat-claims" role="button" tabindex="0" aria-label="Open claims page">
         <div class="sc-ico am">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8962a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
         </div>
@@ -131,7 +150,7 @@
         <div class="sc-val" id="statOpenClaims">23</div>
         <div class="sc-sub"><span class="dn">5</span> urgent</div>
       </div>
-      <div class="sc bl">
+      <div class="sc bl" data-action="stat-payments" role="button" tabindex="0" aria-label="Open payments page">
         <div class="sc-ico bl">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4481c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         </div>
@@ -139,7 +158,7 @@
         <div class="sc-val" id="statPaymentsWeek">142</div>
         <div class="sc-sub"><span class="up">↑18%</span> vs last week</div>
       </div>
-      <div class="sc rd">
+      <div class="sc rd" data-action="stat-users" role="button" tabindex="0" aria-label="Open users page">
         <div class="sc-ico rd">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d95050" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
         </div>
@@ -147,18 +166,10 @@
         <div class="sc-val" id="statTotalResidents">1,204</div>
         <div class="sc-sub"><span class="up">+34</span> this week</div>
       </div>
-      <div class="sc bl">
-        <div class="sc-ico bl">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4481c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <div class="sc-lbl">Zone Operators</div>
-        <div class="sc-val" id="statZoneOperators">0</div>
-        <div class="sc-sub">Assigned across active zones</div>
-      </div>
     </div>
 
     <!-- ── Quick Actions ── -->
-    <div class="card card--mb">
+    <div class="card card--mb" id="section-operations">
       <div class="ch">
         <div class="ct">Quick Actions</div>
       </div>
@@ -184,12 +195,24 @@
       </div>
     </div>
 
+    <!-- ── Zone Coverage Map ── -->
+    <div class="card" id="section-map" style="position:relative;">
+      <div class="ch">
+        <div class="ct">Zone Coverage Map</div>
+      </div>
+      <div class="cb" style="padding:0;height:350px;position:relative;z-index:1;overflow:hidden;">
+        <div id="dashboardZoneMap" style="height:100%;width:100%;position:relative;"></div>
+      </div>
+    </div>
+
     <!-- ── Zones + Claims ── -->
     <div class="two-col">
       <div class="card">
         <div class="ch">
           <div class="ct">Zone Overview</div>
-          <a class="ca" data-action="manage-zones">Manage all →</a>
+          <div class="ch-actions">
+            <a class="ca" href="admin_zones.html" aria-label="Go to zones page">Manage all →</a>
+          </div>
         </div>
         <div class="cb cb--pt">
           <table class="zt">
@@ -240,7 +263,7 @@
       <div class="card">
         <div class="ch">
           <div class="ct">Recent Claims</div>
-          <a class="ca" data-action="view-claims">View all →</a>
+          <a class="ca" href="admin_claims.html" aria-label="Go to claims page">View all →</a>
         </div>
         <div class="cb cb--pt" id="claimsList">
           <div class="ci">
@@ -280,7 +303,7 @@
     </div>
 
     <!-- ── Revenue + Vehicles ── -->
-    <div class="row3">
+    <div class="row3" id="section-payments">
       <div class="card">
         <div class="ch">
           <div class="ct">Weekly Revenue (RWF)</div>
@@ -338,10 +361,10 @@
       </div>
     </div>
 
-    <!-- ── Weekly Reports ── -->
-    <div class="card">
+    <!-- ── Reports ── -->
+    <div class="card" id="section-reports">
       <div class="ch">
-        <div class="ct">Latest Weekly Reports from Zone Operators</div>
+        <div class="ct">Latest Reports from Zone Operators</div>
         <a class="ca" data-action="all-reports">All reports →</a>
       </div>
       <div class="cb cb--pt" id="reportsList">
@@ -363,6 +386,15 @@
       </div>
     </div>
 
+    <div class="card" id="section-settings">
+      <div class="ch">
+        <div class="ct">Settings</div>
+      </div>
+      <div class="cb">
+        <p class="ci-meta">Configure system preferences, roles, and notifications from this section.</p>
+      </div>
+    </div>
+
   </div><!-- /.page -->
 </div><!-- /.main -->
 
@@ -373,25 +405,44 @@
      MOBILE BOTTOM NAV
      ══════════════════════════════ -->
 <nav class="mob-nav">
-  <div class="mn-item active">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    <span>Overview</span>
-  </div>
-  <div class="mn-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
-    <span>Zones</span>
-  </div>
-  <div class="mn-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+  <a class="mn-item" href="/admin/dashboard#section-operations" aria-label="Go to schedules section">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span>Schedules</span>
+  </a>
+  <a class="mn-item" href="/admin/dashboard#claimsList" aria-label="Go to claims section">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
     <span>Claims</span>
-  </div>
-  <div class="mn-item">
+  </a>
+  <a class="mn-item mn-home active" href="/admin/dashboard#section-overview" aria-label="Go to home section">
+    <div class="mn-home-inner">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>
+    </div>
+    <span>Home</span>
+  </a>
+  <a class="mn-item" href="/admin/dashboard#section-payments" aria-label="Go to payments section">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
     <span>Payments</span>
-  </div>
-  <div class="mn-item" onclick="toggleSb()">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    <span>More</span>
+  </a>
+  <div class="mn-profile-wrap">
+    <button type="button" class="mn-item" onclick="toggleMobileProfileDd(event)" aria-label="Open profile menu" style="flex:none;width:100%;justify-content:center;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </button>
+    <div class="mn-profile-dd" id="mobileProfileDd">
+      <div class="dd-user">
+        <div class="dd-user-av">AD</div>
+        <div class="dd-user-name">Administrator</div>
+        <div class="dd-user-role">System Admin</div>
+      </div>
+      <button type="button" class="dd-item" data-profile-action="settings">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+      <button type="button" class="dd-item dd-logout" data-profile-action="logout">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
   </div>
 </nav>
 
@@ -407,6 +458,34 @@
   </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+  var mapContainer=document.getElementById('dashboardZoneMap');
+  if(!mapContainer)return;
+  var dashboardMap=L.map('dashboardZoneMap').setView([-1.95,30.08],14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors',maxZoom:18}).addTo(dashboardMap);
+  
+  async function loadDashboardZones(){
+    try{
+      var response=await fetch('/api/zones/');
+      var zones=await response.json();
+      zones.forEach(function(zone){
+        if(zone.latitude && zone.longitude && zone.sector==='Kimironko'){
+          var circle=L.circle([zone.latitude,zone.longitude],{color:'#2e7d52',fillColor:'#48a870',fillOpacity:0.35,weight:2,radius:800}).addTo(dashboardMap);
+          var isAssigned=zone.zone_operator_name?true:false;
+          var badgeText=isAssigned?'Operator Assigned':'Pending Assignment';
+          var popupContent='<div style="font-size:.85rem;"><h3 style="margin:0 0 6px 0;color:#2c3e50;border-bottom:1px solid #eee;padding-bottom:4px;">'+zone.name+'</h3><p style="margin:4px 0;color:#34495e;"><strong>District:</strong> '+zone.district+'</p><p style="margin:4px 0;color:#34495e;"><strong>Sector:</strong> '+zone.sector+'</p><p style="margin:4px 0;color:#34495e;"><strong>Cell:</strong> '+zone.cell+'</p><p style="margin:4px 0;color:#34495e;"><strong>Operator:</strong> '+(zone.zone_operator_name||'<i>Not yet assigned</i>')+'</p><p style="margin:4px 0;color:#34495e;"><strong>Contact:</strong> '+(zone.zone_operator_phone||'N/A')+'</p><span style="display:inline-block;margin-top:6px;padding:2px 6px;background-color:'+(isAssigned?'#e8f8f5':'#fdf2e9')+';color:'+(isAssigned?'#117a65':'#d35400')+';border-radius:12px;font-size:11px;font-weight:bold;">'+badgeText+'</span></div>';
+          circle.bindPopup(popupContent);
+        }
+      });
+    }catch(error){
+      console.error('Error loading zones:',error);
+    }
+  }
+  loadDashboardZones();
+})();
+</script>
 <script src="/static/js/admin_dash.js"></script>
 </body>
 </html>

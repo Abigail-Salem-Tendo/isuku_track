@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vehicles - Admin | Isuku Track</title>
+  <link rel="stylesheet" href="/static/css/admin_dash.css" />
+</head>
+<body>
+<aside class="sb" aria-label="Admin sidebar navigation">
+  <div class="sb-top"><div class="sb-logo" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div><div><div class="sb-name">Isuku Track</div><div class="sb-role">Admin Panel</div></div></div>
+  <div class="sb-sec"><div class="sb-lbl">Overview</div><a class="sb-a" href="admin_dash.html">Dashboard</a><a class="sb-a" href="admin_zones.html">Zones</a><a class="sb-a" href="admin_users.html">Users</a><a class="sb-a" href="admin_zone_operator.html">Zone Operator</a></div>
+  <div class="sb-sec"><div class="sb-lbl">Operations</div><a class="sb-a" href="admin_schedules.html">Schedules</a><a class="sb-a on" href="admin_vehicles.html" aria-current="page">Vehicles</a><a class="sb-a" href="admin_claims.html">Claims</a><a class="sb-a" href="admin_payments.html">Payments</a></div>
+  <div class="sb-sec"><div class="sb-lbl">Reports</div><a class="sb-a" href="admin_reports.html">Reports</a></div>
+  <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
+</aside>
+
+<div class="main"><header class="topbar"><div class="tb-l"><h1>Vehicles Management</h1><p id="dashboardDate" data-subtitle="Manage fleet availability and assignments">Manage fleet availability and assignments</p></div><div class="tb-r"><button type="button" id="createVehicleBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Create new vehicle">+ Add Vehicle</button><button type="button" id="modifyVehicleBtn" style="background:#1976d2;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Modify vehicle">✎ Modify Vehicle</button><button type="button" id="deleteVehicleBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Delete vehicle">🗑 Delete Vehicle</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
+
+  <div class="sg status-ribbon zone-operator-status-ribbon" aria-label="Vehicle status filters">
+    <button class="sc ftab on" type="button" data-vehicle-filter="Available">
+      <div class="sc-lbl">Available</div>
+      <div class="sc-val" id="vehicleAvailableCount">0</div>
+      <div class="sc-sub">ready for assignment</div>
+    </button>
+    <button class="sc ftab" type="button" data-vehicle-filter="In Use">
+      <div class="sc-lbl">In Use</div>
+      <div class="sc-val" id="vehicleInUseCount">0</div>
+      <div class="sc-sub">active in collection</div>
+    </button>
+    <button class="sc ftab" type="button" data-vehicle-filter="Maintenance">
+      <div class="sc-lbl">Maintenance</div>
+      <div class="sc-val" id="vehicleMaintenanceCount">0</div>
+      <div class="sc-sub">under repair</div>
+    </button>
+  </div>
+
+  <section class="card" aria-labelledby="vehiclesTableTitle">
+    <div class="ch">
+      <div class="ct" id="vehiclesTableTitle">Fleet Overview</div>
+    </div>
+    <div class="cb cb--pt" role="region" aria-label="Vehicles data table">
+      <table class="zt">
+        <thead>
+          <tr>
+            <th>Plate Number</th>
+            <th>Driver</th>
+            <th>Phone</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="vehicleTableBody">
+          <tr data-vehicle-status="In Use"><td>RAD 001A</td><td>Jean-Claude M.</td><td>0788 123 456</td><td><span class="b go">In Use</span></td></tr>
+          <tr data-vehicle-status="Available"><td>RAD 002B</td><td>Claudine U.</td><td>0722 987 654</td><td><span class="b ok">Available</span></td></tr>
+          <tr data-vehicle-status="Maintenance"><td>RAD 003C</td><td>Patrick N.</td><td>0755 456 789</td><td><span class="b op">Maintenance</span></td></tr>
+          <tr data-vehicle-status="In Use"><td>RAD 004D</td><td>Amina K.</td><td>0788 321 654</td><td><span class="b go">In Use</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main></div>
+
+<div class="overlay" id="overlay" onclick="toggleSb()"></div>
+
+<div class="modal" id="vehicleModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="vehicleModalTitle">Add Vehicle</h3>
+      <button type="button" class="modal-close" id="vehicleModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="vehicleModalForm" class="modal-form"></form>
+  </div>
+</div>
+
+<div class="modal" id="modifyVehicleModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Modify Vehicle</h3>
+      <button type="button" class="modal-close" id="modifyVehicleModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="modifyVehicleModalForm" class="modal-form"></form>
+  </div>
+</div>
+
+<div class="modal" id="deleteVehicleModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Delete Vehicle</h3>
+      <button type="button" class="modal-close" id="deleteVehicleModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="deleteVehicleModalForm" class="modal-form"></form>
+  </div>
+</div>
+
+<script>
+function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}
+document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});
+(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();
+
+var vehicleModal=document.getElementById('vehicleModal');var vehicleModalForm=document.getElementById('vehicleModalForm');var vehicleModalClose=document.getElementById('vehicleModalClose');var createVehicleBtn=document.getElementById('createVehicleBtn');
+var modifyVehicleModal=document.getElementById('modifyVehicleModal');var modifyVehicleModalForm=document.getElementById('modifyVehicleModalForm');var modifyVehicleModalClose=document.getElementById('modifyVehicleModalClose');var modifyVehicleBtn=document.getElementById('modifyVehicleBtn');
+var deleteVehicleModal=document.getElementById('deleteVehicleModal');var deleteVehicleModalForm=document.getElementById('deleteVehicleModalForm');var deleteVehicleModalClose=document.getElementById('deleteVehicleModalClose');var deleteVehicleBtn=document.getElementById('deleteVehicleBtn');
+
+function closeVehicleModal(){if(!vehicleModal)return;vehicleModal.classList.remove('open');vehicleModal.setAttribute('aria-hidden','true');if(vehicleModalForm)vehicleModalForm.innerHTML='';}
+function closeModifyVehicleModal(){if(!modifyVehicleModal)return;modifyVehicleModal.classList.remove('open');modifyVehicleModal.setAttribute('aria-hidden','true');if(modifyVehicleModalForm)modifyVehicleModalForm.innerHTML='';}
+function closeDeleteVehicleModal(){if(!deleteVehicleModal)return;deleteVehicleModal.classList.remove('open');deleteVehicleModal.setAttribute('aria-hidden','true');if(deleteVehicleModalForm)deleteVehicleModalForm.innerHTML='';}
+
+function openVehicleModal(){if(!vehicleModal||!vehicleModalForm)return;var formHtml='<label class="mf-lbl">Plate Number<input class="mf-in" name="plate" required placeholder="RAD 005E" /></label>'+'<label class="mf-lbl">Driver Name<input class="mf-in" name="driver" required placeholder="Nadine T." /></label>'+'<label class="mf-lbl">Phone Number<input class="mf-in" name="phone" required placeholder="0788 000 111" /></label>'+'<label class="mf-lbl">Status<select class="mf-in" name="status" required><option>Available</option><option>In Use</option><option>Maintenance</option></select></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="vehicleFormCancel">Cancel</button><button type="submit" class="mf-btn">Add Vehicle</button></div>';vehicleModalForm.innerHTML=formHtml;vehicleModal.classList.add('open');vehicleModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('vehicleFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeVehicleModal);}}
+
+function openModifyVehicleModal(){if(!modifyVehicleModal||!modifyVehicleModalForm)return;var tbody=document.getElementById('vehicleTableBody');if(!tbody)return;var rows=Array.from(tbody.querySelectorAll('tr'));if(rows.length===0){alert('No vehicles to modify');return;}var options='<label class="mf-lbl">Select Vehicle<select class="mf-in" name="vehicleSelect" required><option value="">Choose vehicle...</option>';rows.forEach(function(row,i){var plate=row.querySelector('td:nth-child(1)').textContent.trim();options+='<option value="'+i+'_'+plate+'">'+plate+'</option>';});options+='</select></label>';var formHtml=options+'<label class="mf-lbl">Driver Name<input class="mf-in" name="driver" required placeholder="Driver name" /></label>'+'<label class="mf-lbl">Phone Number<input class="mf-in" name="phone" required placeholder="0788 000 111" /></label>'+'<label class="mf-lbl">Status<select class="mf-in" name="status" required><option>Available</option><option>In Use</option><option>Maintenance</option></select></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="modifyVehicleCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#1976d2;">Update Vehicle</button></div>';modifyVehicleModalForm.innerHTML=formHtml;modifyVehicleModal.classList.add('open');modifyVehicleModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('modifyVehicleCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeModifyVehicleModal);}}
+
+function openDeleteVehicleModal(){if(!deleteVehicleModal||!deleteVehicleModalForm)return;var tbody=document.getElementById('vehicleTableBody');if(!tbody)return;var rows=Array.from(tbody.querySelectorAll('tr'));if(rows.length===0){alert('No vehicles to delete');return;}var options='<label class="mf-lbl">Select Vehicle<select class="mf-in" name="vehicleDelete" required><option value="">Choose vehicle...</option>';rows.forEach(function(row){var plate=row.querySelector('td:nth-child(1)').textContent.trim();options+='<option value="'+plate+'">'+plate+'</option>';});options+='</select></label>';var formHtml=options+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="deleteVehicleCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#d32f2f;">Delete Vehicle</button></div>';deleteVehicleModalForm.innerHTML=formHtml;deleteVehicleModal.classList.add('open');deleteVehicleModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('deleteVehicleCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeDeleteVehicleModal);}}
+
+if(createVehicleBtn){createVehicleBtn.addEventListener('click',openVehicleModal);}if(vehicleModalClose){vehicleModalClose.addEventListener('click',closeVehicleModal);}if(modifyVehicleBtn){modifyVehicleBtn.addEventListener('click',openModifyVehicleModal);}if(modifyVehicleModalClose){modifyVehicleModalClose.addEventListener('click',closeModifyVehicleModal);}if(deleteVehicleBtn){deleteVehicleBtn.addEventListener('click',openDeleteVehicleModal);}if(deleteVehicleModalClose){deleteVehicleModalClose.addEventListener('click',closeDeleteVehicleModal);}
+
+if(vehicleModalForm){vehicleModalForm.addEventListener('submit',function(e){e.preventDefault();var plate=vehicleModalForm.querySelector('input[name="plate"]').value.trim().toUpperCase();var driver=vehicleModalForm.querySelector('input[name="driver"]').value.trim();var phone=vehicleModalForm.querySelector('input[name="phone"]').value.trim();var status=vehicleModalForm.querySelector('select[name="status"]').value;var badgeClass=status==='Available'?'ok':(status==='In Use'?'go':'op');var row='<tr data-vehicle-status="'+status+'"><td>'+plate+'</td><td>'+driver+'</td><td>'+phone+'</td><td><span class="b '+badgeClass+'">'+status+'</span></td></tr>';var tbody=document.getElementById('vehicleTableBody');if(tbody)tbody.insertAdjacentHTML('afterbegin',row);closeVehicleModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Vehicle '+plate+' added successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);updateVehicleCounters();applyVehicleFilter(document.querySelector('.zone-operator-status-ribbon .ftab.on')?.getAttribute('data-vehicle-filter')||'Available');});}
+if(modifyVehicleModalForm){modifyVehicleModalForm.addEventListener('submit',function(e){e.preventDefault();var selected=modifyVehicleModalForm.querySelector('select[name="vehicleSelect"]').value;var driver=modifyVehicleModalForm.querySelector('input[name="driver"]').value.trim();var phone=modifyVehicleModalForm.querySelector('input[name="phone"]').value.trim();var status=modifyVehicleModalForm.querySelector('select[name="status"]').value;if(!selected)return;console.log('Modify vehicle',{selected:selected,driver:driver,phone:phone,status:status});closeModifyVehicleModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Vehicle updated successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}
+if(deleteVehicleModalForm){deleteVehicleModalForm.addEventListener('submit',function(e){e.preventDefault();var selected=deleteVehicleModalForm.querySelector('select[name="vehicleDelete"]').value;if(!selected||!confirm('Delete vehicle '+selected+'?'))return;var rows=Array.from(document.querySelectorAll('#vehicleTableBody tr'));rows.forEach(function(row){if(row.querySelector('td:nth-child(1)').textContent.trim()===selected){row.remove();}});closeDeleteVehicleModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Vehicle '+selected+' deleted successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);updateVehicleCounters();applyVehicleFilter(document.querySelector('.zone-operator-status-ribbon .ftab.on')?.getAttribute('data-vehicle-filter')||'Available');});}
+
+function vehicleRowStatus(row){var status=row.getAttribute('data-vehicle-status')||'';if(status)return status;var badge=row.querySelector('td:nth-child(4) .b');return badge?badge.textContent.trim():'Available';}
+function updateVehicleCounters(){var rows=Array.from(document.querySelectorAll('#vehicleTableBody tr'));var counts={Available:0,'In Use':0,Maintenance:0};rows.forEach(function(row){var s=vehicleRowStatus(row);if(counts[s]!==undefined)counts[s]+=1;});var a=document.getElementById('vehicleAvailableCount');var u=document.getElementById('vehicleInUseCount');var m=document.getElementById('vehicleMaintenanceCount');if(a)a.textContent=String(counts.Available);if(u)u.textContent=String(counts['In Use']);if(m)m.textContent=String(counts.Maintenance);}
+function applyVehicleFilter(status){var rows=Array.from(document.querySelectorAll('#vehicleTableBody tr'));rows.forEach(function(row){row.style.display=vehicleRowStatus(row)===status?'':'none';});}
+(function(){var tabs=Array.from(document.querySelectorAll('.zone-operator-status-ribbon .ftab'));if(!tabs.length)return;tabs.forEach(function(tab){tab.addEventListener('click',function(){tabs.forEach(function(t){t.classList.remove('on');});tab.classList.add('on');applyVehicleFilter(tab.getAttribute('data-vehicle-filter')||'Available');});});updateVehicleCounters();applyVehicleFilter('Available');})();
+</script>
+</body>
+</html>

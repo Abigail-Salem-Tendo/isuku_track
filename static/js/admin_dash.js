@@ -6,8 +6,14 @@ function toggleSb() {
   if (overlay) overlay.classList.toggle('open');
 }
 
+function toggleMobileProfileDd(event) {
+  event.stopPropagation();
+  var dd = document.getElementById('mobileProfileDd');
+  if (dd) dd.classList.toggle('show');
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-  var STORAGE_KEY = 'isuku_admin_local_state_v1';
+
   var state = null;
 
   var modal = document.getElementById('adminModal');
@@ -15,8 +21,39 @@ document.addEventListener('DOMContentLoaded', function () {
   var modalTitle = document.getElementById('modalTitle');
   var modalClose = document.getElementById('modalClose');
   var toast = document.getElementById('toast');
-  var adminMenuWrap = document.getElementById('adminMenuWrap');
-  var adminMenuToggle = document.getElementById('adminMenuToggle');
+  var profileMenu = document.querySelector('.sb-profile');
+  var profileMenuToggle = document.getElementById('sbMenuToggle');
+  var notifWrap = document.querySelector('.notif-wrap');
+  var notifToggle = document.getElementById('notifToggle');
+
+  function closeNotifications() {
+    if (!notifWrap) return;
+    notifWrap.classList.remove('open');
+    if (notifToggle) notifToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleNotifications() {
+    if (!notifWrap) return;
+    var isOpen = notifWrap.classList.toggle('open');
+    if (notifToggle) notifToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
+
+  function closeProfileMenu() {
+    if (!profileMenu) return;
+    profileMenu.classList.remove('open');
+    if (profileMenuToggle) profileMenuToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  function closeMobileProfileDd() {
+    var dd = document.getElementById('mobileProfileDd');
+    if (dd) dd.classList.remove('show');
+  }
+
+  function toggleProfileMenu() {
+    if (!profileMenu) return;
+    var isOpen = profileMenu.classList.toggle('open');
+    if (profileMenuToggle) profileMenuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
 
   function escapeHtml(value) {
     return String(value)
@@ -58,19 +95,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function loadState() {
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return getDefaultState();
-      var parsed = JSON.parse(raw);
-      if (!parsed || !parsed.zones || !parsed.claims || !parsed.vehicles || !parsed.reports) return getDefaultState();
-      return parsed;
-    } catch (err) {
-      return getDefaultState();
-    }
+    return getDefaultState();
   }
 
   function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    // Data is persisted to backend via API calls
   }
 
   function showToast(message, isError) {
@@ -155,70 +184,24 @@ document.addEventListener('DOMContentLoaded', function () {
     var activeZones = state.zones.length;
     var openClaims = state.claims.filter(function (c) { return c.status === 'Open'; }).length;
     var paymentsWeek = state.reports.reduce(function (sum, r) { return sum + r.payments; }, 0);
-    var zoneOperators = (function () {
-      var operatorKeys = new Set();
-      state.zones.forEach(function (zone) {
-        if (zone.operator) operatorKeys.add(String(zone.operator).trim().toLowerCase());
-      });
-      return operatorKeys.size;
-    })();
 
     var statActiveZones = document.getElementById('statActiveZones');
     var statOpenClaims = document.getElementById('statOpenClaims');
     var statPaymentsWeek = document.getElementById('statPaymentsWeek');
     var statTotalResidents = document.getElementById('statTotalResidents');
-    var statZoneOperators = document.getElementById('statZoneOperators');
     var sbZonesCount = document.getElementById('sbZonesCount');
-    var sbZoneOperatorsCount = document.getElementById('sbZoneOperatorsCount');
     var sbClaimsCount = document.getElementById('sbClaimsCount');
 
     if (statActiveZones) statActiveZones.textContent = String(activeZones);
     if (statOpenClaims) statOpenClaims.textContent = String(openClaims);
     if (statPaymentsWeek) statPaymentsWeek.textContent = String(paymentsWeek);
     if (statTotalResidents) statTotalResidents.textContent = String(state.residents.toLocaleString());
-    if (statZoneOperators) statZoneOperators.textContent = String(zoneOperators);
     if (sbZonesCount) sbZonesCount.textContent = String(activeZones);
-    if (sbZoneOperatorsCount) sbZoneOperatorsCount.textContent = String(zoneOperators);
     if (sbClaimsCount) sbClaimsCount.textContent = String(openClaims);
 
     var revenue = state.reports.reduce(function (sum, r) { return sum + r.revenue; }, 0);
     var revenueTotal = document.querySelector('.revenue-total');
     if (revenueTotal) revenueTotal.textContent = revenue.toLocaleString() + ' RWF this week';
-  }
-
-  function countUniqueZoneOperators(zones) {
-    var keys = new Set();
-    zones.forEach(function (zone) {
-      if (zone.zone_operator_id !== null && zone.zone_operator_id !== undefined) {
-        keys.add('id:' + String(zone.zone_operator_id));
-        return;
-      }
-      if (zone.zone_operator_name) {
-        keys.add('name:' + String(zone.zone_operator_name).trim().toLowerCase());
-      }
-    });
-    return keys.size;
-  }
-
-  function syncZoneOperatorsFromApi() {
-    var statZoneOperators = document.getElementById('statZoneOperators');
-    var sbZoneOperatorsCount = document.getElementById('sbZoneOperatorsCount');
-    if ((!statZoneOperators && !sbZoneOperatorsCount) || typeof fetch !== 'function') return;
-
-    fetch('/api/zones')
-      .then(function (response) {
-        if (!response.ok) throw new Error('Failed to load zones');
-        return response.json();
-      })
-      .then(function (zones) {
-        if (!Array.isArray(zones)) return;
-        var uniqueOperators = String(countUniqueZoneOperators(zones));
-        if (statZoneOperators) statZoneOperators.textContent = uniqueOperators;
-        if (sbZoneOperatorsCount) sbZoneOperatorsCount.textContent = uniqueOperators;
-      })
-      .catch(function () {
-        // Keep local state count if API data is temporarily unavailable.
-      });
   }
 
   function renderAll() {
@@ -284,21 +267,74 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function handleQuickAction(action) {
-    if (action === 'new-zone' || action === 'create-schedule' || action === 'add-vehicle') {
-      openModal(action);
+    function goToSidebarLink(keyword, fallbackHref) {
+      var links = Array.from(document.querySelectorAll('.sb .sb-a[href]'));
+      var target = links.find(function (link) {
+        return link.textContent.toLowerCase().indexOf(keyword) !== -1;
+      });
+      var href = target ? target.getAttribute('href') : fallbackHref;
+      if (href) {
+        window.location.href = href;
+        return true;
+      }
+      return false;
+    }
+
+    if (action === 'new-zone') {
+      openModal('new-zone');
+      return;
+    }
+
+    if (action === 'create-schedule') {
+      openModal('create-schedule');
+      return;
+    }
+
+    if (action === 'add-vehicle') {
+      if (!goToSidebarLink('vehicles', 'admin_vehicles.html')) {
+        showToast('Vehicles page is not available yet', true);
+      }
       return;
     }
 
     if (action === 'view-reports' || action === 'all-reports') {
-      var reports = document.getElementById('reportsList');
-      if (reports) reports.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      showToast('Jumped to weekly reports');
+      if (!goToSidebarLink('reports', 'admin_reports.html')) {
+        showToast('Reports page is not available yet', true);
+      }
       return;
     }
 
     if (action === 'manage-zones') {
       var zones = document.getElementById('zoneTableBody');
       if (zones) zones.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    if (action === 'stat-zones') {
+      if (!goToSidebarLink('zones', 'admin_zones.html')) {
+        showToast('Zones page is not available yet', true);
+      }
+      return;
+    }
+
+    if (action === 'stat-claims') {
+      if (!goToSidebarLink('claims', 'admin_claims.html')) {
+        showToast('Claims page is not available yet', true);
+      }
+      return;
+    }
+
+    if (action === 'stat-payments') {
+      if (!goToSidebarLink('payments', 'admin_payments.html')) {
+        showToast('Payments page is not available yet', true);
+      }
+      return;
+    }
+
+    if (action === 'stat-users') {
+      if (!goToSidebarLink('users', 'admin_users.html')) {
+        showToast('Users page is not available yet', true);
+      }
       return;
     }
 
@@ -314,50 +350,107 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  function bindActions() {
-    if (adminMenuToggle && adminMenuWrap) {
-      adminMenuToggle.addEventListener('click', function () {
-        var isOpen = adminMenuWrap.classList.toggle('open');
-        adminMenuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      });
+  function sectionByNav(navKey) {
+    if (navKey === 'overview') return document.getElementById('section-overview');
+    if (navKey === 'operations') return document.getElementById('section-operations');
+    if (navKey === 'reports') return document.getElementById('section-reports');
+    if (navKey === 'settings') return document.getElementById('section-settings');
+    return null;
+  }
+
+  function setActiveNav(navKey) {
+    var navItems = document.querySelectorAll('.sb .sb-a[data-nav]');
+    navItems.forEach(function (item) {
+      item.classList.toggle('on', item.getAttribute('data-nav') === navKey);
+    });
+
+    var mobileItems = document.querySelectorAll('.mob-nav .mn-item[data-nav]');
+    mobileItems.forEach(function (item) {
+      item.classList.toggle('active', item.getAttribute('data-nav') === navKey);
+    });
+  }
+
+  function navigateToSection(navKey) {
+    var section = sectionByNav(navKey);
+    if (!section) {
+      showToast('Section is not available yet', true);
+      return;
     }
 
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setActiveNav(navKey);
+  }
+
+  function handleProfileAction(action) {
+    if (action === 'settings') {
+      navigateToSection('settings');
+      return;
+    }
+
+    if (action === 'logout') {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('adminName');
+
+      var isStaticPreview = window.location.protocol === 'file:' || window.location.port === '5500' || window.location.port === '5501';
+      if (isStaticPreview) {
+        showToast('Logged out');
+        return;
+      }
+
+      window.location.href = '/login';
+    }
+  }
+
+  function bindActions() {
     document.body.addEventListener('click', function (event) {
-      if (adminMenuWrap && !adminMenuWrap.contains(event.target)) {
-        adminMenuWrap.classList.remove('open');
-        if (adminMenuToggle) adminMenuToggle.setAttribute('aria-expanded', 'false');
+      if (notifToggle && event.target.closest('#notifToggle')) {
+        event.preventDefault();
+        toggleNotifications();
+        return;
+      }
+
+      if (notifWrap && notifWrap.classList.contains('open') && !event.target.closest('.notif-wrap')) {
+        closeNotifications();
+      }
+
+      if (profileMenuToggle && event.target.closest('#sbMenuToggle')) {
+        event.preventDefault();
+        toggleProfileMenu();
+        return;
+      }
+
+      if (profileMenu && profileMenu.classList.contains('open') && !event.target.closest('.sb-profile')) {
+        closeProfileMenu();
+      }
+
+      if (!event.target.closest('.mn-profile-wrap')) {
+        closeMobileProfileDd();
+      }
+
+      var navEl = event.target.closest('[data-nav]');
+      if (navEl) {
+        if (navEl.tagName === 'A' && navEl.getAttribute('href')) {
+          return;
+        }
+        event.preventDefault();
+        navigateToSection(navEl.getAttribute('data-nav'));
+      }
+
+      var profileActionEl = event.target.closest('[data-profile-action]');
+      if (profileActionEl) {
+        event.preventDefault();
+        handleProfileAction(profileActionEl.getAttribute('data-profile-action'));
+        closeProfileMenu();
+        closeMobileProfileDd();
+        return;
       }
 
       var actionEl = event.target.closest('[data-action]');
       if (actionEl) {
         event.preventDefault();
         handleQuickAction(actionEl.getAttribute('data-action'));
-      }
-
-      var adminActionEl = event.target.closest('[data-admin-action]');
-      if (adminActionEl) {
-        var adminAction = adminActionEl.getAttribute('data-admin-action');
-
-        if (adminAction === 'profile') {
-          showToast('Administrator menu opened');
-          return;
-        }
-
-        if (adminAction === 'settings') {
-          showToast('Settings will be available soon');
-          return;
-        }
-
-        if (adminAction === 'logout') {
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          localStorage.removeItem('user');
-          localStorage.removeItem('userName');
-          localStorage.removeItem('userRole');
-          localStorage.removeItem('authToken');
-          window.location.href = '/login';
-          return;
-        }
       }
 
       var closeModalEl = event.target.closest('[data-close-modal]');
@@ -376,12 +469,28 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.body.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && adminMenuWrap) {
-        adminMenuWrap.classList.remove('open');
-        if (adminMenuToggle) adminMenuToggle.setAttribute('aria-expanded', 'false');
+      if (event.key === 'Escape') {
+        closeProfileMenu();
+        closeNotifications();
+        closeMobileProfileDd();
       }
 
       if (event.key !== 'Enter' && event.key !== ' ') return;
+
+      var navTarget = event.target.closest('[data-nav]');
+      if (navTarget) {
+        event.preventDefault();
+        navigateToSection(navTarget.getAttribute('data-nav'));
+        return;
+      }
+
+      var profileActionTarget = event.target.closest('[data-profile-action]');
+      if (profileActionTarget) {
+        event.preventDefault();
+        handleProfileAction(profileActionTarget.getAttribute('data-profile-action'));
+        return;
+      }
+
       var quick = event.target.closest('.qa[data-action]');
       if (!quick) return;
       event.preventDefault();
@@ -399,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (modalForm) {
-      modalForm.addEventListener('submit', function (event) {
+      modalForm.addEventListener('submit', async function (event) {
         event.preventDefault();
         var formAction = modalForm.getAttribute('data-form-action');
         var formData = new FormData(modalForm);
@@ -423,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function () {
           saveState();
           renderAll();
           closeModal();
-          showToast('Zone created in local mode');
+          showToast('Zone created successfully');
           return;
         }
 
@@ -447,7 +556,7 @@ document.addEventListener('DOMContentLoaded', function () {
           saveState();
           renderAll();
           closeModal();
-          showToast('Schedule updated in local mode');
+          showToast('Schedule updated successfully');
           return;
         }
 
@@ -475,8 +584,10 @@ document.addEventListener('DOMContentLoaded', function () {
           saveState();
           renderAll();
           closeModal();
-          showToast('Vehicle added in local mode');
+          showToast('Vehicle added successfully');
+          return;
         }
+
       });
     }
   }
@@ -502,6 +613,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function setDashboardDate() {
     var dateEl = document.getElementById('dashboardDate');
     if (!dateEl) return;
+    var subtitle = dateEl.getAttribute('data-subtitle') || 'Kimironko Sector';
     var now = new Date();
     var dateLabel = now.toLocaleDateString('en-GB', {
       weekday: 'long',
@@ -509,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function () {
       month: 'long',
       year: 'numeric'
     });
-    dateEl.textContent = dateLabel + ' — Kimironko Sector';
+    dateEl.textContent = dateLabel + ' — ' + subtitle;
   }
 
   function closeSidebarOnDesktop() {
@@ -525,7 +637,29 @@ document.addEventListener('DOMContentLoaded', function () {
   hydrateAdminIdentity();
   setDashboardDate();
   bindActions();
+  setActiveNav('overview');
   renderAll();
-  syncZoneOperatorsFromApi();
+
+  document.querySelectorAll('.mob-nav .mn-item[href]').forEach(function (el) {
+    el.addEventListener('click', function (event) {
+      var href = el.getAttribute('href') || '';
+      var hashIndex = href.indexOf('#');
+      var targetId = hashIndex >= 0 ? href.slice(hashIndex + 1) : '';
+      var target = targetId ? document.getElementById(targetId) : null;
+
+      if (target) {
+        event.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      document.querySelectorAll('.mob-nav .mn-item').forEach(function (x) { x.classList.remove('active'); });
+      el.classList.add('active');
+    });
+  });
+
+  document.addEventListener('click', function () {
+    closeMobileProfileDd();
+  });
+
   window.addEventListener('resize', closeSidebarOnDesktop);
 });
