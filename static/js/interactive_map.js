@@ -1050,10 +1050,28 @@ function simulateMapEntities() {
 
 }
 
+// --- OPTIMIZED BOOT SEQUENCE ---
 async function initializeMapApp() {
-    await loadZones();      // Fetch Zones and draw the blue circles
-    await loadOperators();  // Fetch the Operator roster
-    switchTab('zones');     // Render the sidebar UI
+    console.log("Booting Command Centre...");
+
+    // OPTIMIZATION: Fire all API requests at the exact same time.
+    try {
+        await Promise.all([
+            loadZones(),
+            loadOperators(),
+            loadVehicles(),
+            loadResidents()
+        ]);
+        console.log("All telemetry loaded successfully!");
+    } catch (error) {
+        console.error("Failed to load some dashboard data:", error);
+    }
+
+    // Now that the arrays are full, run the map simulator!
+    simulateMapEntities(); 
+
+    // Render the sidebar UI
+    switchTab('zones');     
 }
 
 initializeMapApp();
