@@ -298,24 +298,33 @@ window.switchTab = function(tabName) {
     } 
     
     else if (tabName === 'operators') {
-        html = `<div class="panel-section-title">Personnel Roster (${globalOperators.length})</div>`;
-        html += `<div style="font-size: 11px; color: #e67e22; margin-bottom: 10px; text-align: center;">
-                    <i class="fa-solid fa-hand-pointer"></i> Drag an operator onto a Zone to assign them.
-                 </div>`;
+        html = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div class="panel-section-title" style="margin: 0; border: none; padding: 0;">Personnel (${globalOperators.length})</div>
+                <button onclick="openOperatorModal()" style="background: #2e7d52; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;">
+                    <i class="fa-solid fa-plus"></i> Add New
+                </button>
+            </div>
+            <div style="font-size: 11px; color: #e67e22; margin-bottom: 10px; text-align: center;">
+                <i class="fa-solid fa-hand-pointer"></i> Drag an operator onto a Zone to assign them.
+            </div>`;
                  
         globalOperators.forEach(op => {
-            const statusText = op.zone_id ? "Assigned" : "Unassigned / Available";
+            const statusText = op.zone_id ? "Assigned" : "Unassigned";
             const borderStyle = op.zone_id ? "" : "border-left: 4px solid #f39c12;";
             
-            // Notice the draggable="true" and data attributes! This is the magic for Drag & Drop.
             html += `
-                <div class="entity-item draggable-item" draggable="true" ondragstart="handleDragStart(event, ${op.id}, '${op.username}')" style="${borderStyle}">
-                    <div class="entity-icon bg-operator"><i class="fa-solid fa-person"></i></div>
-                    <div class="entity-details">
-                        <div class="entity-name">${op.username}</div>
-                        <div class="entity-sub">${op.phone_number || 'No phone'} · <b>${statusText}</b></div>
+                <div class="entity-item draggable-item" draggable="true" ondragstart="handleDragStart(event, ${op.id}, '${op.username}')" style="${borderStyle}; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center;">
+                        <div class="entity-icon bg-operator"><i class="fa-solid fa-person"></i></div>
+                        <div class="entity-details">
+                            <div class="entity-name">${op.username}</div>
+                            <div class="entity-sub">${op.phone_number || 'No phone'} · <b>${statusText}</b></div>
+                        </div>
                     </div>
-                    <div style="color: #ccc;"><i class="fa-solid fa-grip-vertical"></i></div>
+                    <button onclick="openOperatorModal(${op.id})" style="background: none; border: none; color: #7f8c8d; cursor: pointer; padding: 5px;">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
                 </div>
             `;
         });
@@ -649,6 +658,138 @@ window.deleteZone = async function(zoneId, zoneName) {
         } catch (error) {
             console.error("Delete failed", error);
             Swal.fire('Error', 'Network error occurred.', 'error');
+        }
+    }
+};
+
+
+// FEATURE: CRUD OPERATOR MODAL
+
+window.openOperatorModal = function(operatorId = null) {
+    const modal = document.getElementById('adminModal');
+    const form = document.getElementById('modalForm');
+    const title = document.getElementById('modalTitle');
+
+    let op = null;
+    if (operatorId) {
+        op = globalOperators.find(o => o.id == operatorId);
+        title.textContent = "Edit Zone Operator";
+    } else {
+        title.textContent = "Add New Zone Operator";
+    }
+
+    // Notice we added the Email field and removed the Password field!
+    form.innerHTML = `
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 13px; color: #555;">Username *</label>
+            <input type="text" id="opUsername" required value="${op ? op.username : ''}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 13px; color: #555;">Email *</label>
+            <input type="email" id="opEmail" required value="${op ? (op.email || '') : ''}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-size: 13px; color: #555;">Phone Number *</label>
+            <input type="text" id="opPhone" required value="${op ? (op.phone_number || '') : ''}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        
+        ${!op ? `<small style="display:block; margin-bottom:15px; color:#27ae60;"><i class="fa-solid fa-lock"></i> A secure setup link will be generated automatically.</small>` : ''}
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            ${op ? `
+            <button type="button" onclick="deleteOperator(${op.id}, '${op.username}')" style="flex: 1; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-trash"></i> Delete
+            </button>
+            ` : ''}
+            <button type="submit" style="flex: 2; padding: 10px; background: #2980b9; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-save"></i> ${op ? 'Save Changes' : 'Create Operator'}
+            </button>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+
+    form.onsubmit = async function(e) {
+        e.preventDefault();
+        
+        const payload = {
+            username: document.getElementById('opUsername').value,
+            email: document.getElementById('opEmail').value,
+            phone_number: document.getElementById('opPhone').value
+        };
+
+        const token = localStorage.getItem('access_token');
+        // Point to YOUR specific create route if it's a new operator
+        const url = op ? `${API_BASE}/api/auth/users/${op.id}` : `${API_BASE}/api/auth/create-zone-operator`;
+        const method = op ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // If a reset link was generated, show it to the admin!
+                if (data.reset_link) {
+                    Swal.fire({
+                        title: 'Operator Created!',
+                        html: `Send this setup link to the operator so they can set their password:<br><br><input type="text" value="http://127.0.0.1:5500${data.reset_link}" style="width:100%; padding:5px; text-align:center;" readonly>`,
+                        icon: 'success',
+                        confirmButtonText: 'Done'
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire({ title: 'Updated!', text: 'Operator successfully updated.', icon: 'success', timer: 1500, showConfirmButton: false })
+                    .then(() => location.reload());
+                }
+            } else {
+                Swal.fire('Error', data.error || 'Operation failed', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'Network error occurred.', 'error');
+        }
+    };
+};
+
+// Handle DELETE Operator
+window.deleteOperator = async function(opId, opName) {
+    document.getElementById('adminModal').style.display = 'none';
+
+    const result = await Swal.fire({
+        title: 'Delete Operator?',
+        text: `Are you sure you want to remove ${opName}? They will be unassigned from any zones.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#7f8c8d',
+        confirmButtonText: 'Yes, delete'
+    });
+
+    if (result.isConfirmed) {
+        const token = localStorage.getItem('access_token');
+        try {
+            const response = await fetch(`${API_BASE}/api/auth/users/${opId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                Swal.fire({ title: 'Deleted!', text: 'Operator removed.', icon: 'success', timer: 1500, showConfirmButton: false })
+                .then(() => location.reload());
+            } else {
+                const errorData = await response.json();
+                Swal.fire('Error', errorData.error || 'Failed to delete', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'Network error.', 'error');
         }
     }
 };
