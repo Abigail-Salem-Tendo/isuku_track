@@ -865,3 +865,119 @@ body {
 .empty-state p {
   font-size: .85rem;
 }
+
+/* ============================================
+   MAP FULLSCREEN STYLES
+   ============================================ */
+
+/* Fullscreen button */
+.fullscreen-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: var(--g-light);
+  color: var(--g1);
+  cursor: pointer;
+  transition: all .2s;
+}
+.fullscreen-btn:hover {
+  background: var(--g1);
+  color: #fff;
+}
+
+/* Map card fullscreen mode */
+.map-card.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  margin: 0 !important;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+}
+.map-card.fullscreen .ch {
+  border-radius: 0;
+  padding: 16px 24px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+}
+.map-card.fullscreen .cb {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.map-card.fullscreen .map-container {
+  flex: 1;
+  height: auto !important;
+  min-height: 0;
+  border-radius: 0;
+}
+.map-card.fullscreen .map-legend {
+  padding: 12px 24px;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  margin: 0 !important;
+}
+
+/* Map container base */
+.map-container {
+  height: 280px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #e8f0eb;
+}
+
+/* Fullscreen overlay */
+.fullscreen-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 999;
+}
+.fullscreen-overlay.show {
+  display: block;
+}
+
+/* Trash bin custom marker */
+.leaflet-bin-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bin-marker {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s;
+}
+.bin-marker:hover {
+  transform: scale(1.15);
+}
+.bin-marker.active {
+  background: linear-gradient(135deg, #48a870, #2e7d52);
+}
+.bin-marker.attention {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+.bin-marker svg {
+  width: 16px;
+  height: 16px;
+  fill: #fff;
+}

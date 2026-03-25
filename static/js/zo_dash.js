@@ -353,6 +353,7 @@ function logout() {
 
 /* ── Rejection Modal ── */
 let currentRejectTarget = null;
+let zoneMapInstance = null; // Store map instance for fullscreen resize
 
 function openRejectModal(btn) {
   currentRejectTarget = btn;
@@ -390,6 +391,61 @@ function confirmReject() {
 
   closeRejectModal();
   applyActiveFilter();
+}
+
+/* ── Map Fullscreen Toggle ── */
+function toggleMapFullscreen() {
+  const mapCard = document.getElementById('mapCard');
+  const expandIcon = document.getElementById('expandIcon');
+  const collapseIcon = document.getElementById('collapseIcon');
+
+  if (!mapCard) return;
+
+  mapCard.classList.toggle('fullscreen');
+  const isFullscreen = mapCard.classList.contains('fullscreen');
+
+  // Toggle icons
+  if (expandIcon) expandIcon.style.display = isFullscreen ? 'none' : 'block';
+  if (collapseIcon) collapseIcon.style.display = isFullscreen ? 'block' : 'none';
+
+  // Toggle body scroll
+  document.body.style.overflow = isFullscreen ? 'hidden' : '';
+
+  // Resize map after transition
+  setTimeout(() => {
+    if (zoneMapInstance) {
+      zoneMapInstance.invalidateSize();
+    }
+  }, 300);
+}
+
+// Close fullscreen on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const mapCard = document.getElementById('mapCard');
+    if (mapCard && mapCard.classList.contains('fullscreen')) {
+      toggleMapFullscreen();
+    }
+  }
+});
+
+/* ── Create Trash Bin Icon ── */
+function createBinIcon(status) {
+  const statusClass = status === 'active' ? 'active' : 'attention';
+  return L.divIcon({
+    className: 'leaflet-bin-icon',
+    html: `<div class="bin-marker ${statusClass}">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M6 7h12l-1 12c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2L6 7z"/>
+        <path d="M4 5h16v2H4z"/>
+        <path d="M9 5V3h6v2"/>
+        <path d="M10 10v6M14 10v6" stroke="rgba(255,255,255,0.5)" stroke-width="1" fill="none"/>
+      </svg>
+    </div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15]
+  });
 }
 
 /* ── Initialize Charts ── */
@@ -460,6 +516,7 @@ function initZoneMap() {
 
   const center = [-1.9403, 30.1125];
   const map = L.map('zoneMap').setView(center, 15);
+  zoneMapInstance = map; // Store for fullscreen resize
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
@@ -488,27 +545,50 @@ function initZoneMap() {
     .addTo(map)
     .bindPopup('<b>Route B</b><br>Market Area');
 
-  // Sample resident markers
+  // Resident locations with bin icons
   const residents = [
-    { pos: [-1.9385, 30.1110], name: 'Alice Mutoni', status: 'active', address: 'KG 11 Ave' },
-    { pos: [-1.9395, 30.1125], name: 'Bob Ntwari', status: 'active', address: 'KG 9 Ave' },
-    { pos: [-1.9408, 30.1118], name: 'Grace Keza', status: 'active', address: 'KN 5 Rd' },
-    { pos: [-1.9418, 30.1132], name: 'David Uwimana', status: 'overdue', address: 'Street 4' },
-    { pos: [-1.9425, 30.1108], name: 'Marie Jeannette', status: 'active', address: 'KG 15 Ave' },
-    { pos: [-1.9438, 30.1122], name: 'Claire N.', status: 'overdue', address: 'Market Rd' },
-    { pos: [-1.9400, 30.1140], name: 'Paul Rugamba', status: 'active', address: 'KN 3 Rd' },
-    { pos: [-1.9412, 30.1095], name: 'Sara Odette', status: 'active', address: 'KG 7 Ave' }
+    { pos: [-1.9385, 30.1110], name: 'Alice Mutoni', paid: true, collected: true, hasClaim: true },
+    { pos: [-1.9395, 30.1125], name: 'Bob Ntwari', paid: true, collected: true, hasClaim: true },
+    { pos: [-1.9408, 30.1118], name: 'Grace Keza', paid: true, collected: false, hasClaim: false },
+    { pos: [-1.9418, 30.1132], name: 'David Uwimana', paid: false, collected: false, hasClaim: true },
+    { pos: [-1.9425, 30.1108], name: 'Marie Jeannette', paid: true, collected: true, hasClaim: false },
+    { pos: [-1.9438, 30.1122], name: 'Claire N.', paid: false, collected: false, hasClaim: false },
+    { pos: [-1.9400, 30.1140], name: 'Paul Rugamba', paid: true, collected: true, hasClaim: false },
+    { pos: [-1.9412, 30.1095], name: 'Sara Odette', paid: true, collected: false, hasClaim: false }
   ];
 
   residents.forEach(r => {
-    const color = r.status === 'active' ? '#48a870' : '#ef4444';
-    L.circleMarker(r.pos, {
-      radius: 7,
-      fillColor: color,
-      color: '#fff',
-      weight: 2,
-      fillOpacity: 0.9
-    }).addTo(map).bindPopup(`<b>${r.name}</b><br>${r.address}<br>Status: ${r.status}`);
+    const status = r.paid ? 'active' : 'overdue';
+    L.marker(r.pos, { icon: createBinIcon(status) })
+      .addTo(map)
+      .bindPopup(`
+        <div style="min-width:160px;">
+          <div style="font-weight:700;font-size:13px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #e5e7eb;">${r.name}</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+              <span style="color:#666;">Payment</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:${r.paid ? '#48a870' : '#ef4444'};"></span>
+                <span style="font-weight:600;color:${r.paid ? '#48a870' : '#ef4444'};">${r.paid ? 'Paid' : 'Unpaid'}</span>
+              </span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+              <span style="color:#666;">Collection</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:${r.collected ? '#48a870' : '#f59e0b'};"></span>
+                <span style="font-weight:600;color:${r.collected ? '#48a870' : '#f59e0b'};">${r.collected ? 'Collected' : 'Pending'}</span>
+              </span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+              <span style="color:#666;">Claims</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:${r.hasClaim ? '#ef4444' : '#9ca3af'};"></span>
+                <span style="font-weight:600;color:${r.hasClaim ? '#ef4444' : '#9ca3af'};">${r.hasClaim ? 'Has Claim' : 'None'}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      `);
   });
 }
 
@@ -524,28 +604,52 @@ function initResidentsMap() {
     attribution: '© OpenStreetMap'
   }).addTo(map);
 
+  // Resident locations with bin icons
   const residents = [
-    { pos: [-1.9385, 30.1110], name: 'Alice Mutoni', status: 'active', address: 'KG 11 Ave' },
-    { pos: [-1.9395, 30.1125], name: 'Bob Ntwari', status: 'active', address: 'KG 9 Ave' },
-    { pos: [-1.9408, 30.1118], name: 'Grace Keza', status: 'active', address: 'KN 5 Rd' },
-    { pos: [-1.9418, 30.1132], name: 'David Uwimana', status: 'inactive', address: 'Street 4' },
-    { pos: [-1.9425, 30.1108], name: 'Marie Jeannette', status: 'active', address: 'KG 15 Ave' },
-    { pos: [-1.9438, 30.1122], name: 'Claire N.', status: 'inactive', address: 'Market Rd' },
-    { pos: [-1.9400, 30.1140], name: 'Paul Rugamba', status: 'active', address: 'KN 3 Rd' },
-    { pos: [-1.9412, 30.1095], name: 'Sara Odette', status: 'active', address: 'KG 7 Ave' },
-    { pos: [-1.9390, 30.1135], name: 'Eve Kayitesi', status: 'active', address: 'KN 1 Rd' },
-    { pos: [-1.9432, 30.1098], name: 'John Mutabazi', status: 'active', address: 'KG 11 Ave' }
+    { pos: [-1.9385, 30.1110], name: 'Alice Mutoni', paid: true, collected: true, hasClaim: true },
+    { pos: [-1.9395, 30.1125], name: 'Bob Ntwari', paid: true, collected: true, hasClaim: true },
+    { pos: [-1.9408, 30.1118], name: 'Grace Keza', paid: true, collected: false, hasClaim: false },
+    { pos: [-1.9418, 30.1132], name: 'David Uwimana', paid: false, collected: false, hasClaim: true },
+    { pos: [-1.9425, 30.1108], name: 'Marie Jeannette', paid: true, collected: true, hasClaim: false },
+    { pos: [-1.9438, 30.1122], name: 'Claire N.', paid: false, collected: false, hasClaim: false },
+    { pos: [-1.9400, 30.1140], name: 'Paul Rugamba', paid: true, collected: true, hasClaim: false },
+    { pos: [-1.9412, 30.1095], name: 'Sara Odette', paid: true, collected: false, hasClaim: false },
+    { pos: [-1.9390, 30.1135], name: 'Eve Kayitesi', paid: true, collected: true, hasClaim: false },
+    { pos: [-1.9432, 30.1098], name: 'John Mutabazi', paid: true, collected: true, hasClaim: false }
   ];
 
   residents.forEach(r => {
-    const color = r.status === 'active' ? '#48a870' : '#ef4444';
-    L.circleMarker(r.pos, {
-      radius: 7,
-      fillColor: color,
-      color: '#fff',
-      weight: 2,
-      fillOpacity: 0.9
-    }).addTo(map).bindPopup(`<b>${r.name}</b><br>${r.address}<br>Status: ${r.status}`);
+    const status = r.paid ? 'active' : 'overdue';
+    L.marker(r.pos, { icon: createBinIcon(status) })
+      .addTo(map)
+      .bindPopup(`
+        <div style="min-width:160px;">
+          <div style="font-weight:700;font-size:13px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #e5e7eb;">${r.name}</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+              <span style="color:#666;">Payment</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:${r.paid ? '#48a870' : '#ef4444'};"></span>
+                <span style="font-weight:600;color:${r.paid ? '#48a870' : '#ef4444'};">${r.paid ? 'Paid' : 'Unpaid'}</span>
+              </span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+              <span style="color:#666;">Collection</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:${r.collected ? '#48a870' : '#f59e0b'};"></span>
+                <span style="font-weight:600;color:${r.collected ? '#48a870' : '#f59e0b'};">${r.collected ? 'Collected' : 'Pending'}</span>
+              </span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+              <span style="color:#666;">Claims</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:${r.hasClaim ? '#ef4444' : '#9ca3af'};"></span>
+                <span style="font-weight:600;color:${r.hasClaim ? '#ef4444' : '#9ca3af'};">${r.hasClaim ? 'Has Claim' : 'None'}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      `);
   });
 }
 
@@ -584,13 +688,54 @@ function initRouteMap() {
     .addTo(map)
     .bindPopup('<b>Route B</b><br>Sat 21 07:30<br>Market Area');
 
+  // Residents along routes
+  const routeResidents = [
+    { pos: [-1.9385, 30.1110], name: 'Alice M.', paid: true, collected: true, hasClaim: false },
+    { pos: [-1.9405, 30.1130], name: 'Grace K.', paid: true, collected: false, hasClaim: false },
+    { pos: [-1.9425, 30.1108], name: 'Marie J.', paid: true, collected: true, hasClaim: false }
+  ];
+
+  routeResidents.forEach(r => {
+    const status = r.paid ? 'active' : 'overdue';
+    L.marker(r.pos, { icon: createBinIcon(status) })
+      .addTo(map)
+      .bindPopup(`
+        <div style="min-width:160px;">
+          <div style="font-weight:700;font-size:13px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #e5e7eb;">${r.name}</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+              <span style="color:#666;">Payment</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:${r.paid ? '#48a870' : '#ef4444'};"></span>
+                <span style="font-weight:600;color:${r.paid ? '#48a870' : '#ef4444'};">${r.paid ? 'Paid' : 'Unpaid'}</span>
+              </span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+              <span style="color:#666;">Collection</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:${r.collected ? '#48a870' : '#f59e0b'};"></span>
+                <span style="font-weight:600;color:${r.collected ? '#48a870' : '#f59e0b'};">${r.collected ? 'Collected' : 'Pending'}</span>
+              </span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+              <span style="color:#666;">Claims</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:${r.hasClaim ? '#ef4444' : '#9ca3af'};"></span>
+                <span style="font-weight:600;color:${r.hasClaim ? '#ef4444' : '#9ca3af'};">${r.hasClaim ? 'Has Claim' : 'None'}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      `);
+  });
+
   // Start point marker
   L.circleMarker(routeA[0], {
-    radius: 10, fillColor: '#48a870', color: '#fff', weight: 3, fillOpacity: 1
+    radius: 12, fillColor: '#3b82f6', color: '#fff', weight: 3, fillOpacity: 1
   }).addTo(map).bindPopup('<b>Start Point</b><br>Route A');
 
   // End point marker
   L.circleMarker(routeA[routeA.length - 1], {
-    radius: 10, fillColor: '#ef4444', color: '#fff', weight: 3, fillOpacity: 1
+    radius: 12, fillColor: '#ef4444', color: '#fff', weight: 3, fillOpacity: 1
   }).addTo(map).bindPopup('<b>End Point</b><br>Route A');
 }
