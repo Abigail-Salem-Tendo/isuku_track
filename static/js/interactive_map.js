@@ -231,6 +231,9 @@ async function loadZones() {
                 if (isAssigned) {
                     const opMarker = L.marker([zone.latitude, zone.longitude], { icon: operatorIcon }).addTo(map);
                     opMarker.bindPopup(`<b>Operator:</b> ${zone.zone_operator_name}<br><b>Zone:</b> ${zone.name}`);
+                    
+                    // Add this line to save the reference!
+                    mapLayers[`operator_${zone.zone_operator_id}`] = opMarker; 
                 }
 
                 // Bind existing Zone Popup WITH the Edit Button
@@ -360,29 +363,27 @@ window.switchTab = function(tabName) {
                 <i class="fa-solid fa-hand-pointer"></i> Drag an operator onto a Zone to assign them.
             </div>` : ''}`;
                  
-        globalOperators.forEach(op => {
-            const statusText = op.zone_id ? "Assigned" : "Unassigned";
-            const borderStyle = op.zone_id ? "" : "border-left: 4px solid #f39c12;";
-            
-            // Only allow dragging if it's an admin
-            const draggableAttr = userRole === 'admin' ? `draggable="true" ondragstart="handleDragStart(event, ${op.id}, '${op.username}')"` : '';
-
-            html += `
-                <div class="entity-item draggable-item" ${draggableAttr} style="${borderStyle}; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center;">
-                        <div class="entity-icon bg-operator"><i class="fa-solid fa-person"></i></div>
-                        <div class="entity-details">
-                            <div class="entity-name">${op.username}</div>
-                            <div class="entity-sub">${op.phone_number || 'No phone'} · <b>${statusText}</b></div>
+            globalOperators.forEach(op => {
+                const statusText = op.zone_id ? "Assigned" : "Unassigned";
+                const borderStyle = op.zone_id ? "" : "border-left: 4px solid #f39c12;";
+                const draggableAttr = userRole === 'admin' ? `draggable="true" ondragstart="handleDragStart(event, ${op.id}, '${op.username}')"` : '';
+    
+                html += `
+                    <div class="entity-item draggable-item" ${draggableAttr} style="${borderStyle}; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; flex: 1; cursor: pointer;" onclick="flyToOperator(${op.id})">
+                            <div class="entity-icon bg-operator"><i class="fa-solid fa-person"></i></div>
+                            <div class="entity-details">
+                                <div class="entity-name">${op.username}</div>
+                                <div class="entity-sub">${op.phone_number || 'No phone'} · <b>${statusText}</b></div>
+                            </div>
                         </div>
+                        ${userRole === 'admin' ? `
+                        <button onclick="openOperatorModal(${op.id})" style="background: none; border: none; color: #7f8c8d; cursor: pointer; padding: 5px;">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>` : ''}
                     </div>
-                    ${userRole === 'admin' ? `
-                    <button onclick="openOperatorModal(${op.id})" style="background: none; border: none; color: #7f8c8d; cursor: pointer; padding: 5px;">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>` : ''}
-                </div>
-            `;
-        });
+                `;
+            });
     }
 
     else if (tabName === 'fleet') {
@@ -395,33 +396,33 @@ window.switchTab = function(tabName) {
                 </button>` : ''}
             </div>`;
 
-        globalVehicles.forEach(v => {
-            let statusColor = "#95a5a6";
-            if (v.status === 'available') statusColor = "#27ae60";
-            if (v.status === 'in_use') statusColor = "#2980b9";
-            if (v.status === 'maintenance') statusColor = "#e74c3c";
-
-            html += `
-                <div class="entity-item" style="border-left: 4px solid ${statusColor}; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center;">
-                        <div class="entity-icon bg-vehicle"><i class="fa-solid fa-truck"></i></div>
-                        <div class="entity-details">
-                            <div class="entity-name">${v.plate_number}</div>
-                            <div class="entity-sub">
-                                ${v.driver_name} (${v.driver_phone})<br>
-                                <span style="color: ${statusColor}; font-weight: bold; font-size: 11px; text-transform: uppercase;">
-                                    ${v.status.replace('_', ' ')}
-                                </span>
+            globalVehicles.forEach(v => {
+                let statusColor = "#95a5a6";
+                if (v.status === 'available') statusColor = "#27ae60";
+                if (v.status === 'in_use') statusColor = "#2980b9";
+                if (v.status === 'maintenance') statusColor = "#e74c3c";
+    
+                html += `
+                    <div class="entity-item" style="border-left: 4px solid ${statusColor}; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; flex: 1; cursor: pointer;" onclick="flyToVehicle(${v.id})">
+                            <div class="entity-icon bg-vehicle"><i class="fa-solid fa-truck"></i></div>
+                            <div class="entity-details">
+                                <div class="entity-name">${v.plate_number}</div>
+                                <div class="entity-sub">
+                                    ${v.driver_name} (${v.driver_phone})<br>
+                                    <span style="color: ${statusColor}; font-weight: bold; font-size: 11px; text-transform: uppercase;">
+                                        ${v.status.replace('_', ' ')}
+                                    </span>
+                                </div>
                             </div>
                         </div>
+                        ${userRole === 'admin' ? `
+                        <button onclick="openVehicleModal(${v.id})" style="background: none; border: none; color: #7f8c8d; cursor: pointer; padding: 5px;">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>` : ''}
                     </div>
-                    ${userRole === 'admin' ? `
-                    <button onclick="openVehicleModal(${v.id})" style="background: none; border: none; color: #7f8c8d; cursor: pointer; padding: 5px;">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>` : ''}
-                </div>
-            `;
-        });
+                `;
+            });
 
         if (globalVehicles.length === 0) {
             html += `<div style="text-align:center; padding: 20px; color:#999;">No vehicles found in fleet.</div>`;
@@ -442,6 +443,27 @@ window.flyToMapItem = function(lat, lng, layerId) {
             mapLayers[layerId].openPopup();
         }
     }, 1500);
+};
+
+window.flyToVehicle = function(vId) {
+    const v = globalVehicles.find(x => x.id === vId);
+    if (v && v.currentLat && v.currentLng) {
+        flyToMapItem(v.currentLat, v.currentLng, `vehicle_${vId}`);
+    } else {
+        Swal.fire({ title: 'No Location Data', text: 'This vehicle is not currently active on the map.', icon: 'info', timer: 2000, showConfirmButton: false });
+    }
+};
+
+window.flyToOperator = function(opId) {
+    const op = globalOperators.find(o => o.id === opId);
+    if (op && op.zone_id) {
+        const zone = globalZones.find(z => z.id === op.zone_id);
+        if (zone && zone.latitude) {
+            flyToMapItem(zone.latitude, zone.longitude, `operator_${opId}`);
+        }
+    } else {
+        Swal.fire({ title: 'Unassigned', text: 'This operator is not assigned to a zone yet.', icon: 'info', timer: 2000, showConfirmButton: false });
+    }
 };
 
 // --- FEATURE 3: SEARCH BAR (GEOCODING) ---
