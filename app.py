@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from extensions import db, migrate, bcrypt, jwt
+from extensions import db, migrate, bcrypt, jwt, mail
 from models.user import User
 from models.zone import Zone
 from models.vehicle import Vehicle
@@ -13,6 +13,8 @@ from routes.zone_routes import zone_bp
 from config import Config
 from routes.schedules import schedule_bp
 from routes.claims import claims_bp
+from routes.upload import upload_bp
+from routes.reports import reports_bp
 from routes.payment_routes import payment_bp
 from flask import render_template
 
@@ -26,13 +28,16 @@ def create_app():
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    
+    mail.init_app(app)
+
     # Register blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(vehicle_bp, url_prefix='/api/vehicles')
     app.register_blueprint(zone_bp, url_prefix='/api/zones')
     app.register_blueprint(schedule_bp, url_prefix='/api/schedules')
     app.register_blueprint(claims_bp, url_prefix='/api/claims')
+    app.register_blueprint(upload_bp, url_prefix='/api/upload')
+    app.register_blueprint(reports_bp, url_prefix='/api/reports')
     app.register_blueprint(payment_bp, url_prefix='/api/payments')
 
 
