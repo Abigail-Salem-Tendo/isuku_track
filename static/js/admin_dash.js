@@ -267,21 +267,74 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function handleQuickAction(action) {
-    if (action === 'new-zone' || action === 'create-schedule' || action === 'add-vehicle') {
-      openModal(action);
+    function goToSidebarLink(keyword, fallbackHref) {
+      var links = Array.from(document.querySelectorAll('.sb .sb-a[href]'));
+      var target = links.find(function (link) {
+        return link.textContent.toLowerCase().indexOf(keyword) !== -1;
+      });
+      var href = target ? target.getAttribute('href') : fallbackHref;
+      if (href) {
+        window.location.href = href;
+        return true;
+      }
+      return false;
+    }
+
+    if (action === 'new-zone') {
+      openModal('new-zone');
+      return;
+    }
+
+    if (action === 'create-schedule') {
+      openModal('create-schedule');
+      return;
+    }
+
+    if (action === 'add-vehicle') {
+      if (!goToSidebarLink('vehicles', '/admin/vehicles')) {
+        showToast('Vehicles page is not available yet', true);
+      }
       return;
     }
 
     if (action === 'view-reports' || action === 'all-reports') {
-      var reports = document.getElementById('reportsList');
-      if (reports) reports.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      showToast('Jumped to reports');
+      if (!goToSidebarLink('reports', 'admin_reports.html')) {
+        showToast('Reports page is not available yet', true);
+      }
       return;
     }
 
     if (action === 'manage-zones') {
       var zones = document.getElementById('zoneTableBody');
       if (zones) zones.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    if (action === 'stat-zones') {
+      if (!goToSidebarLink('zones', 'admin_zones.html')) {
+        showToast('Zones page is not available yet', true);
+      }
+      return;
+    }
+
+    if (action === 'stat-claims') {
+      if (!goToSidebarLink('claims', 'admin_claims.html')) {
+        showToast('Claims page is not available yet', true);
+      }
+      return;
+    }
+
+    if (action === 'stat-payments') {
+      if (!goToSidebarLink('payments', 'admin_payments.html')) {
+        showToast('Payments page is not available yet', true);
+      }
+      return;
+    }
+
+    if (action === 'stat-users') {
+      if (!goToSidebarLink('users', 'admin_users.html')) {
+        showToast('Users page is not available yet', true);
+      }
       return;
     }
 

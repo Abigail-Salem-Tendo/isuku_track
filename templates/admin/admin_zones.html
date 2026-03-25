@@ -15,7 +15,7 @@
   <div class="sb-sec"><div class="sb-lbl">Reports</div><a class="sb-a" href="admin_reports.html">Reports</a></div>
   <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
 </aside>
-<div class="main"><header class="topbar"><div class="tb-l"><h1>Zones Management</h1><p id="dashboardDate" data-subtitle="View and manage all assigned collection zones">View and manage all assigned collection zones</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
+<div class="main"><header class="topbar"><div class="tb-l"><h1>Zones Management</h1><p id="dashboardDate" data-subtitle="View and manage all assigned collection zones">View and manage all assigned collection zones</p></div><div class="tb-r"><button type="button" id="createZoneBtn" style="background:#2e7d52;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;">+ Create Zone</button><button type="button" id="modifyZoneBtn" style="background:#1976d2;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;">✎ Modify Zone</button><button type="button" id="deleteZoneBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;">🗑 Delete Zone</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
     <form class="sg zone-filter-ribbon" aria-label="Filter zones" id="zonesFilterRibbon">
       <div class="sc gr">
         <label class="sc-lbl" for="zoneFilterDistrict">District</label>
@@ -50,7 +50,7 @@
               <th scope="col">Status</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="zoneTableBody">
             <tr>
               <td><div class="zn">Zone A</div><div class="zg">Kamatamu</div></td>
               <td>Gasabo</td>
@@ -89,6 +89,92 @@
 </div>
 
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
+<div class="toast" id="zoneToast"></div>
+
+<div class="modal" id="createZoneModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Create Zone</h3>
+      <button type="button" class="modal-close" id="createZoneModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="createZoneForm" class="modal-form">
+      <label class="mf-lbl">Zone Name
+        <input class="mf-in" name="zoneName" required placeholder="Zone D" />
+      </label>
+      <label class="mf-lbl">Cell
+        <input class="mf-in" name="zoneCell" required placeholder="Bibare" />
+      </label>
+      <label class="mf-lbl">District
+        <input class="mf-in" name="zoneDistrict" required placeholder="Gasabo" />
+      </label>
+      <label class="mf-lbl">Sector
+        <input class="mf-in" name="zoneSector" required placeholder="Kimironko" />
+      </label>
+      <label class="mf-lbl">Operator
+        <input class="mf-in" name="zoneOperator" placeholder="Unassigned" />
+      </label>
+      <div class="mf-actions">
+        <button type="button" class="mf-btn sec" id="createZoneCancel">Cancel</button>
+        <button type="submit" class="mf-btn">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="modifyZoneModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Modify Zone</h3>
+      <button type="button" class="modal-close" id="modifyZoneModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="modifyZoneForm" class="modal-form">
+      <label class="mf-lbl">Select Zone
+        <select class="mf-in" name="zoneSelect" id="modifyZoneSelect" required></select>
+      </label>
+      <label class="mf-lbl">Zone Name
+        <input class="mf-in" name="zoneName" required />
+      </label>
+      <label class="mf-lbl">District
+        <input class="mf-in" name="zoneDistrict" required />
+      </label>
+      <label class="mf-lbl">Sector
+        <input class="mf-in" name="zoneSector" required />
+      </label>
+      <label class="mf-lbl">Operator
+        <input class="mf-in" name="zoneOperator" />
+      </label>
+      <label class="mf-lbl">Status
+        <select class="mf-in" name="zoneStatus" required>
+          <option value="Assigned">Assigned</option>
+          <option value="Pending">Pending</option>
+        </select>
+      </label>
+      <div class="mf-actions">
+        <button type="button" class="mf-btn sec" id="modifyZoneCancel">Cancel</button>
+        <button type="submit" class="mf-btn">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="deleteZoneModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Delete Zone</h3>
+      <button type="button" class="modal-close" id="deleteZoneModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="deleteZoneForm" class="modal-form">
+      <label class="mf-lbl">Select Zone
+        <select class="mf-in" name="zoneSelect" id="deleteZoneSelect" required></select>
+      </label>
+      <p class="ci-meta" style="color:#b54708;margin:0;">This action removes the zone from this table view.</p>
+      <div class="mf-actions">
+        <button type="button" class="mf-btn sec" id="deleteZoneCancel">Cancel</button>
+        <button type="submit" class="mf-btn" style="background:#d32f2f;">Delete</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -119,6 +205,205 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
     year: 'numeric'
   });
   d.textContent = l + ' — ' + s;
+})();
+
+(function(){
+  var zoneTableBody=document.getElementById('zoneTableBody');
+  var zoneToast=document.getElementById('zoneToast');
+
+  var createZoneBtn=document.getElementById('createZoneBtn');
+  var modifyZoneBtn=document.getElementById('modifyZoneBtn');
+  var deleteZoneBtn=document.getElementById('deleteZoneBtn');
+
+  var createZoneModal=document.getElementById('createZoneModal');
+  var modifyZoneModal=document.getElementById('modifyZoneModal');
+  var deleteZoneModal=document.getElementById('deleteZoneModal');
+
+  var createZoneForm=document.getElementById('createZoneForm');
+  var modifyZoneForm=document.getElementById('modifyZoneForm');
+  var deleteZoneForm=document.getElementById('deleteZoneForm');
+
+  var modifyZoneSelect=document.getElementById('modifyZoneSelect');
+  var deleteZoneSelect=document.getElementById('deleteZoneSelect');
+
+  function openModal(modal){
+    if(!modal)return;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+  }
+
+  function closeModal(modal){
+    if(!modal)return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+  }
+
+  function showToast(message,isError){
+    if(!zoneToast)return;
+    zoneToast.textContent=message;
+    zoneToast.classList.remove('show','err');
+    if(isError)zoneToast.classList.add('err');
+    requestAnimationFrame(function(){zoneToast.classList.add('show');});
+    window.setTimeout(function(){zoneToast.classList.remove('show');},2600);
+  }
+
+  function getRowData(row){
+    var zoneName=(row.querySelector('.zn')||{}).textContent||'';
+    var cell=(row.querySelector('.zg')||{}).textContent||'';
+    var district=(row.cells[1]||{}).textContent||'';
+    var sector=(row.cells[2]||{}).textContent||'';
+    var operator=(row.cells[3]||{}).textContent||'';
+    var status=(row.cells[4]||{}).textContent||'';
+    return {
+      zoneName:zoneName.trim(),
+      cell:cell.trim(),
+      district:district.trim(),
+      sector:sector.trim(),
+      operator:operator.trim()==='Unassigned'?'':operator.trim(),
+      status:status.trim()
+    };
+  }
+
+  function getRows(){
+    if(!zoneTableBody)return[];
+    return Array.from(zoneTableBody.querySelectorAll('tr'));
+  }
+
+  function populateZoneSelects(){
+    var rows=getRows();
+    if(modifyZoneSelect){
+      modifyZoneSelect.innerHTML=rows.map(function(row,idx){
+        var data=getRowData(row);
+        return '<option value="'+idx+'">'+data.zoneName+'</option>';
+      }).join('');
+    }
+    if(deleteZoneSelect){
+      deleteZoneSelect.innerHTML=rows.map(function(row,idx){
+        var data=getRowData(row);
+        return '<option value="'+idx+'">'+data.zoneName+'</option>';
+      }).join('');
+    }
+  }
+
+  function loadModifyFormFromSelection(){
+    if(!modifyZoneForm||!modifyZoneSelect)return;
+    var index=Number(modifyZoneSelect.value);
+    var rows=getRows();
+    if(Number.isNaN(index)||!rows[index])return;
+    var data=getRowData(rows[index]);
+    modifyZoneForm.querySelector('input[name="zoneName"]').value=data.zoneName;
+    modifyZoneForm.querySelector('input[name="zoneDistrict"]').value=data.district;
+    modifyZoneForm.querySelector('input[name="zoneSector"]').value=data.sector;
+    modifyZoneForm.querySelector('input[name="zoneOperator"]').value=data.operator;
+    modifyZoneForm.querySelector('select[name="zoneStatus"]').value=data.status==='Assigned'?'Assigned':'Pending';
+  }
+
+  if(createZoneBtn){
+    createZoneBtn.addEventListener('click',function(){openModal(createZoneModal);});
+  }
+  if(modifyZoneBtn){
+    modifyZoneBtn.addEventListener('click',function(){
+      populateZoneSelects();
+      loadModifyFormFromSelection();
+      openModal(modifyZoneModal);
+    });
+  }
+  if(deleteZoneBtn){
+    deleteZoneBtn.addEventListener('click',function(){
+      populateZoneSelects();
+      openModal(deleteZoneModal);
+    });
+  }
+
+  ['createZoneModalClose','createZoneCancel'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)el.addEventListener('click',function(){closeModal(createZoneModal);});
+  });
+  ['modifyZoneModalClose','modifyZoneCancel'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)el.addEventListener('click',function(){closeModal(modifyZoneModal);});
+  });
+  ['deleteZoneModalClose','deleteZoneCancel'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)el.addEventListener('click',function(){closeModal(deleteZoneModal);});
+  });
+
+  if(modifyZoneSelect){
+    modifyZoneSelect.addEventListener('change',loadModifyFormFromSelection);
+  }
+
+  if(createZoneForm){
+    createZoneForm.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(!zoneTableBody)return;
+      var zoneName=createZoneForm.querySelector('input[name="zoneName"]').value.trim();
+      var zoneCell=createZoneForm.querySelector('input[name="zoneCell"]').value.trim();
+      var zoneDistrict=createZoneForm.querySelector('input[name="zoneDistrict"]').value.trim();
+      var zoneSector=createZoneForm.querySelector('input[name="zoneSector"]').value.trim();
+      var zoneOperator=createZoneForm.querySelector('input[name="zoneOperator"]').value.trim();
+      var isAssigned=zoneOperator.length>0;
+      var rowHtml=''+
+      '<tr>'+
+      '<td><div class="zn">'+zoneName+'</div><div class="zg">'+zoneCell+'</div></td>'+
+      '<td>'+zoneDistrict+'</td>'+
+      '<td>'+zoneSector+'</td>'+
+      '<td>'+(isAssigned?zoneOperator:'<span class="ci-meta">Unassigned</span>')+'</td>'+
+      '<td><span class="b '+(isAssigned?'ok':'pe')+'">'+(isAssigned?'Assigned':'Pending')+'</span></td>'+
+      '</tr>';
+      zoneTableBody.insertAdjacentHTML('afterbegin',rowHtml);
+      createZoneForm.reset();
+      closeModal(createZoneModal);
+      showToast('Zone created successfully');
+    });
+  }
+
+  if(modifyZoneForm){
+    modifyZoneForm.addEventListener('submit',function(e){
+      e.preventDefault();
+      var rows=getRows();
+      var index=Number(modifyZoneSelect.value);
+      if(Number.isNaN(index)||!rows[index]){
+        showToast('Please select a zone to modify',true);
+        return;
+      }
+      var row=rows[index];
+      var zoneName=modifyZoneForm.querySelector('input[name="zoneName"]').value.trim();
+      var zoneDistrict=modifyZoneForm.querySelector('input[name="zoneDistrict"]').value.trim();
+      var zoneSector=modifyZoneForm.querySelector('input[name="zoneSector"]').value.trim();
+      var zoneOperator=modifyZoneForm.querySelector('input[name="zoneOperator"]').value.trim();
+      var zoneStatus=modifyZoneForm.querySelector('select[name="zoneStatus"]').value;
+      row.querySelector('.zn').textContent=zoneName;
+      row.cells[1].textContent=zoneDistrict;
+      row.cells[2].textContent=zoneSector;
+      row.cells[3].innerHTML=zoneOperator?zoneOperator:'<span class="ci-meta">Unassigned</span>';
+      row.cells[4].innerHTML='<span class="b '+(zoneStatus==='Assigned'?'ok':'pe')+'">'+zoneStatus+'</span>';
+      closeModal(modifyZoneModal);
+      showToast('Zone updated successfully');
+    });
+  }
+
+  if(deleteZoneForm){
+    deleteZoneForm.addEventListener('submit',function(e){
+      e.preventDefault();
+      var rows=getRows();
+      var index=Number(deleteZoneSelect.value);
+      if(Number.isNaN(index)||!rows[index]){
+        showToast('Please select a zone to delete',true);
+        return;
+      }
+      var zoneName=(rows[index].querySelector('.zn')||{}).textContent||'selected zone';
+      rows[index].remove();
+      closeModal(deleteZoneModal);
+      showToast(zoneName.trim()+' deleted');
+    });
+  }
+
+  [createZoneModal,modifyZoneModal,deleteZoneModal].forEach(function(modal){
+    if(!modal)return;
+    modal.addEventListener('click',function(e){
+      if(e.target===modal)closeModal(modal);
+    });
+  });
 })();
 
 (function(){
