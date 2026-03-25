@@ -3,6 +3,159 @@
    Isuku Track · DevStrickers
    ============================================ */
 
+/* ── Points per category config (matches backend) ── */
+const POINTS_PER_CATEGORY = {
+  missed_collection: 10,
+  overflow: 15,
+  illegal_dumping: 20,
+  damaged_infrastructure: 25,
+  environmental_hazard: 30,
+  other: 5
+};
+
+/* ── Toast notification ── */
+function showToast(message, points) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+
+  toast.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </svg>
+    ${message}
+    ${points ? `<span class="toast-points">+${points} pts</span>` : ''}
+  `;
+
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3500);
+}
+
+/* ── Approve claim with points ── */
+function approveClaim(btn, points, residentName) {
+  const ci = btn.closest('.ci');
+  if (!ci) return;
+
+  // Update UI
+  ci.querySelector('.ci-acts').innerHTML = '<span class="b ok">Approved</span>';
+
+  // Update points badge to "awarded"
+  const pointsBadge = ci.querySelector('.points-badge');
+  if (pointsBadge) {
+    pointsBadge.className = 'points-awarded';
+    pointsBadge.textContent = `+${points} pts awarded`;
+  }
+
+  // Show toast notification
+  showToast(`Claim approved! ${residentName} earned`, points);
+
+  // Update total points counter
+  updateTotalPoints(points);
+
+  applyActiveFilter();
+}
+
+/* ── Update total points displayed ── */
+function updateTotalPoints(addPoints) {
+  const totalEl = document.getElementById('totalPointsAwarded');
+  if (totalEl) {
+    const current = parseInt(totalEl.textContent) || 0;
+    totalEl.textContent = current + addPoints;
+  }
+}
+
+/* ── Load top contributors ── */
+function loadTopContributors() {
+  const container = document.getElementById('topContributorsContainer');
+  if (!container) return;
+
+  // Sample data - in production this would come from API
+  const topContributors = [
+    { name: 'Marie Jeannette', initials: 'MJ', points: 150, address: 'KG 15 Ave' },
+    { name: 'Bob Ntwari', initials: 'BN', points: 120, address: 'KG 9 Ave' },
+    { name: 'Eve Kayitesi', initials: 'EK', points: 110, address: 'KN 1 Rd' },
+    { name: 'Sara Odette', initials: 'SO', points: 95, address: 'KG 7 Ave' },
+    { name: 'Grace Keza', initials: 'GK', points: 85, address: 'KN 5 Rd' }
+  ];
+
+  if (topContributors.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        <p>No loyalty points earned yet</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  topContributors.forEach((c, i) => {
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    html += `
+      <div class="top-contributor">
+        <div class="tc-rank ${rankClass}">${i + 1}</div>
+        <div class="tc-av">${c.initials}</div>
+        <div class="tc-info">
+          <div class="tc-name">${c.name}</div>
+          <div class="tc-sub">${c.address}</div>
+        </div>
+        <div class="tc-points">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          ${c.points}
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  // Update total points awarded stat
+  const totalPoints = topContributors.reduce((sum, c) => sum + c.points, 0);
+  const totalEl = document.getElementById('totalPointsAwarded');
+  if (totalEl) totalEl.textContent = totalPoints;
+}
+
+/* ── Load residents with loyalty points ── */
+function loadResidentsStats() {
+  // Calculate stats from resident data on page
+  const residents = document.querySelectorAll('.ri');
+  let totalPoints = 0;
+  let topEarner = { name: '--', points: 0 };
+
+  residents.forEach(ri => {
+    const ptsEl = ri.querySelector('.loyalty-pts span');
+    if (ptsEl) {
+      const pts = parseInt(ptsEl.textContent) || 0;
+      totalPoints += pts;
+
+      const nameEl = ri.querySelector('.ri-name');
+      if (pts > topEarner.points && nameEl) {
+        topEarner = { name: nameEl.textContent, points: pts };
+      }
+    }
+  });
+
+  // Update stat cards
+  const totalPtsEl = document.getElementById('totalLoyaltyPoints');
+  const topNameEl = document.getElementById('topEarnerName');
+  const topPtsEl = document.getElementById('topEarnerPoints');
+
+  if (totalPtsEl) totalPtsEl.textContent = totalPoints;
+  if (topNameEl) topNameEl.textContent = topEarner.name;
+  if (topPtsEl) topPtsEl.textContent = topEarner.points + ' pts';
+}
+
 /* ── Sidebar toggle ── */
 function toggleSb() {
   const sb = document.querySelector('.sb');
@@ -109,14 +262,19 @@ function startRoute(btn, badgeId) {
   };
 }
 
-/* ── Claims approve/reject ── */
+/* ── Claims approve/reject (fallback for buttons without onclick) ── */
 document.querySelectorAll('.btn-ok').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const ci = btn.closest('.ci');
-    if (!ci) return;
-    ci.querySelector('.ci-acts').innerHTML = '<span class="b ok">Approved</span>';
-    applyActiveFilter();
-  });
+  if (!btn.onclick) {
+    btn.addEventListener('click', () => {
+      const ci = btn.closest('.ci');
+      if (!ci) return;
+      const category = ci.dataset.category || 'other';
+      const points = POINTS_PER_CATEGORY[category] || 5;
+      const nameEl = ci.querySelector('.ci-meta');
+      const name = nameEl ? nameEl.textContent.split('·')[0].trim() : 'Resident';
+      approveClaim(btn, points, name);
+    });
+  }
 });
 
 document.querySelectorAll('.btn-no').forEach(btn => {
@@ -236,6 +394,10 @@ function confirmReject() {
 
 /* ── Initialize Charts ── */
 window.addEventListener('load', function() {
+  // Load loyalty points features
+  loadTopContributors();
+  loadResidentsStats();
+
   // Weekly Collections Bar Chart
   const weeklyCtx = document.getElementById('weeklyChart');
   if (weeklyCtx && typeof Chart !== 'undefined') {
