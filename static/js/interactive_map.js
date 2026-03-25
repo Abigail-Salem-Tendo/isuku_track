@@ -278,6 +278,24 @@ async function loadOperators() {
     }
 }
 
+// --- FETCH RESIDENTS FROM BACKEND ---
+async function loadResidents() {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/api/auth/users?role=resident`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+                
+        if (response.ok) {
+            globalResidents = await response.json();
+        }
+    } catch (error) {
+        console.error('Error fetching residents:', error);
+    }
+}
+
 // --- TAB SWITCHER LOGIC ---
 window.switchTab = function(tabName) {
     currentTab = tabName;
