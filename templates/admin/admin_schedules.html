@@ -15,28 +15,23 @@
   <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
 </aside>
 <div class="main"><header class="topbar"><div class="tb-l"><h1>Schedules Management</h1><p id="dashboardDate" data-subtitle="Manage collection schedules across zones">Manage collection schedules across zones</p></div><div class="tb-r"><button type="button" id="createSchedBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Create new schedule">+ Create Schedule</button><button type="button" id="modifySchedBtn" style="background:#1976d2;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Modify schedule">✎ Modify Schedule</button><button type="button" id="deleteSchedBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Delete schedule">🗑 Delete Schedule</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
-  <form class="sg zone-filter-ribbon" aria-label="Filter schedules" id="schedulesFilterRibbon">
-    <div class="sc gr">
-      <label class="sc-lbl" for="scheduleFilterZone">Zone</label>
-      <input class="zone-filter-input" id="scheduleFilterZone" type="text" name="zone" placeholder="Zone A" />
-      <div class="sc-sub">Filter by zone name</div>
-    </div>
-    <div class="sc am">
-      <label class="sc-lbl" for="scheduleFilterOperator">Operator</label>
-      <input class="zone-filter-input" id="scheduleFilterOperator" type="text" name="operator" placeholder="Search operator" />
-      <div class="sc-sub">Filter by operator</div>
-    </div>
-    <div class="sc bl">
-      <label class="sc-lbl" for="scheduleFilterStatus">Schedule Status</label>
-      <select class="zone-filter-input" id="scheduleFilterStatus" name="status">
-        <option value="">All statuses</option>
-        <option>Completed</option>
-        <option>Ongoing</option>
-        <option>Pending</option>
-      </select>
-      <div class="sc-sub">Filter by schedule state</div>
-    </div>
-  </form>
+  <div class="sg status-ribbon zone-operator-status-ribbon" aria-label="Schedule status filters">
+    <button class="sc ftab on" type="button" data-schedule-filter="Completed">
+      <div class="sc-lbl">Completed</div>
+      <div class="sc-val" id="scheduleCompletedCount">0</div>
+      <div class="sc-sub">finished schedules</div>
+    </button>
+    <button class="sc ftab" type="button" data-schedule-filter="Ongoing">
+      <div class="sc-lbl">Ongoing</div>
+      <div class="sc-val" id="scheduleOngoingCount">0</div>
+      <div class="sc-sub">active schedules</div>
+    </button>
+    <button class="sc ftab" type="button" data-schedule-filter="Pending">
+      <div class="sc-lbl">Pending</div>
+      <div class="sc-val" id="schedulePendingCount">0</div>
+      <div class="sc-sub">not started</div>
+    </button>
+  </div>
 
   <section class="card">
     <div class="ch">
@@ -52,12 +47,12 @@
             <th>Claims</th>
           </tr>
         </thead>
-        <tbody>
-          <tr><td><div class="zn">Zone A</div><div class="zg">Gasabo · Kimironko</div></td><td>Jean P.</td><td><span class="b ok">Completed</span></td><td>2</td></tr>
-          <tr><td><div class="zn">Zone B</div><div class="zg">Gasabo · Bibare</div></td><td>Amina K.</td><td><span class="b go">Ongoing</span></td><td>5</td></tr>
-          <tr><td><div class="zn">Zone C</div><div class="zg">Kacyiru · Nyarutarama</div></td><td>Eric M.</td><td><span class="b pe">Pending</span></td><td>1</td></tr>
-          <tr><td><div class="zn">Zone D</div><div class="zg">Gasabo · Kibagabaga</div></td><td>Diane U.</td><td><span class="b ok">Completed</span></td><td>0</td></tr>
-          <tr><td><div class="zn">Zone E</div><div class="zg">Gasabo · Rwezamenyo</div></td><td>Patrick N.</td><td><span class="b go">Ongoing</span></td><td>3</td></tr>
+        <tbody id="scheduleTableBody">
+          <tr data-schedule-status="Completed"><td><div class="zn">Zone A</div><div class="zg">Gasabo · Kimironko</div></td><td>Jean P.</td><td><span class="b ok">Completed</span></td><td>2</td></tr>
+          <tr data-schedule-status="Ongoing"><td><div class="zn">Zone B</div><div class="zg">Gasabo · Bibare</div></td><td>Amina K.</td><td><span class="b go">Ongoing</span></td><td>5</td></tr>
+          <tr data-schedule-status="Pending"><td><div class="zn">Zone C</div><div class="zg">Kacyiru · Nyarutarama</div></td><td>Eric M.</td><td><span class="b pe">Pending</span></td><td>1</td></tr>
+          <tr data-schedule-status="Completed"><td><div class="zn">Zone D</div><div class="zg">Gasabo · Kibagabaga</div></td><td>Diane U.</td><td><span class="b ok">Completed</span></td><td>0</td></tr>
+          <tr data-schedule-status="Ongoing"><td><div class="zn">Zone E</div><div class="zg">Gasabo · Rwezamenyo</div></td><td>Patrick N.</td><td><span class="b go">Ongoing</span></td><td>3</td></tr>
         </tbody>
       </table>
     </div>
@@ -122,6 +117,45 @@ if(schedModalForm){schedModalForm.addEventListener('submit',function(e){e.preven
 
 if(modifySchedModalForm){modifySchedModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedSchedule=modifySchedModalForm.querySelector('select[name="modifySchedule"]').value;var date=modifySchedModalForm.querySelector('input[name="schedDate"]').value;var day=modifySchedModalForm.querySelector('select[name="schedDay"]').value;if(!selectedSchedule){return;}console.log('Modifying schedule:',{selectedSchedule:selectedSchedule,date:date,day:day});closeModifySchedModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Schedule updated successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}
 
-if(deleteSchedModalForm){deleteSchedModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedSchedule=deleteSchedModalForm.querySelector('select[name="deleteSchedule"]').value;if(!selectedSchedule||!confirm('Are you sure you want to delete this schedule? This action cannot be undone.')){return;}console.log('Deleting schedule:',selectedSchedule);closeDeleteSchedModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Schedule deleted successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}</script>
+if(deleteSchedModalForm){deleteSchedModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedSchedule=deleteSchedModalForm.querySelector('select[name="deleteSchedule"]').value;if(!selectedSchedule||!confirm('Are you sure you want to delete this schedule? This action cannot be undone.')){return;}console.log('Deleting schedule:',selectedSchedule);closeDeleteSchedModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Schedule deleted successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}
+
+(function(){
+  var tabs=Array.from(document.querySelectorAll('.zone-operator-status-ribbon .ftab'));
+  var rows=Array.from(document.querySelectorAll('#scheduleTableBody tr'));
+  if(!tabs.length||!rows.length)return;
+
+  function rowStatus(row){
+    var status=row.getAttribute('data-schedule-status')||'';
+    if(status)return status;
+    var badge=row.querySelector('td:nth-child(3) .b');
+    return badge?badge.textContent.trim():'Pending';
+  }
+
+  function updateCounts(){
+    var counts={Completed:0,Ongoing:0,Pending:0};
+    rows.forEach(function(row){var s=rowStatus(row);if(counts[s]!==undefined)counts[s]+=1;});
+    var c=document.getElementById('scheduleCompletedCount');
+    var o=document.getElementById('scheduleOngoingCount');
+    var p=document.getElementById('schedulePendingCount');
+    if(c)c.textContent=String(counts.Completed);
+    if(o)o.textContent=String(counts.Ongoing);
+    if(p)p.textContent=String(counts.Pending);
+  }
+
+  function applyFilter(status){
+    rows.forEach(function(row){row.style.display=rowStatus(row)===status?'':'none';});
+  }
+
+  tabs.forEach(function(tab){
+    tab.addEventListener('click',function(){
+      tabs.forEach(function(t){t.classList.remove('on');});
+      tab.classList.add('on');
+      applyFilter(tab.getAttribute('data-schedule-filter')||'Completed');
+    });
+  });
+
+  updateCounts();
+  applyFilter('Completed');
+})();</script>
 </body>
 </html>

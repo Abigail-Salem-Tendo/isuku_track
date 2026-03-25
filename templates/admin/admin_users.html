@@ -16,17 +16,17 @@
 </aside>
 <div class="main"><header class="topbar"><div class="tb-l"><h1>Users Management</h1><p id="dashboardDate" data-subtitle="Manage residents, operators, and access information">Manage residents, operators, and access information</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
     <div class="sg" aria-label="Resident status summary">
-      <div class="sc gr">
+      <div class="sc gr" data-user-filter-card="all" role="button" tabindex="0" style="cursor:pointer;">
         <div class="sc-lbl">Total Residents</div>
         <div class="sc-val" id="usersTotalResidents">0</div>
         <div class="sc-sub">from users directory</div>
       </div>
-      <div class="sc">
+      <div class="sc" data-user-filter-card="active" role="button" tabindex="0" style="cursor:pointer;">
         <div class="sc-lbl">Active</div>
         <div class="sc-val" id="usersActiveResidents" style="color:var(--g1)">0</div>
         <div class="sc-sub">currently active</div>
       </div>
-      <div class="sc rd">
+      <div class="sc rd" data-user-filter-card="inactive" role="button" tabindex="0" style="cursor:pointer;">
         <div class="sc-lbl">Inactive</div>
         <div class="sc-val" id="usersInactiveResidents" style="color:var(--red)">0</div>
         <div class="sc-sub">needs follow-up</div>
@@ -160,11 +160,30 @@ function applyUsersFilter(filter) {
   });
 }
 
+function setUsersFilter(filter) {
+  var normalized = (filter || 'all').toLowerCase();
+  document.querySelectorAll('.ftab[data-user-filter]').forEach(function (t) {
+    t.classList.toggle('on', (t.getAttribute('data-user-filter') || '').toLowerCase() === normalized);
+  });
+  applyUsersFilter(normalized);
+}
+
 document.querySelectorAll('.ftab[data-user-filter]').forEach(function (tab) {
   tab.addEventListener('click', function () {
-    document.querySelectorAll('.ftab[data-user-filter]').forEach(function (t) { t.classList.remove('on'); });
-    tab.classList.add('on');
-    applyUsersFilter((tab.getAttribute('data-user-filter') || 'all').toLowerCase());
+    setUsersFilter((tab.getAttribute('data-user-filter') || 'all').toLowerCase());
+  });
+});
+
+document.querySelectorAll('[data-user-filter-card]').forEach(function (card) {
+  function triggerCardFilter() {
+    setUsersFilter((card.getAttribute('data-user-filter-card') || 'all').toLowerCase());
+  }
+  card.addEventListener('click', triggerCardFilter);
+  card.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      triggerCardFilter();
+    }
   });
 });
 </script>
