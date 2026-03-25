@@ -16,21 +16,16 @@
 </aside>
 <div class="main"><header class="topbar"><div class="tb-l"><h1>Reports</h1><p id="dashboardDate" data-subtitle="View system and zone operator reports">View system and zone operator reports</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
   <div class="sg report-filters" aria-label="Report time period filters">
-    <button class="sc ftab on" type="button" data-period="weekly">
-      <div class="sc-lbl">Weekly Report</div>
-      <div class="sc-val" id="currentPeriod">This Week</div>
-      <div class="sc-sub">last 7 days</div>
-    </button>
-    <button class="sc ftab" type="button" data-period="monthly">
-      <div class="sc-lbl">Monthly Report</div>
-      <div class="sc-val">This Month</div>
-      <div class="sc-sub">current month</div>
-    </button>
-    <button class="sc ftab" type="button" data-period="yearly">
-      <div class="sc-lbl">Yearly Report</div>
-      <div class="sc-val">This Year</div>
-      <div class="sc-sub">calendar year</div>
-    </button>
+    <div class="sc period-filter-card">
+      <div class="sc-lbl">Report Period</div>
+      <label for="reportPeriodFilter" class="period-filter-label">Choose Time Period</label>
+      <select id="reportPeriodFilter" class="period-filter-select" aria-label="Select report time period">
+        <option value="weekly" selected>This Week (last 7 days)</option>
+        <option value="monthly">This Month (current month)</option>
+        <option value="yearly">This Year (calendar year)</option>
+      </select>
+      <div class="sc-sub">Use this filter to switch report summaries</div>
+    </div>
   </div>
 
   <div class="sg" id="reportStats">
@@ -132,8 +127,8 @@ document.getElementById('logoutBtn')?.addEventListener('click',function(){localS
 (function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();
 
 (function(){
-  var periodTabs=Array.from(document.querySelectorAll('.report-filters .ftab'));
-  if(!periodTabs.length)return;
+  var periodSelect=document.getElementById('reportPeriodFilter');
+  if(!periodSelect)return;
 
   var reportData={
     weekly:{newUsers:24,revenue:187500,activeVehicles:3,wasteCollected:4050},
@@ -154,16 +149,12 @@ document.getElementById('logoutBtn')?.addEventListener('click',function(){localS
     if(wasteEl)wasteEl.textContent=data.wasteCollected.toLocaleString()+' units';
   }
 
-  periodTabs.forEach(function(tab){
-    tab.addEventListener('click',function(){
-      periodTabs.forEach(function(t){t.classList.remove('on');});
-      tab.classList.add('on');
-      var period=tab.getAttribute('data-period')||'weekly';
-      updateReportStats(period);
-    });
+  periodSelect.addEventListener('change',function(){
+    var period=periodSelect.value||'weekly';
+    updateReportStats(period);
   });
 
-  updateReportStats('weekly');
+  updateReportStats(periodSelect.value||'weekly');
 })();
 </script>
 </body>

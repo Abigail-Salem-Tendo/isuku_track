@@ -14,7 +14,7 @@
   <div class="sb-sec"><div class="sb-lbl">Reports</div><a class="sb-a" href="admin_reports.html">Reports</a></div>
   <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
 </aside>
-<div class="main"><header class="topbar"><div class="tb-l"><h1>Schedules Management</h1><p id="dashboardDate" data-subtitle="Manage collection schedules across zones">Manage collection schedules across zones</p></div><div class="tb-r"><button type="button" id="createSchedBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Create new schedule">+ Create Schedule</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
+<div class="main"><header class="topbar"><div class="tb-l"><h1>Schedules Management</h1><p id="dashboardDate" data-subtitle="Manage collection schedules across zones">Manage collection schedules across zones</p></div><div class="tb-r"><button type="button" id="createSchedBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Create new schedule">+ Create Schedule</button><button type="button" id="modifySchedBtn" style="background:#1976d2;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Modify schedule">✎ Modify Schedule</button><button type="button" id="deleteSchedBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Delete schedule">🗑 Delete Schedule</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
   <form class="sg zone-filter-ribbon" aria-label="Filter schedules" id="schedulesFilterRibbon">
     <div class="sc gr">
       <label class="sc-lbl" for="scheduleFilterZone">Zone</label>
@@ -75,16 +75,53 @@
   </div>
 </div>
 
+<div class="modal" id="modifySchedModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Modify Schedule</h3>
+      <button type="button" class="modal-close" id="modifySchedModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="modifySchedModalForm" class="modal-form"></form>
+  </div>
+</div>
+
+<div class="modal" id="deleteSchedModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Delete Schedule</h3>
+      <button type="button" class="modal-close" id="deleteSchedModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="deleteSchedModalForm" class="modal-form"></form>
+  </div>
+</div>
+
 <script>function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();
 
 var schedModal=document.getElementById('schedModal');var schedModalForm=document.getElementById('schedModalForm');var schedModalClose=document.getElementById('schedModalClose');var createSchedBtn=document.getElementById('createSchedBtn');
+var modifySchedModal=document.getElementById('modifySchedModal');var modifySchedModalForm=document.getElementById('modifySchedModalForm');var modifySchedModalClose=document.getElementById('modifySchedModalClose');var modifySchedBtn=document.getElementById('modifySchedBtn');
+var deleteSchedModal=document.getElementById('deleteSchedModal');var deleteSchedModalForm=document.getElementById('deleteSchedModalForm');var deleteSchedModalClose=document.getElementById('deleteSchedModalClose');var deleteSchedBtn=document.getElementById('deleteSchedBtn');
 
 function closeSchedModal(){if(!schedModal)return;schedModal.classList.remove('open');schedModal.setAttribute('aria-hidden','true');if(schedModalForm)schedModalForm.innerHTML='';}
+function closeModifySchedModal(){if(!modifySchedModal)return;modifySchedModal.classList.remove('open');modifySchedModal.setAttribute('aria-hidden','true');if(modifySchedModalForm)modifySchedModalForm.innerHTML='';}
+function closeDeleteSchedModal(){if(!deleteSchedModal)return;deleteSchedModal.classList.remove('open');deleteSchedModal.setAttribute('aria-hidden','true');if(deleteSchedModalForm)deleteSchedModalForm.innerHTML='';}
 
 function openSchedModal(){if(!schedModal||!schedModalForm)return;var formHtml='<label class="mf-lbl">Zone<input class="mf-in" name="schedZone" required placeholder="Zone A" /></label>'+'<label class="mf-lbl">Schedule Date<input class="mf-in" name="schedDate" type="date" required /></label>'+'<label class="mf-lbl">Day of Collection<select class="mf-in" name="schedDay" required><option value="">Select day</option><option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option><option value="Friday">Friday</option><option value="Saturday">Saturday</option><option value="Sunday">Sunday</option></select></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="schedFormCancel">Cancel</button><button type="submit" class="mf-btn">Create Schedule</button></div>';schedModalForm.innerHTML=formHtml;schedModal.classList.add('open');schedModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('schedFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeSchedModal);}}
 
+function openModifySchedModal(){if(!modifySchedModal||!modifySchedModalForm)return;var tbody=document.querySelector('.zt tbody');if(!tbody)return;var rows=Array.from(tbody.querySelectorAll('tr'));if(rows.length===0){alert('No schedules to modify');return;}var scheduleOptions='<label class="mf-lbl">Select Schedule to Modify<select class="mf-in" name="modifySchedule" required><option value="">Choose a schedule...</option>';rows.forEach(function(row,i){var zone=row.querySelector('td:nth-child(1) .zn').textContent.trim();scheduleOptions+='<option value="'+i+'_'+zone+'">'+zone+'</option>';});scheduleOptions+='</select></label>';var formHtml=scheduleOptions+'<label class="mf-lbl">Schedule Date<input class="mf-in" name="schedDate" type="date" required /></label>'+'<label class="mf-lbl">Day of Collection<select class="mf-in" name="schedDay" required><option value="">Select day</option><option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option><option value="Friday">Friday</option><option value="Saturday">Saturday</option><option value="Sunday">Sunday</option></select></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="modifyFormCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#1976d2;">Update Schedule</button></div>';modifySchedModalForm.innerHTML=formHtml;modifySchedModal.classList.add('open');modifySchedModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('modifyFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeModifySchedModal);}}
+
+function openDeleteSchedModal(){if(!deleteSchedModal||!deleteSchedModalForm)return;var tbody=document.querySelector('.zt tbody');if(!tbody)return;var rows=Array.from(tbody.querySelectorAll('tr'));if(rows.length===0){alert('No schedules to delete');return;}var scheduleOptions='<label class="mf-lbl">Select Schedule to Delete<select class="mf-in" name="deleteSchedule" required><option value="">Choose a schedule...</option>';rows.forEach(function(row,i){var zone=row.querySelector('td:nth-child(1) .zn').textContent.trim();scheduleOptions+='<option value="'+i+'_'+zone+'">'+zone+'</option>';});scheduleOptions+='</select></label>';var formHtml=scheduleOptions+'<div style="background:#fff3cd;padding:10px;border-radius:6px;margin:12px 0;font-size:.74rem;color:#856404;border:1px solid #ffc107;"><strong>⚠ Warning:</strong> Deleting a schedule cannot be undone.</div>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="deleteFormCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#d32f2f;">Delete Schedule</button></div>';deleteSchedModalForm.innerHTML=formHtml;deleteSchedModal.classList.add('open');deleteSchedModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('deleteFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeDeleteSchedModal);}}
+
 if(createSchedBtn){createSchedBtn.addEventListener('click',openSchedModal);}
+if(modifySchedBtn){modifySchedBtn.addEventListener('click',openModifySchedModal);}
+if(deleteSchedBtn){deleteSchedBtn.addEventListener('click',openDeleteSchedModal);}
 if(schedModalClose){schedModalClose.addEventListener('click',closeSchedModal);}
-if(schedModalForm){schedModalForm.addEventListener('submit',function(e){e.preventDefault();var zone=schedModalForm.querySelector('input[name="schedZone"]').value;var date=schedModalForm.querySelector('input[name="schedDate"]').value;var day=schedModalForm.querySelector('select[name="schedDay"]').value;console.log('Creating schedule:',{zone:zone,date:date,day:day});closeSchedModal();var successMsg='Schedule for '+zone+' created successfully!';if(schedModal){var toast=document.createElement('div');toast.className='toast show';toast.textContent=successMsg;document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);}});}</script>
+if(modifySchedModalClose){modifySchedModalClose.addEventListener('click',closeModifySchedModal);}
+if(deleteSchedModalClose){deleteSchedModalClose.addEventListener('click',closeDeleteSchedModal);}
+
+if(schedModalForm){schedModalForm.addEventListener('submit',function(e){e.preventDefault();var zone=schedModalForm.querySelector('input[name="schedZone"]').value;var date=schedModalForm.querySelector('input[name="schedDate"]').value;var day=schedModalForm.querySelector('select[name="schedDay"]').value;console.log('Creating schedule:',{zone:zone,date:date,day:day});closeSchedModal();var successMsg='Schedule for '+zone+' created successfully!';if(schedModal){var toast=document.createElement('div');toast.className='toast show';toast.textContent=successMsg;document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);}});}
+
+if(modifySchedModalForm){modifySchedModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedSchedule=modifySchedModalForm.querySelector('select[name="modifySchedule"]').value;var date=modifySchedModalForm.querySelector('input[name="schedDate"]').value;var day=modifySchedModalForm.querySelector('select[name="schedDay"]').value;if(!selectedSchedule){return;}console.log('Modifying schedule:',{selectedSchedule:selectedSchedule,date:date,day:day});closeModifySchedModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Schedule updated successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}
+
+if(deleteSchedModalForm){deleteSchedModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedSchedule=deleteSchedModalForm.querySelector('select[name="deleteSchedule"]').value;if(!selectedSchedule||!confirm('Are you sure you want to delete this schedule? This action cannot be undone.')){return;}console.log('Deleting schedule:',selectedSchedule);closeDeleteSchedModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Schedule deleted successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}</script>
 </body>
 </html>

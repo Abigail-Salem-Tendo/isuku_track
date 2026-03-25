@@ -453,7 +453,37 @@ body {
 }
 
 .report-filters {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
+}
+
+.period-filter-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.period-filter-label {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--txt);
+}
+
+.period-filter-select {
+  width: 100%;
+  max-width: 360px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--txt);
+  font-size: .82rem;
+  font-weight: 600;
+  outline: none;
+}
+
+.period-filter-select:focus {
+  border-color: var(--g2);
+  box-shadow: 0 0 0 3px rgba(72, 168, 112, .15);
 }
 
 .sc {

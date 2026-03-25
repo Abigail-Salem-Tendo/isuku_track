@@ -17,7 +17,7 @@
   <div class="sb-sec"><div class="sb-lbl">Reports</div><a class="sb-a" href="admin_reports.html">Reports</a></div>
   <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
 </aside>
-<div class="main"><header class="topbar"><div class="tb-l"><h1>Zone Operator Management</h1><p id="dashboardDate" data-subtitle="Assign and monitor zone operators">Assign and monitor zone operators</p></div><div class="tb-r"><button type="button" id="createZoBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Create new zone operator">+ Create Operator</button><button type="button" id="deleteZoBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Delete zone operator">🗑 Delete Operator</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
+<div class="main"><header class="topbar"><div class="tb-l"><h1>Zone Operator Management</h1><p id="dashboardDate" data-subtitle="Assign and monitor zone operators">Assign and monitor zone operators</p></div><div class="tb-r"><button type="button" id="createZoBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Create new zone operator">+ Create Operator</button><button type="button" id="modifyZoBtn" style="background:#1976d2;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Modify zone operator">✎ Modify Operator</button><button type="button" id="deleteZoBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Delete zone operator">🗑 Delete Operator</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
   <div class="sg status-ribbon zone-operator-status-ribbon" aria-label="Zone schedule status filters">
     <button class="sc ftab on" type="button" data-zo-filter="Completed">
       <div class="sc-lbl">Completed</div>
@@ -73,6 +73,16 @@
   </div>
 </div>
 
+<div class="modal" id="modifyZoModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Modify Zone Operator</h3>
+      <button type="button" class="modal-close" id="modifyZoModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="modifyZoModalForm" class="modal-form"></form>
+  </div>
+</div>
+
 <div class="modal" id="zoDeleteModal" aria-hidden="true">
   <div class="modal-card">
     <div class="modal-head">
@@ -88,6 +98,7 @@ function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.ge
 document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});
 
 var zoModal=document.getElementById('zoModal');var zoModalForm=document.getElementById('zoModalForm');var zoModalClose=document.getElementById('zoModalClose');var createZoBtn=document.getElementById('createZoBtn');
+var modifyZoModal=document.getElementById('modifyZoModal');var modifyZoModalForm=document.getElementById('modifyZoModalForm');var modifyZoModalClose=document.getElementById('modifyZoModalClose');var modifyZoBtn=document.getElementById('modifyZoBtn');
 var zoDeleteModal=document.getElementById('zoDeleteModal');var zoDeleteModalForm=document.getElementById('zoDeleteModalForm');var zoDeleteModalClose=document.getElementById('zoDeleteModalClose');var deleteZoBtn=document.getElementById('deleteZoBtn');
 
 function closeZoModal(){if(!zoModal)return;zoModal.classList.remove('open');zoModal.setAttribute('aria-hidden','true');if(zoModalForm)zoModalForm.innerHTML='';}
@@ -98,14 +109,22 @@ function generateTemporaryPassword(){var chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 
 function closeZoDeleteModal(){if(!zoDeleteModal)return;zoDeleteModal.classList.remove('open');zoDeleteModal.setAttribute('aria-hidden','true');if(zoDeleteModalForm)zoDeleteModalForm.innerHTML='';}
 
+function closeModifyZoModal(){if(!modifyZoModal)return;modifyZoModal.classList.remove('open');modifyZoModal.setAttribute('aria-hidden','true');if(modifyZoModalForm)modifyZoModalForm.innerHTML='';}
+
+function openModifyZoModal(){if(!modifyZoModal||!modifyZoModalForm)return;var tableBody=document.getElementById('zoneOperatorTableBody');if(!tableBody)return;var rows=Array.from(tableBody.querySelectorAll('tr'));if(rows.length===0){alert('No operators to modify');return;}var operatorOptions='<label class="mf-lbl">Select Operator to Modify<select class="mf-in" name="modifyOperator" required><option value="">Choose an operator...</option>';rows.forEach(function(row,i){var opName=row.querySelector('td:nth-child(2)').textContent.trim();operatorOptions+='<option value="'+i+'_'+opName+'">'+opName+'</option>';});operatorOptions+='</select></label>';var formHtml=operatorOptions+'<label class="mf-lbl">Name<input class="mf-in" name="zoName" required placeholder="Jean-Pierre K." /></label>'+'<label class="mf-lbl">Email<input class="mf-in" name="zoEmail" type="email" required placeholder="jean@example.com" /></label>'+'<label class="mf-lbl">Phone Number<input class="mf-in" name="zoPhone" required placeholder="0788 123 456" /></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="modifyZoFormCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#1976d2;">Update Operator</button></div>';modifyZoModalForm.innerHTML=formHtml;modifyZoModal.classList.add('open');modifyZoModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('modifyZoFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeModifyZoModal);}}
+
 function openZoDeleteModal(){if(!zoDeleteModal||!zoDeleteModalForm)return;var tableBody=document.getElementById('zoneOperatorTableBody');if(!tableBody)return;var rows=Array.from(tableBody.querySelectorAll('tr'));if(rows.length===0){alert('No operators to delete');return;}var operatorHTML='<label class="mf-lbl">Select Operator to Delete<select class="mf-in" name="zoOperator" required><option value="">Choose an operator...</option>';rows.forEach(function(row){var opName=row.querySelector('td:nth-child(2)').textContent.trim();operatorHTML+='<option value="'+opName+'">'+opName+'</option>';});operatorHTML+='</select></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="zoDeleteFormCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#d32f2f;">Delete Operator</button></div>';zoDeleteModalForm.innerHTML=operatorHTML;zoDeleteModal.classList.add('open');zoDeleteModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('zoDeleteFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeZoDeleteModal);}}
 
 if(createZoBtn){createZoBtn.addEventListener('click',openZoModal);}
 if(zoModalClose){zoModalClose.addEventListener('click',closeZoModal);}
+if(modifyZoBtn){modifyZoBtn.addEventListener('click',openModifyZoModal);}
+if(modifyZoModalClose){modifyZoModalClose.addEventListener('click',closeModifyZoModal);}
 if(deleteZoBtn){deleteZoBtn.addEventListener('click',openZoDeleteModal);}
 if(zoDeleteModalClose){zoDeleteModalClose.addEventListener('click',closeZoDeleteModal);}
 
 if(zoModalForm){zoModalForm.addEventListener('submit',function(e){e.preventDefault();var name=zoModalForm.querySelector('input[name="zoName"]').value;var email=zoModalForm.querySelector('input[name="zoEmail"]').value;var phone=zoModalForm.querySelector('input[name="zoPhone"]').value;var tempPassword=generateTemporaryPassword();console.log('Creating zone operator:',{name:name,email:email,phone:phone,temporaryPassword:tempPassword});closeZoModal();var toast=document.createElement('div');toast.className='toast show';toast.style.maxWidth='400px';var toastContent='<div style="padding:12px;"><strong>✓ Operator Created</strong><br><small style="opacity:0.9;">'+name+'</small><br><br><strong style="font-size:.85rem;">Temporary Password:</strong><br><code style="display:inline-block;background:#f0f0f0;padding:6px 8px;border-radius:4px;font-family:monospace;font-size:.8rem;margin:6px 0;letter-spacing:0.5px;">'+tempPassword+'</code><br><small style="display:block;margin-top:8px;opacity:0.85;">Sent to: '+email+'<br>Operator can reset on first login</small></div>';toast.innerHTML=toastContent;document.body.appendChild(toast);setTimeout(function(){toast.remove();},4000);})}
+
+if(modifyZoModalForm){modifyZoModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedOperator=modifyZoModalForm.querySelector('select[name="modifyOperator"]').value;var name=modifyZoModalForm.querySelector('input[name="zoName"]').value;var email=modifyZoModalForm.querySelector('input[name="zoEmail"]').value;var phone=modifyZoModalForm.querySelector('input[name="zoPhone"]').value;if(!selectedOperator){return;}console.log('Modifying zone operator:',{selectedOperator:selectedOperator,name:name,email:email,phone:phone});closeModifyZoModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Zone operator '+name+' updated successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}
 
 if(zoDeleteModalForm){zoDeleteModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedOperator=zoDeleteModalForm.querySelector('select[name="zoOperator"]').value;if(!selectedOperator||!confirm('Are you sure you want to delete '+selectedOperator+'? This action cannot be undone.')){return;}console.log('Deleting zone operator:',selectedOperator);closeZoDeleteModal();var tableBody=document.getElementById('zoneOperatorTableBody');if(tableBody){var rows=Array.from(tableBody.querySelectorAll('tr'));rows.forEach(function(row){if(row.querySelector('td:nth-child(2)').textContent.trim()===selectedOperator){row.remove();}});}var successMsg='Zone operator '+selectedOperator+' deleted successfully!';if(zoDeleteModal){var toast=document.createElement('div');toast.className='toast show';toast.textContent=successMsg;document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);}});}
 

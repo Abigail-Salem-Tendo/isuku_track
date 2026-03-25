@@ -6,6 +6,14 @@
   <title>Admin Dashboard — Isuku Track</title>
   <link rel="stylesheet" href="/static/css/admin_dash.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #dashboardZoneMap .leaflet-control {
+      z-index: 400 !important;
+    }
+    #dashboardZoneMap .leaflet-control-container {
+      z-index: 400 !important;
+    }
+  </style>
 </head>
 <body>
 
@@ -188,12 +196,12 @@
     </div>
 
     <!-- ── Zone Coverage Map ── -->
-    <div class="card" id="section-map">
+    <div class="card" id="section-map" style="position:relative;">
       <div class="ch">
         <div class="ct">Zone Coverage Map</div>
       </div>
-      <div class="cb" style="padding:0;height:350px;">
-        <div id="dashboardZoneMap" style="height:100%;width:100%;"></div>
+      <div class="cb" style="padding:0;height:350px;position:relative;z-index:1;overflow:hidden;">
+        <div id="dashboardZoneMap" style="height:100%;width:100%;position:relative;"></div>
       </div>
     </div>
 
