@@ -154,9 +154,9 @@
         <div class="sc-ico bl">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4481c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         </div>
-        <div class="sc-lbl">Payments (week)</div>
-        <div class="sc-val" id="statPaymentsWeek">142</div>
-        <div class="sc-sub"><span class="up">↑18%</span> vs last week</div>
+        <div class="sc-lbl">Total Revenue Earned</div>
+        <div class="sc-val" id="statPaymentsWeek">142,000 RWF</div>
+        <div class="sc-sub">this week</div>
       </div>
       <div class="sc rd" data-action="stat-users" role="button" tabindex="0" aria-label="Open users page">
         <div class="sc-ico rd">
@@ -190,6 +190,65 @@
           <div class="qa" data-action="view-reports" role="button" tabindex="0">
             <div class="qa-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2e7d52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
             <div class="qa-lbl">View Reports</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Revenue + Vehicles ── -->
+    <div class="row3" id="section-payments">
+      <div class="card">
+        <div class="ch">
+          <div class="ct">Weekly Revenue (RWF)</div>
+          <div class="revenue-total">142,000 RWF this week</div>
+        </div>
+        <div class="cb">
+          <div class="bars">
+            <div class="bar" style="height:40%"></div>
+            <div class="bar" style="height:55%"></div>
+            <div class="bar" style="height:45%"></div>
+            <div class="bar" style="height:70%"></div>
+            <div class="bar" style="height:65%"></div>
+            <div class="bar" style="height:85%"></div>
+            <div class="bar" style="height:100%"></div>
+          </div>
+          <div class="bar-lbls">
+            <div class="bl">Mon</div>
+            <div class="bl">Tue</div>
+            <div class="bl">Wed</div>
+            <div class="bl">Thu</div>
+            <div class="bl">Fri</div>
+            <div class="bl">Sat</div>
+            <div class="bl">Sun</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">
+          <div class="ct">Fleet Status</div>
+          <a class="ca" data-action="manage-fleet">Manage →</a>
+        </div>
+        <div class="cb cb--pt" id="fleetList">
+          <div class="vi">
+            <div class="vp">RAD 001A</div>
+            <div><div class="vn">Jean-Claude M.</div><div class="vm">0788 123 456</div></div>
+            <span class="b go vi-badge">In Use</span>
+          </div>
+          <div class="vi">
+            <div class="vp">RAD 002B</div>
+            <div><div class="vn">Claudine U.</div><div class="vm">0722 987 654</div></div>
+            <span class="b ok vi-badge">Available</span>
+          </div>
+          <div class="vi">
+            <div class="vp">RAD 003C</div>
+            <div><div class="vn">Patrick N.</div><div class="vm">0755 456 789</div></div>
+            <span class="b op vi-badge">Maintenance</span>
+          </div>
+          <div class="vi">
+            <div class="vp">RAD 004D</div>
+            <div><div class="vn">Amina K.</div><div class="vm">0788 321 654</div></div>
+            <span class="b go vi-badge">In Use</span>
           </div>
         </div>
       </div>
@@ -297,65 +356,6 @@
               <div class="ci-meta">Zone E · Yesterday</div>
             </div>
             <span class="b op ci-badge">Open</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Revenue + Vehicles ── -->
-    <div class="row3" id="section-payments">
-      <div class="card">
-        <div class="ch">
-          <div class="ct">Weekly Revenue (RWF)</div>
-          <div class="revenue-total">142,000 RWF this week</div>
-        </div>
-        <div class="cb">
-          <div class="bars">
-            <div class="bar" style="height:40%"></div>
-            <div class="bar" style="height:55%"></div>
-            <div class="bar" style="height:45%"></div>
-            <div class="bar" style="height:70%"></div>
-            <div class="bar" style="height:65%"></div>
-            <div class="bar" style="height:85%"></div>
-            <div class="bar" style="height:100%"></div>
-          </div>
-          <div class="bar-lbls">
-            <div class="bl">Mon</div>
-            <div class="bl">Tue</div>
-            <div class="bl">Wed</div>
-            <div class="bl">Thu</div>
-            <div class="bl">Fri</div>
-            <div class="bl">Sat</div>
-            <div class="bl">Sun</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="ch">
-          <div class="ct">Fleet Status</div>
-          <a class="ca" data-action="manage-fleet">Manage →</a>
-        </div>
-        <div class="cb cb--pt" id="fleetList">
-          <div class="vi">
-            <div class="vp">RAD 001A</div>
-            <div><div class="vn">Jean-Claude M.</div><div class="vm">0788 123 456</div></div>
-            <span class="b go vi-badge">In Use</span>
-          </div>
-          <div class="vi">
-            <div class="vp">RAD 002B</div>
-            <div><div class="vn">Claudine U.</div><div class="vm">0722 987 654</div></div>
-            <span class="b ok vi-badge">Available</span>
-          </div>
-          <div class="vi">
-            <div class="vp">RAD 003C</div>
-            <div><div class="vn">Patrick N.</div><div class="vm">0755 456 789</div></div>
-            <span class="b op vi-badge">Maintenance</span>
-          </div>
-          <div class="vi">
-            <div class="vp">RAD 004D</div>
-            <div><div class="vn">Amina K.</div><div class="vm">0788 321 654</div></div>
-            <span class="b go vi-badge">In Use</span>
           </div>
         </div>
       </div>

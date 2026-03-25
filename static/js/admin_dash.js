@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderStats() {
     var activeZones = state.zones.length;
     var openClaims = state.claims.filter(function (c) { return c.status === 'Open'; }).length;
-    var paymentsWeek = state.reports.reduce(function (sum, r) { return sum + r.payments; }, 0);
+    var paymentsWeek = state.reports.reduce(function (sum, r) { return sum + r.revenue; }, 0);
 
     var statActiveZones = document.getElementById('statActiveZones');
     var statOpenClaims = document.getElementById('statOpenClaims');
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (statActiveZones) statActiveZones.textContent = String(activeZones);
     if (statOpenClaims) statOpenClaims.textContent = String(openClaims);
-    if (statPaymentsWeek) statPaymentsWeek.textContent = String(paymentsWeek);
+    if (statPaymentsWeek) statPaymentsWeek.textContent = paymentsWeek.toLocaleString() + ' RWF';
     if (statTotalResidents) statTotalResidents.textContent = String(state.residents.toLocaleString());
     if (sbZonesCount) sbZonesCount.textContent = String(activeZones);
     if (sbClaimsCount) sbClaimsCount.textContent = String(openClaims);
