@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from extensions import db, migrate, bcrypt, jwt
+from extensions import db, migrate, bcrypt, jwt, mail
 from models.user import User
 from models.zone import Zone
 from models.vehicle import Vehicle
@@ -24,6 +24,8 @@ def create_app():
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
+    mail.init_app(app)
+
     # Register blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(vehicle_bp, url_prefix='/api/vehicles')

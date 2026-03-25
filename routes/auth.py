@@ -12,6 +12,10 @@ from utils.auth_helpers import (
     role_required, generate_reset_token, verify_reset_token,
     validate_username, validate_email, validate_password, validate_phone
 )
+from utils.mail_helpers import (
+    send_welcome_email, send_zo_setup_email,
+    send_reset_email, send_password_changed_email
+)
 import secrets
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
@@ -69,7 +73,10 @@ def register():
         additional_claims={"role": new_user.role}
     )
     refresh_token = create_refresh_token(identity=str(new_user.id))
-    
+
+    # Send welcome email
+    send_welcome_email(new_user.username, new_user.email)
+
     return jsonify({
         "message": "User registered successfully",
         "user": new_user.to_dict(),
@@ -253,9 +260,13 @@ def forgot_password():
 
     # Both match — generate reset token
     token = generate_reset_token(email)
+    reset_link = f"{request.host_url}reset-password?token={token}"
+
+    # Send reset email
+    send_reset_email(user.username, email, reset_link)
 
     return jsonify({
-        "message": "Identity verified",
+        "message": "Identity verified. Reset link sent to your email.",
         "reset_token": token
     }), 200
 
@@ -295,6 +306,9 @@ def reset_password():
     except Exception:
         db.session.rollback()
         return jsonify({"error": "Failed to reset password"}), 500
+
+    # Send confirmation email
+    send_password_changed_email(user.username, user.email)
 
     return jsonify({"message": "Password reset successfully"}), 200
 
@@ -339,12 +353,16 @@ def create_zone_operator():
 
     # Generate a reset token, ZO will reset their own password
     reset_token = generate_reset_token(email)
+    reset_link = f"{request.host_url}reset-password?token={reset_token}"
+
+    # Send setup email to ZO
+    send_zo_setup_email(username, email, reset_link)
 
     return jsonify({
-        "message": "Zone operator account created",
+        "message": "Zone operator account created. Setup link sent to their email.",
         "user": new_zo.to_dict(),
         "reset_token": reset_token,
-        "reset_link": f"/reset-password?token={reset_token}"
+        "reset_link": reset_link
     }), 201
 
 
