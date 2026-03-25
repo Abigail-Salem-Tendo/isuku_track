@@ -133,17 +133,52 @@
     }
     .draggable-item:active { cursor: grabbing; border-color: #2e7d52; }
     
-    /* Modernize the Search Bar */
+    /* ---  SEARCH BAR OVERRIDE --- */
     .leaflet-control-geocoder {
         border-radius: 8px !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
-        border: none !important;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.25) !important;
+        border: 2px solid #2e7d52 !important; 
+        background-color: white !important;
+        margin-top: 20px !important;
+        margin-right: 20px !important;
+        transition: all 0.3s ease;
+        overflow: hidden;
     }
+    
+    
+    .leaflet-control-geocoder-icon {
+        width: 46px !important;
+        height: 46px !important;
+        background-color: white !important;
+        border-radius: 6px !important;
+    }
+    .leaflet-control-geocoder-icon:hover {
+        background-color: #f0fdf4 !important; 
+    }
+
+    /* When expanded */
+    .leaflet-control-geocoder-expanded {
+        width: 380px !important; 
+    }
+    
+    /* The input field */
     .leaflet-control-geocoder-form input {
-        padding: 12px 15px !important;
-        font-size: 15px !important;
-        width: 280px !important;
+        padding: 14px 15px !important;
+        font-size: 16px !important;
+        font-weight: 500 !important;
+        color: #2c3e50 !important;
+        width: 100% !important;
         font-family: 'Segoe UI', sans-serif;
+    }
+    
+    /* The dropdown results */
+    .leaflet-control-geocoder-alternatives {
+        border-top: 1px solid #eee;
+        padding: 5px 0 !important;
+    }
+    .leaflet-control-geocoder-alternatives li a {
+        padding: 10px 15px !important;
+        font-size: 14px !important;
     }
     #map { height: 100vh; width: 100vw; }
     
