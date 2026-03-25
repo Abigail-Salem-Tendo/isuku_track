@@ -1,6 +1,7 @@
 const API_BASE = 'http://127.0.0.1:5000'
 
 // --- GLOBAL STATE ---
+const userRole = localStorage.getItem('user_role') || 'admin'; // Defaults to admin if not set yet
 let globalZones = [];
 let globalOperators = [];
 let globalVehicles = [];
@@ -18,9 +19,9 @@ const operatorIcon = L.divIcon({
     iconSize: [30, 30],
     iconAnchor: [15, 15]
 });
-
 const vehicleIcon = L.divIcon({
-    html: '<div class="custom-map-icon" style="background: #9b59b6; color: white; width: 30px; height: 30px;"><i class="fa-solid fa-truck-ramp-box"></i></div>',
+    // Changed to a classic truck icon for clarity
+    html: '<div class="custom-map-icon" style="background: #9b59b6; color: white; width: 30px; height: 30px;"><i class="fa-solid fa-truck"></i></div>',
     className: '',
     iconSize: [30, 30],
     iconAnchor: [15, 15]
@@ -48,6 +49,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // --- FEATURE 1: VISUAL ZONE CREATION (ABSTRACTION) ---
 map.on('click', function(e) {
+    // SECURITY: Only Admins can click the map to create zones
+    if (userRole !== 'admin') return;
+
     if (tempMarker) map.removeLayer(tempMarker);
     if (tempCircle) map.removeLayer(tempCircle);
 
@@ -233,15 +237,23 @@ async function loadZones() {
                 const badgeClass = isAssigned ? 'status-badge' : 'status-badge pending';
                 const badgeText = isAssigned ? 'Operator Assigned' : 'Pending Assignment';
                 
+                // RBAC: Only generate the edit button if the user is an admin
+                let adminEditButton = '';
+                if (userRole === 'admin') {
+                    adminEditButton = `
+                        <button onclick="triggerEditModal(${zone.id})" style="width: 100%; padding: 8px; background: #2980b9; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit / Delete Zone
+                        </button>
+                    `;
+                }
+                
                 circle.bindPopup(`
                     <div class="popup-content" style="text-align: center;">
                         <h3 style="margin-bottom: 5px; color: #2c3e50;">${zone.name}</h3>
                         <p style="margin: 5px 0; color: #7f8c8d; font-size: 13px;"><strong>District:</strong> ${zone.district}</p>
                         <span class="${badgeClass}" style="display: inline-block; margin-bottom: 15px;">${badgeText}</span>
                         <br>
-                        <button onclick="triggerEditModal(${zone.id})" style="width: 100%; padding: 8px; background: #2980b9; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;">
-                            <i class="fa-solid fa-pen-to-square"></i> Edit / Delete Zone
-                        </button>
+                        ${adminEditButton}
                     </div>
                 `);
             }
