@@ -3,6 +3,7 @@ const API_BASE = 'http://127.0.0.1:5000'
 // --- GLOBAL STATE ---
 let globalZones = [];
 let globalOperators = [];
+let globalVehicles = [];
 let globalResidents = [];
 let currentTab = 'zones';
 
@@ -279,23 +280,32 @@ async function loadOperators() {
     }
 }
 
-// --- FETCH RESIDENTS FROM BACKEND ---
+//  Fetch Fleet from Database
+async function loadVehicles() {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+    try {
+        const response = await fetch(`${API_BASE}/api/vehicles/`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (response.ok) {
+            globalVehicles = await response.json();
+            console.log(`Loaded ${globalVehicles.length} vehicles from DB.`);
+        }
+    } catch (error) { console.error('Error fetching vehicles:', error); }
+}
+
+// Fetch Residents from Database
 async function loadResidents() {
     const token = localStorage.getItem('access_token');
     if (!token) return;
-
     try {
-        const response = await fetch(`${API_BASE}/api/auth/users?role=resident`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-                
+        const response = await fetch(`${API_BASE}/api/auth/users?role=resident`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (response.ok) {
             globalResidents = await response.json();
+            console.log(`Loaded ${globalResidents.length} residents from DB.`);
         }
-    } catch (error) {
-        console.error('Error fetching residents:', error);
-    }
+    } catch (error) { console.error('Error fetching residents:', error); }
 }
+
 
 // --- TAB SWITCHER LOGIC ---
 window.switchTab = function(tabName) {
