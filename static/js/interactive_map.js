@@ -1,4 +1,5 @@
-const API_BASE = 'http://127.0.0.1:5000'
+//const API_BASE = 'http://127.0.0.1:5000'
+
 
 // --- GLOBAL STATE ---
 const userRole = localStorage.getItem('user_role') || 'admin'; // Defaults to admin if not set yet
@@ -186,7 +187,7 @@ async function saveZoneToBackend() {
     };
 
     try {
-        const response = await fetch(`${API_BASE}/api/zones/`, {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/zones/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -215,7 +216,7 @@ async function loadZones() {
     if (!token) return;
 
     try {
-        const response = await fetch(`${API_BASE}/api/zones/`, {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/zones/`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -284,7 +285,7 @@ async function loadOperators() {
     try {
     
        // Change the URL in your loadOperators() function to this:
-        const response = await fetch(`${API_BASE}/api/auth/users?role=zone_operator`, {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/auth/users?role=zone_operator`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
                 
@@ -292,12 +293,7 @@ async function loadOperators() {
             globalOperators = await response.json();
         } else {
             console.error("Failed to fetch operators. Are they set up in the backend?");
-            // FAKE DATA FOR TESTING DRAG & DROP (Remove this once backend is wired)
-            globalOperators = [
-                { id: 101, username: "Jean Paul", phone_number: "0788123456", zone_id: null },
-                { id: 102, username: "Amina K.", phone_number: "0722987654", zone_id: 1 },
-                { id: 103, username: "Eric M.", phone_number: "0755456789", zone_id: null }
-            ];
+           
         }
     } catch (error) {
         console.error('Error fetching operators:', error);
@@ -309,7 +305,7 @@ async function loadVehicles() {
     const token = localStorage.getItem('access_token');
     if (!token) return;
     try {
-        const response = await fetch(`${API_BASE}/api/vehicles/`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch(`${CONFIG.API_BASE_URL}/vehicles/`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (response.ok) {
             globalVehicles = await response.json();
             console.log(`Loaded ${globalVehicles.length} vehicles from DB.`);
@@ -322,7 +318,7 @@ async function loadResidents() {
     const token = localStorage.getItem('access_token');
     if (!token) return;
     try {
-        const response = await fetch(`${API_BASE}/api/auth/users?role=resident`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch(`${CONFIG.API_BASE_URL}/auth/users?role=resident`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (response.ok) {
             globalResidents = await response.json();
             console.log(`Loaded ${globalResidents.length} residents from DB.`);
@@ -603,7 +599,7 @@ async function assignOperatorToZone(operatorId, zoneId) {
     const token = localStorage.getItem('access_token');
     
     try {
-        const response = await fetch(`${API_BASE}/api/zones/${zoneId}`, {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/zones/${zoneId}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -721,7 +717,7 @@ window.triggerEditModal = function(zoneId) {
         const token = localStorage.getItem('access_token');
         
         try {
-            const response = await fetch(`${API_BASE}/api/zones/${zone.id}`, {
+            const response = await fetch(`${CONFIG.API_BASE_URL}/zones/${zone.id}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -764,7 +760,7 @@ window.deleteZone = async function(zoneId, zoneName) {
         const token = localStorage.getItem('access_token');
         
         try {
-            const response = await fetch(`${API_BASE}/api/zones/${zoneId}`, {
+            const response = await fetch(`${CONFIG.API_BASE_URL}/zones/${zoneId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -850,7 +846,7 @@ window.openOperatorModal = function(operatorId = null) {
 
         const token = localStorage.getItem('access_token');
         // Point to YOUR specific create route if it's a new operator
-        const url = op ? `${API_BASE}/api/auth/users/${op.id}` : `${API_BASE}/api/auth/create-zone-operator`;
+        const url = op ? `${CONFIG.API_BASE_URL}/auth/users/${op.id}` : `${CONFIG.API_BASE_URL}/auth/create-zone-operator`;
         const method = op ? 'PUT' : 'POST';
 
         try {
@@ -904,7 +900,7 @@ window.deleteOperator = async function(opId, opName) {
     if (result.isConfirmed) {
         const token = localStorage.getItem('access_token');
         try {
-            const response = await fetch(`${API_BASE}/api/auth/users/${opId}`, {
+            const response = await fetch(`${CONFIG.API_BASE_URL}/auth/users/${opId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -994,7 +990,7 @@ window.openVehicleModal = function(vehicleId = null) {
         }
 
         const token = localStorage.getItem('access_token');
-        const url = v ? `${API_BASE}/api/vehicles/${v.id}` : `${API_BASE}/api/vehicles/`;
+        const url = v ? `${CONFIG.API_BASE_URL}/vehicles/${v.id}` : `${CONFIG.API_BASE_URL}/vehicles/`;
         const method = v ? 'PUT' : 'POST';
 
         try {
@@ -1043,7 +1039,7 @@ window.deleteVehicle = async function(vId, plate) {
     if (result.isConfirmed) {
         const token = localStorage.getItem('access_token');
         try {
-            const response = await fetch(`${API_BASE}/api/vehicles/${vId}`, {
+            const response = await fetch(`${CONFIG.API_BASE_URL}/vehicles/${vId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
