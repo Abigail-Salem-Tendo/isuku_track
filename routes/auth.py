@@ -346,3 +346,21 @@ def create_zone_operator():
         "reset_token": reset_token,
         "reset_link": f"/reset-password?token={reset_token}"
     }), 201
+
+
+@auth_bp.route("/users", methods=["GET"])
+@role_required("admin")
+# Admin can view all users, with optional filters for role and zone
+def get_users():
+    role_filter = request.args.get("role")
+    zone_filter = request.args.get("zone_id", type=int)
+
+    query = User.query
+
+    if role_filter:
+        query = query.filter_by(role=role_filter)
+    if zone_filter:
+        query = query.filter_by(zone_id=zone_filter)
+
+    users = query.order_by(User.created_at.desc()).all()
+    return jsonify([u.to_dict() for u in users]), 200
