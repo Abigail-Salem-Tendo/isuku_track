@@ -366,10 +366,35 @@ def create_zone_operator():
     }), 201
 
 
-@auth_bp.route("/users", methods=["GET"])
+@auth_bp.route("/users/<int:user_id>", methods=["PUT", "DELETE"], strict_slashes=False)
+@jwt_required()
 @role_required("admin")
-# Admin can view all users, with optional filters for role and zone
+def manage_user(user_id):
+    """Admin updates or deletes a user."""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if request.method == "DELETE":
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": "User deleted"}), 200
+
+    # Handle PUT (Update)
+    data = request.get_json()
+    if "username" in data: user.username = data["username"]
+    if "email" in data: user.email = data["email"]
+    if "phone_number" in data: user.phone_number = data["phone_number"]
+        
+    db.session.commit()
+    return jsonify({"message": "User updated", "user": user.to_dict()}), 200
+
+
+@auth_bp.route("/users", methods=["GET"])
+@jwt_required()
+@role_required("admin", "zone_operator")
 def get_users():
+    """Fetch users based on role and zone."""
     role_filter = request.args.get("role")
     zone_filter = request.args.get("zone_id", type=int)
 
