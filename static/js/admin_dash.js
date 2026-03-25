@@ -291,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (action === 'add-vehicle') {
-      if (!goToSidebarLink('vehicles', '/admin/vehicles')) {
+      if (!goToSidebarLink('vehicles', 'admin_vehicles.html')) {
         showToast('Vehicles page is not available yet', true);
       }
       return;
