@@ -42,10 +42,19 @@ let tempMarker = null; // Holds our "Create Zone" draggable pin
 let tempCircle = null; // Holds the preview coverage area
 
 // 2. Adding OpenStreetMap base layer
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
-    maxZoom: 18
+//  muted map tile that makes your operational data pop
+//  map dark mode, 
+// 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    subdomains: 'abcd',
+    maxZoom: 19
 }).addTo(map);
+
+//  map dark mode, 
+// 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+
 
 // --- FEATURE 1: VISUAL ZONE CREATION (ABSTRACTION) ---
 map.on('click', function(e) {
@@ -364,8 +373,12 @@ window.switchTab = function(tabName) {
             </div>` : ''}`;
                  
             globalOperators.forEach(op => {
-                const statusText = op.zone_id ? "Assigned" : "Unassigned";
-                const borderStyle = op.zone_id ? "" : "border-left: 4px solid #f39c12;";
+                // Correct RBAC Status Check: Search the zones!
+                const assignedZone = globalZones.find(z => z.zone_operator_id == op.id);
+                const statusText = assignedZone ? `Assigned to ${assignedZone.name}` : "Unassigned";
+                const borderStyle = assignedZone ? "" : "border-left: 4px solid #f39c12;";
+                
+                // Only allow dragging if it's an admin
                 const draggableAttr = userRole === 'admin' ? `draggable="true" ondragstart="handleDragStart(event, ${op.id}, '${op.username}')"` : '';
     
                 html += `
@@ -374,7 +387,7 @@ window.switchTab = function(tabName) {
                             <div class="entity-icon bg-operator"><i class="fa-solid fa-person"></i></div>
                             <div class="entity-details">
                                 <div class="entity-name">${op.username}</div>
-                                <div class="entity-sub">${op.phone_number || 'No phone'} · <b>${statusText}</b></div>
+                                <div class="entity-sub">${op.phone_number || 'No phone'} · <b style="color: ${assignedZone ? '#27ae60' : '#f39c12'}">${statusText}</b></div>
                             </div>
                         </div>
                         ${userRole === 'admin' ? `
@@ -446,7 +459,8 @@ window.flyToMapItem = function(lat, lng, layerId) {
 };
 
 window.flyToVehicle = function(vId) {
-    const v = globalVehicles.find(x => x.id === vId);
+    // Use == instead of === to prevent ID type mismatches
+    const v = globalVehicles.find(x => x.id == vId); 
     if (v && v.currentLat && v.currentLng) {
         flyToMapItem(v.currentLat, v.currentLng, `vehicle_${vId}`);
     } else {
@@ -455,12 +469,11 @@ window.flyToVehicle = function(vId) {
 };
 
 window.flyToOperator = function(opId) {
-    const op = globalOperators.find(o => o.id === opId);
-    if (op && op.zone_id) {
-        const zone = globalZones.find(z => z.id === op.zone_id);
-        if (zone && zone.latitude) {
-            flyToMapItem(zone.latitude, zone.longitude, `operator_${opId}`);
-        }
+    // Look through active zones to see if any zone claims this operator ID
+    const assignedZone = globalZones.find(z => z.zone_operator_id == opId);
+    
+    if (assignedZone && assignedZone.latitude) {
+        flyToMapItem(assignedZone.latitude, assignedZone.longitude, `operator_${opId}`);
     } else {
         Swal.fire({ title: 'Unassigned', text: 'This operator is not assigned to a zone yet.', icon: 'info', timer: 2000, showConfirmButton: false });
     }
