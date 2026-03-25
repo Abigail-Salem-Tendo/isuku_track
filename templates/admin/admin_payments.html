@@ -5,6 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Payments - Admin | Isuku Track</title>
   <link rel="stylesheet" href="/static/css/admin_dash.css" />
+  <style>
+    .payments-ftabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .payments-ftabs .ftab {
+      flex: 0 0 auto;
+      min-width: 110px;
+      text-align: center;
+    }
+
+    @media (max-width: 680px) {
+      .payments-ftabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .payments-ftabs .ftab {
+        width: 100%;
+        min-width: 0;
+        padding: 10px 8px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .payments-ftabs {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
 <aside class="sb" aria-label="Admin sidebar navigation">
@@ -20,37 +53,37 @@
     <div class="sg">
       <div class="sc">
         <div class="sc-lbl">This Week</div>
-        <div class="sc-val">41</div>
+        <div class="sc-val" id="paymentsThisWeekCount">0</div>
         <div class="sc-sub"><span class="up">↑5</span> vs last week</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Pending</div>
-        <div class="sc-val" style="color:var(--red)">4</div>
+        <div class="sc-val" id="paymentsPendingCount" style="color:var(--red)">0</div>
         <div class="sc-sub">awaiting review</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Revenue (week)</div>
-        <div class="sc-val" style="font-size:1.1rem">46,500</div>
+        <div class="sc-val" id="paymentsRevenueWeek" style="font-size:1.1rem">0</div>
         <div class="sc-sub">RWF collected</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Collection Rate</div>
-        <div class="sc-val" style="font-size:1.3rem">96%</div>
+        <div class="sc-val" id="paymentsCollectionRate" style="font-size:1.3rem">0%</div>
         <div class="sc-sub"><span class="up">↑2%</span> vs last week</div>
       </div>
     </div>
 
-    <div class="ftabs">
-      <button class="ftab on" data-filter="All">All</button>
-      <button class="ftab" data-filter="Pending">Pending</button>
-      <button class="ftab" data-filter="Approved">Approved</button>
-      <button class="ftab" data-filter="Rejected">Rejected</button>
+    <div class="ftabs payments-ftabs">
+      <button type="button" class="ftab on" data-filter="All">All</button>
+      <button type="button" class="ftab" data-filter="Pending">Pending</button>
+      <button type="button" class="ftab" data-filter="Approved">Approved</button>
+      <button type="button" class="ftab" data-filter="Rejected">Rejected</button>
     </div>
 
     <section class="card">
       <div class="ch">
         <div class="ct">Payment Verifications</div>
-        <span class="b op" style="font-size:.73rem;">4 pending</span>
+        <span class="b op" id="paymentsPendingBadge" style="font-size:.73rem;">0 pending</span>
       </div>
       <div class="cb" id="paymentsList">
         <div class="pi" data-status="Pending">
@@ -151,11 +184,64 @@ function applyPaymentsFilter(filter) {
   });
 }
 
+function parseRwfAmount(text) {
+  var numeric = String(text || '').replace(/[^0-9]/g, '');
+  return numeric ? Number(numeric) : 0;
+}
+
+function isPaymentInCurrentWeek(metaText) {
+  var text = String(metaText || '').toLowerCase();
+  if (text.indexOf('h ago') !== -1 || text.indexOf('yesterday') !== -1) return true;
+  var match = text.match(/(\d+)\s+days?\s+ago/);
+  if (!match) return false;
+  return Number(match[1]) <= 7;
+}
+
+function updatePaymentStats() {
+  var items = Array.from(document.querySelectorAll('#paymentsList .pi'));
+  var thisWeek = 0;
+  var pending = 0;
+  var approvedCount = 0;
+  var revenueWeek = 0;
+
+  items.forEach(function (item) {
+    var status = (item.getAttribute('data-status') || '').trim();
+    var meta = (item.querySelector('.pi-meta') || {}).textContent || '';
+    var amountText = (item.querySelector('.pi-amt') || {}).textContent || '';
+    var amount = parseRwfAmount(amountText);
+
+    if (isPaymentInCurrentWeek(meta)) {
+      thisWeek += 1;
+      if (status === 'Approved') {
+        revenueWeek += amount;
+      }
+    }
+    if (status === 'Pending') pending += 1;
+    if (status === 'Approved') approvedCount += 1;
+  });
+
+  var totalProcessed = approvedCount + pending;
+  var collectionRate = totalProcessed > 0 ? Math.round((approvedCount / totalProcessed) * 100) : 0;
+
+  var thisWeekEl = document.getElementById('paymentsThisWeekCount');
+  var pendingEl = document.getElementById('paymentsPendingCount');
+  var revenueEl = document.getElementById('paymentsRevenueWeek');
+  var rateEl = document.getElementById('paymentsCollectionRate');
+  var pendingBadgeEl = document.getElementById('paymentsPendingBadge');
+
+  if (thisWeekEl) thisWeekEl.textContent = String(thisWeek);
+  if (pendingEl) pendingEl.textContent = String(pending);
+  if (revenueEl) revenueEl.textContent = revenueWeek.toLocaleString();
+  if (rateEl) rateEl.textContent = String(collectionRate) + '%';
+  if (pendingBadgeEl) pendingBadgeEl.textContent = String(pending) + ' pending';
+}
+
 document.querySelectorAll('.ftab').forEach(function (tab) {
   tab.addEventListener('click', function () {
     document.querySelectorAll('.ftab').forEach(function (t) { t.classList.remove('on'); });
     tab.classList.add('on');
     applyPaymentsFilter(tab.getAttribute('data-filter') || 'All');
+    updatePaymentStats();
   });
 });
 
@@ -174,6 +260,8 @@ document.querySelectorAll('.ftab').forEach(function (tab) {
   });
   d.textContent = l + ' — ' + s;
 })();
+
+updatePaymentStats();
 </script>
 </body>
 </html>
