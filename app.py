@@ -21,7 +21,8 @@ from flask import render_template
 
 def create_app():
     app = Flask(__name__)
-    CORS(app) # allowing frontend requests
+
+    CORS(app, resources={r"/api/*": {"origins": "*"}}) # allowing frontend requests from any origin
     app.config.from_object(Config)
 
     db.init_app(app)
