@@ -641,7 +641,17 @@ document.addEventListener('DOMContentLoaded', function () {
   renderAll();
 
   document.querySelectorAll('.mob-nav .mn-item[href]').forEach(function (el) {
-    el.addEventListener('click', function () {
+    el.addEventListener('click', function (event) {
+      var href = el.getAttribute('href') || '';
+      var hashIndex = href.indexOf('#');
+      var targetId = hashIndex >= 0 ? href.slice(hashIndex + 1) : '';
+      var target = targetId ? document.getElementById(targetId) : null;
+
+      if (target) {
+        event.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
       document.querySelectorAll('.mob-nav .mn-item').forEach(function (x) { x.classList.remove('active'); });
       el.classList.add('active');
     });
