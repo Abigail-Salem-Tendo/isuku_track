@@ -121,6 +121,9 @@
 <div class="main">
   <div class="topbar">
     <div class="tb-l">
+      <div class="ham" onclick="toggleSb()" aria-label="Toggle sidebar" role="button">
+        <span></span><span></span><span></span>
+      </div>
       <h1>Payment Verifications</h1>
       <p>Kimironko Zone A · 3 pending verifications</p>
     </div>
@@ -133,9 +136,6 @@
         <div class="notif-dot"></div>
       </div>
       <div class="av">JP</div>
-      <div class="ham" onclick="toggleSb()">
-        <span></span><span></span><span></span>
-      </div>
     </div>
   </div>
 
@@ -143,23 +143,72 @@
     <div class="sg">
       <div class="sc">
         <div class="sc-lbl">This Week</div>
-        <div class="sc-val">28</div>
+        <div class="sc-val" id="weekPayments">28</div>
         <div class="sc-sub"><span class="up">↑3</span> vs last week</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Pending</div>
-        <div class="sc-val" style="color:var(--red)">3</div>
+        <div class="sc-val" style="color:var(--red)" id="pendingPayments">3</div>
         <div class="sc-sub">awaiting review</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Revenue (week)</div>
-        <div class="sc-val" style="font-size:1.1rem">28,000</div>
+        <div class="sc-val" style="font-size:1.1rem" id="weekRevenue">28,000</div>
         <div class="sc-sub">RWF collected</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Collection Rate</div>
-        <div class="sc-val" style="font-size:1.3rem">94%</div>
+        <div class="sc-val" style="font-size:1.3rem" id="collectionRate">94%</div>
         <div class="sc-sub"><span class="up">↑1%</span> vs last week</div>
+      </div>
+    </div>
+
+    <!-- Payment Charts Row -->
+    <div class="row2">
+      <div class="card">
+        <div class="ch">
+          <div class="ct">Weekly Revenue</div>
+          <span class="b ok" style="font-size:.73rem;">This Week</span>
+        </div>
+        <div class="cb">
+          <div class="chart-container">
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch">
+          <div class="ct">Payment Status</div>
+          <span class="b" style="font-size:.73rem;background:var(--g-light);color:var(--g1);">This Month</span>
+        </div>
+        <div class="cb">
+          <div class="chart-container">
+            <canvas id="paymentStatusChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Trend Chart -->
+    <div class="card" style="margin-bottom:18px;">
+      <div class="ch">
+        <div class="ct">Monthly Collection Trend</div>
+        <a class="ca" href="zo_report.html">View Report →</a>
+      </div>
+      <div class="cb">
+        <div class="chart-container" style="height:220px;">
+          <canvas id="monthlyTrendChart"></canvas>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:20px;flex-wrap:wrap;justify-content:center;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:12px;height:12px;border-radius:3px;background:#48a870;"></div>
+            Revenue (RWF)
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:12px;height:12px;border-radius:3px;background:#3b82f6;"></div>
+            Payments Count
+          </div>
+        </div>
       </div>
     </div>
 
@@ -273,8 +322,7 @@
   <a class="mn-item mn-home" href="zo_dash.html">
     <div class="mn-home-inner">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
       </svg>
     </div>
     <span>Home</span>
@@ -326,6 +374,156 @@
   </div>
 </nav>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="../../static/js/zo_dash.js"></script>
+<script>
+/* ── Initialize Payment Charts ── */
+window.addEventListener('load', function() {
+  // Weekly Revenue Bar Chart
+  const revenueCtx = document.getElementById('revenueChart');
+  if (revenueCtx && typeof Chart !== 'undefined') {
+    new Chart(revenueCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Revenue (RWF)',
+          data: [4000, 5500, 3000, 6000, 4500, 3000, 2000],
+          backgroundColor: 'rgba(72, 168, 112, 0.8)',
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.parsed.y.toLocaleString() + ' RWF';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: '#f0f0f0' },
+            ticks: {
+              callback: function(value) {
+                return (value / 1000) + 'k';
+              }
+            }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Payment Status Doughnut Chart
+  const statusCtx = document.getElementById('paymentStatusChart');
+  if (statusCtx && typeof Chart !== 'undefined') {
+    new Chart(statusCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Approved', 'Pending', 'Rejected'],
+        datasets: [{
+          data: [132, 3, 6],
+          backgroundColor: ['#48a870', '#f59e0b', '#ef4444'],
+          borderWidth: 0,
+          cutout: '65%'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { padding: 15, usePointStyle: true, font: { size: 11, weight: 500 } }
+          }
+        }
+      }
+    });
+  }
+
+  // Monthly Trend Line Chart
+  const trendCtx = document.getElementById('monthlyTrendChart');
+  if (trendCtx && typeof Chart !== 'undefined') {
+    new Chart(trendCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [
+          {
+            label: 'Revenue (RWF)',
+            data: [95000, 102000, 98000, 115000, 120000, 128000],
+            borderColor: '#48a870',
+            backgroundColor: 'rgba(72, 168, 112, 0.1)',
+            fill: true,
+            tension: 0.4,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Payments',
+            data: [95, 102, 98, 115, 120, 128],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            fill: false,
+            tension: 0.4,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                if (context.dataset.label === 'Revenue (RWF)') {
+                  return 'Revenue: ' + context.parsed.y.toLocaleString() + ' RWF';
+                }
+                return 'Payments: ' + context.parsed.y;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            grid: { color: '#f0f0f0' },
+            ticks: {
+              callback: function(value) {
+                return (value / 1000) + 'k';
+              }
+            }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: {
+              callback: function(value) {
+                return value;
+              }
+            }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+});
+</script>
 </body>
 </html>
