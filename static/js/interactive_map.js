@@ -3,6 +3,7 @@ const API_BASE = 'http://127.0.0.1:5000'
 // --- GLOBAL STATE ---
 let globalZones = [];
 let globalOperators = [];
+let globalResidents = [];
 let currentTab = 'zones';
 
 // 1. Initializing map centered on Kigali
@@ -22,6 +23,13 @@ const vehicleIcon = L.divIcon({
     className: '',
     iconSize: [30, 30],
     iconAnchor: [15, 15]
+});
+
+const residentIcon = L.divIcon({
+    html: '<div class="custom-map-icon" style="background: #e74c3c; color: white; width: 24px; height: 24px; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"><i class="fa-solid fa-house-chimney-crack"></i></div>',
+    className: '',
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
 });
 
 // A global array to store references to all our map markers/circles so we can open their popups later
