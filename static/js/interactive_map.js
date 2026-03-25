@@ -794,6 +794,144 @@ window.deleteOperator = async function(opId, opName) {
     }
 };
 
+
+// FEATURE: CRUD VEHICLE MODAL 
+
+window.openVehicleModal = function(vehicleId = null) {
+    const modal = document.getElementById('adminModal');
+    const form = document.getElementById('modalForm');
+    const title = document.getElementById('modalTitle');
+
+    let v = null;
+    if (vehicleId) {
+        v = globalVehicles.find(x => x.id == vehicleId);
+        title.textContent = "Edit Fleet Vehicle";
+    } else {
+        title.textContent = "Add New Vehicle";
+    }
+
+    form.innerHTML = `
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 13px; color: #555;">Plate Number *</label>
+            <input type="text" id="vPlate" ${v ? 'disabled' : 'required'} value="${v ? v.plate_number : ''}" placeholder="e.g., RAB 123 C" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; ${v ? 'background-color: #eee;' : ''}">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <div style="flex: 1;">
+                <label style="font-size: 13px; color: #555;">Driver Name *</label>
+                <input type="text" id="vDriver" required value="${v ? v.driver_name : ''}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div style="flex: 1;">
+                <label style="font-size: 13px; color: #555;">Driver Phone *</label>
+                <input type="text" id="vPhone" required value="${v ? v.driver_phone : ''}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-size: 13px; color: #555;">Status *</label>
+            <select id="vStatus" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="available" ${v && v.status === 'available' ? 'selected' : ''}>Available</option>
+                <option value="in_use" ${v && v.status === 'in_use' ? 'selected' : ''}>In Use</option>
+                <option value="maintenance" ${v && v.status === 'maintenance' ? 'selected' : ''}>Maintenance</option>
+            </select>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            ${v ? `
+            <button type="button" onclick="deleteVehicle(${v.id}, '${v.plate_number}')" style="flex: 1; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-trash"></i> Delete
+            </button>
+            ` : ''}
+            <button type="submit" style="flex: 2; padding: 10px; background: #2980b9; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-save"></i> ${v ? 'Save Changes' : 'Add to Fleet'}
+            </button>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+
+    form.onsubmit = async function(e) {
+        e.preventDefault();
+
+        // Build the payload mapping exactly to your Flask backend expectations
+        const payload = {
+            driver_name: document.getElementById('vDriver').value,
+            driver_phone: document.getElementById('vPhone').value,
+            status: document.getElementById('vStatus').value
+        };
+
+        // Only include plate number if we are creating a new truck
+        if (!v) {
+            payload.plate_number = document.getElementById('vPlate').value;
+        }
+
+        const token = localStorage.getItem('access_token');
+        const url = v ? `${API_BASE}/api/vehicles/${v.id}` : `${API_BASE}/api/vehicles/`;
+        const method = v ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                Swal.fire({ 
+                    title: v ? 'Updated!' : 'Created!', 
+                    text: data.message, // Using the exact message from your backend
+                    icon: 'success', 
+                    timer: 1500, 
+                    showConfirmButton: false 
+                }).then(() => location.reload());
+            } else {
+                // Catches your 400 missing fields or 409 duplicate errors
+                Swal.fire('Error', data.error || 'Operation failed', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'Network error.', 'error');
+        }
+    };
+};
+
+window.deleteVehicle = async function(vId, plate) {
+    document.getElementById('adminModal').style.display = 'none';
+
+    const result = await Swal.fire({
+        title: 'Delete Vehicle?',
+        text: `Are you absolutely sure you want to remove ${plate} from the fleet?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#7f8c8d',
+        confirmButtonText: 'Yes, delete'
+    });
+
+    if (result.isConfirmed) {
+        const token = localStorage.getItem('access_token');
+        try {
+            const response = await fetch(`${API_BASE}/api/vehicles/${vId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                Swal.fire({ title: 'Deleted!', icon: 'success', timer: 1500, showConfirmButton: false }).then(() => location.reload());
+            } else {
+                const data = await response.json();
+                Swal.fire('Error', data.error || 'Failed to delete', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'Network error.', 'error');
+        }
+    }
+};
+
 async function initializeMapApp() {
     await loadZones();      // Fetch Zones and draw the blue circles
     await loadOperators();  // Fetch the Operator roster
