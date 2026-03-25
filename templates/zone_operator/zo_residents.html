@@ -122,23 +122,23 @@
     <div class="sg">
       <div class="sc">
         <div class="sc-lbl">Total Residents</div>
-        <div class="sc-val">148</div>
+        <div class="sc-val" id="totalResidents">148</div>
         <div class="sc-sub">Kibagabaga Cell</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Active</div>
-        <div class="sc-val" style="color:var(--g1)">132</div>
+        <div class="sc-val" style="color:var(--g1)" id="activeResidents">132</div>
         <div class="sc-sub">regularly paying</div>
       </div>
       <div class="sc">
-        <div class="sc-lbl">Inactive</div>
-        <div class="sc-val" style="color:var(--red)">16</div>
-        <div class="sc-sub">3+ months overdue</div>
+        <div class="sc-lbl">Total Points</div>
+        <div class="sc-val" style="color:#f59e0b" id="totalLoyaltyPoints">0</div>
+        <div class="sc-sub">loyalty points earned</div>
       </div>
       <div class="sc">
-        <div class="sc-lbl">Payment Rate</div>
-        <div class="sc-val" style="font-size:1.3rem">89%</div>
-        <div class="sc-sub"><span class="up">↑3%</span> vs last month</div>
+        <div class="sc-lbl">Top Earner</div>
+        <div class="sc-val" style="font-size:1rem" id="topEarnerName">--</div>
+        <div class="sc-sub" id="topEarnerPoints">0 pts</div>
       </div>
     </div>
 
@@ -175,96 +175,156 @@
         <div class="ct">Residents Directory</div>
         <span style="font-size:.72rem;color:var(--txt-l);">Showing 10 of 148</span>
       </div>
-      <div class="cb">
+      <div class="cb" id="residentsContainer">
 
         <input class="search-inp" type="text" placeholder="Search by name or address...">
 
-        <div class="ri">
+        <div class="ri" data-user-id="1">
           <div class="ri-av">AM</div>
           <div style="flex:1;">
             <div class="ri-name">Alice Mutoni</div>
             <div class="ri-sub">KG 11 Ave, Kibagabaga · joined Jan 2025</div>
           </div>
+          <div class="loyalty-pts" title="Loyalty Points">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>45</span>
+          </div>
           <span class="b ok">Active</span>
         </div>
 
-        <div class="ri">
+        <div class="ri" data-user-id="2">
           <div class="ri-av">BN</div>
           <div style="flex:1;">
             <div class="ri-name">Bob Ntwari</div>
             <div class="ri-sub">KG 9 Ave, Kibagabaga · joined Mar 2025</div>
           </div>
+          <div class="loyalty-pts" title="Loyalty Points">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>120</span>
+          </div>
           <span class="b ok">Active</span>
         </div>
 
-        <div class="ri">
+        <div class="ri" data-user-id="3">
           <div class="ri-av">GK</div>
           <div style="flex:1;">
             <div class="ri-name">Grace Keza</div>
             <div class="ri-sub">KN 5 Rd, Kibagabaga · joined Feb 2025</div>
           </div>
+          <div class="loyalty-pts" title="Loyalty Points">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>85</span>
+          </div>
           <span class="b ok">Active</span>
         </div>
 
-        <div class="ri">
+        <div class="ri" data-user-id="4">
           <div class="ri-av">DU</div>
           <div style="flex:1;">
             <div class="ri-name">David Uwimana</div>
             <div class="ri-sub">Street 4, Kamatamu · joined Jun 2024</div>
           </div>
+          <div class="loyalty-pts" title="Loyalty Points">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>30</span>
+          </div>
           <span class="b op">Inactive</span>
         </div>
 
-        <div class="ri">
+        <div class="ri" data-user-id="5">
           <div class="ri-av">MJ</div>
           <div style="flex:1;">
             <div class="ri-name">Marie Jeannette</div>
             <div class="ri-sub">KG 15 Ave, Kibagabaga · joined Sep 2024</div>
           </div>
+          <div class="loyalty-pts" title="Loyalty Points">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>150</span>
+          </div>
           <span class="b ok">Active</span>
         </div>
 
-        <div class="ri">
+        <div class="ri" data-user-id="6">
           <div class="ri-av">PR</div>
           <div style="flex:1;">
             <div class="ri-name">Paul Rugamba</div>
             <div class="ri-sub">KN 3 Rd, Kibagabaga · joined Dec 2024</div>
           </div>
+          <div class="loyalty-pts" title="Loyalty Points">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>65</span>
+          </div>
           <span class="b ok">Active</span>
         </div>
 
-        <div class="ri">
+        <div class="ri" data-user-id="7">
           <div class="ri-av">SO</div>
           <div style="flex:1;">
             <div class="ri-name">Sara Odette</div>
             <div class="ri-sub">KG 7 Ave, Kibagabaga · joined Aug 2024</div>
           </div>
+          <div class="loyalty-pts" title="Loyalty Points">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>95</span>
+          </div>
           <span class="b ok">Active</span>
         </div>
 
-        <div class="ri">
+        <div class="ri" data-user-id="8">
           <div class="ri-av">JM</div>
           <div style="flex:1;">
             <div class="ri-name">John Mutabazi</div>
             <div class="ri-sub">KG 11 Ave, Kibagabaga · joined Nov 2024</div>
           </div>
+          <div class="loyalty-pts" title="Loyalty Points">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>0</span>
+          </div>
           <span class="b go">Pending</span>
         </div>
 
-        <div class="ri">
+        <div class="ri" data-user-id="9">
           <div class="ri-av">EK</div>
           <div style="flex:1;">
             <div class="ri-name">Eve Kayitesi</div>
             <div class="ri-sub">KN 1 Rd, Kibagabaga · joined Jan 2024</div>
           </div>
+          <div class="loyalty-pts" title="Loyalty Points">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>110</span>
+          </div>
           <span class="b ok">Active</span>
         </div>
 
-        <div class="ri">
+        <div class="ri" data-user-id="10">
           <div class="ri-av">CN</div>
           <div style="flex:1;">
             <div class="ri-name">Claire Nyiramugisha</div>
             <div class="ri-sub">Market Rd, Kibagabaga · joined Apr 2025</div>
+          </div>
+          <div class="loyalty-pts" title="Loyalty Points">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>15</span>
           </div>
           <span class="b op">Inactive</span>
         </div>
