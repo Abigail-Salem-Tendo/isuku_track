@@ -1,0 +1,216 @@
+
+    body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    /* ENHANCED COMMAND PANEL  */
+    .command-panel {
+        position: absolute;
+        top: 80px;
+        left: 20px;
+        width: 340px; 
+        max-height: calc(100vh - 100px);
+        background: rgba(255, 255, 255, 0.96); 
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .panel-header {
+        background: linear-gradient(135deg, #1b4d32 0%, #2e7d52 100%); 
+        color: white;
+        padding: 16px 20px;
+        font-weight: 600;
+        font-size: 17px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #145c32;
+    }
+
+    /* Make the tabs look more like toggles */
+    .panel-tab {
+        flex: 1;
+        text-align: center;
+        padding: 12px 0;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #95a5a6;
+        cursor: pointer;
+        border-bottom: 3px solid #eee;
+        transition: all 0.2s ease;
+    }
+    .panel-tab:hover { color: #2e7d52; background: #f8f9fa; }
+    .panel-tab.active {
+        color: #2e7d52;
+        border-bottom-color: #2e7d52;
+        background: white;
+    }
+
+    /* Sharper entities */
+    .entity-item {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        margin-bottom: 10px;
+        background: #ffffff;
+        border: 1px solid #edf2f7;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        cursor: pointer;
+        transition: all 0.2s;
+        border-left: 4px solid #ddd; /* Default gray border */
+    }
+    .entity-item:hover { 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transform: translateY(-1px);
+    }
+    .entity-icon {
+        width: 30px; height: 30px; border-radius: 50%;
+        display: flex; justify-content: center; align-items: center;
+        margin-right: 12px; color: white; font-size: 14px;
+    }
+    .bg-zone { background: #3498db; }
+    .bg-operator { background: #f39c12; }
+    .bg-vehicle { background: #9b59b6; }
+    
+    .entity-details { flex: 1; }
+    .entity-name { font-size: 14px; font-weight: 600; color: #2c3e50; }
+    .entity-sub { font-size: 12px; color: #7f8c8d; }
+
+    /* Custom Map Icon CSS */
+    .custom-map-icon {
+        background: white; border-radius: 50%;
+        border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        display: flex; justify-content: center; align-items: center;
+        font-size: 16px;
+    }
+
+    /* Floating Navbar */
+    .map-navbar {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        background: white;
+        padding: 12px 24px;
+        border-radius: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .map-navbar a {
+        text-decoration: none;
+        color: #2e7d52;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .map-navbar a:hover { color: #1b4d32; }
+
+    /* --- SIDEBAR TABS --- */
+    .panel-tabs {
+        display: flex;
+        background: #f8f9fa;
+        border-bottom: 1px solid #ddd;
+    }
+    .panel-tab {
+        flex: 1;
+        text-align: center;
+        padding: 10px 0;
+        font-size: 13px;
+        font-weight: bold;
+        color: #7f8c8d;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+    }
+    .panel-tab:hover { color: #2e7d52; background: #eee; }
+    .panel-tab.active {
+        color: #2e7d52;
+        border-bottom-color: #2e7d52;
+        background: white;
+    }
+    
+    /* Draggable visual cue */
+    .draggable-item {
+        cursor: grab;
+        border: 1px dashed transparent;
+    }
+    .draggable-item:active { cursor: grabbing; border-color: #2e7d52; }
+    
+    /* ---  SEARCH BAR OVERRIDE --- */
+    .leaflet-control-geocoder {
+        border-radius: 8px !important;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.25) !important;
+        border: 2px solid #2e7d52 !important; 
+        background-color: white !important;
+        margin-top: 20px !important;
+        margin-right: 20px !important;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    
+    .leaflet-control-geocoder-icon {
+        width: 46px !important;
+        height: 46px !important;
+        background-color: white !important;
+        border-radius: 6px !important;
+    }
+    .leaflet-control-geocoder-icon:hover {
+        background-color: #f0fdf4 !important; 
+    }
+
+    /* When expanded */
+    .leaflet-control-geocoder-expanded {
+        width: 380px !important; 
+    }
+    
+    /* The input field */
+    .leaflet-control-geocoder-form input {
+        padding: 14px 15px !important;
+        font-size: 16px !important;
+        font-weight: 500 !important;
+        color: #2c3e50 !important;
+        width: 100% !important;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    
+    /* The dropdown results */
+    .leaflet-control-geocoder-alternatives {
+        border-top: 1px solid #eee;
+        padding: 5px 0 !important;
+    }
+    .leaflet-control-geocoder-alternatives li a {
+        padding: 10px 15px !important;
+        font-size: 14px !important;
+    }
+    #map { height: 100vh; width: 100vw; }
+    
+    /* popup card styling */
+    .popup-content h3 { margin: 0 0 8px 0; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    .popup-content p { margin: 5px 0; font-size: 14px; color: #34495e; }
+    .popup-content strong { color: #2c3e50; }
+    .status-badge { 
+        display: inline-block; 
+        margin-top: 8px; 
+        padding: 3px 8px; 
+        background-color: #e8f8f5; 
+        color: #117a65; 
+        border-radius: 12px; 
+        font-size: 12px; 
+        font-weight: bold; 
+    }
+    .pending { background-color: #fdf2e9; color: #d35400; }

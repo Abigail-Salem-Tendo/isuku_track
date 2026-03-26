@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zones - Admin | Isuku Track</title>
+  <link rel="stylesheet" href="/static/css/admin_dash.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #zonesMap {
+      position: relative;
+      z-index: 0;
+      transition: opacity .2s ease;
+    }
+
+    .modal {
+      z-index: 1300;
+    }
+
+    body.is-modal-open #zonesMap {
+      opacity: .14;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+<aside class="sb" aria-label="Admin sidebar navigation">
+  <div class="sb-top"><div class="sb-logo" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div><div><div class="sb-name">Isuku Track</div><div class="sb-role">Admin Panel</div></div></div>
+  <div class="sb-sec"><div class="sb-lbl">Overview</div><a class="sb-a" href="admin_dash.html">Dashboard</a><a class="sb-a on" href="admin_zones.html" aria-current="page">Zones</a><a class="sb-a" href="admin_users.html">Users</a><a class="sb-a" href="admin_zone_operator.html">Zone Operator</a></div>
+  <div class="sb-sec"><div class="sb-lbl">Operations</div><a class="sb-a" href="admin_schedules.html">Schedules</a><a class="sb-a" href="admin_claims.html">Claims</a><a class="sb-a" href="admin_payments.html">Payments</a></div>
+  <div class="sb-sec"><div class="sb-lbl">Reports</div><a class="sb-a" href="admin_reports.html">Reports</a></div>
+  <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
+</aside>
+<div class="main"><header class="topbar"><div class="tb-l"><h1>Zones Management</h1><p id="dashboardDate" data-subtitle="View and manage all assigned collection zones">View and manage all assigned collection zones</p></div><div class="tb-r"><button type="button" id="createZoneBtn" style="background:#2e7d52;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;">+ Create Zone</button><button type="button" id="modifyZoneBtn" style="background:#1976d2;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;">✎ Modify Zone</button><button type="button" id="deleteZoneBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;">🗑 Delete Zone</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
+    <form class="sg zone-filter-ribbon" aria-label="Filter zones" id="zonesFilterRibbon">
+      <div class="sc gr">
+        <label class="sc-lbl" for="zoneFilterDistrict">District</label>
+        <input class="zone-filter-input" id="zoneFilterDistrict" type="text" name="district" placeholder="Gasabo" />
+        <div class="sc-sub">Filter by district name</div>
+      </div>
+      <div class="sc am">
+        <label class="sc-lbl" for="zoneFilterSector">Sector</label>
+        <input class="zone-filter-input" id="zoneFilterSector" type="text" name="sector" placeholder="Kimironko" />
+        <div class="sc-sub">Filter by sector</div>
+      </div>
+      <div class="sc bl">
+        <label class="sc-lbl" for="zoneFilterOperator">Operator</label>
+        <input class="zone-filter-input" id="zoneFilterOperator" type="text" name="operator" placeholder="Search operator" />
+        <div class="sc-sub">Filter by operator name</div>
+      </div>
+    </form>
+
+    <section class="card" aria-labelledby="zonesTableTitle">
+      <div class="ch">
+        <div class="ct" id="zonesTableTitle">All Zones</div>
+      </div>
+      <div class="cb cb--pt" role="region" aria-label="Zones data table">
+        <table class="zt">
+          <caption class="ci-meta" style="text-align:left; margin-bottom:8px;">List of zones and currently assigned operators</caption>
+          <thead>
+            <tr>
+              <th scope="col">Zone</th>
+              <th scope="col">District</th>
+              <th scope="col">Sector</th>
+              <th scope="col">Operator</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="zoneTableBody">
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="zonesMapTitle">
+      <div class="ch">
+        <div class="ct" id="zonesMapTitle">Zone Coverage Map</div>
+      </div>
+      <div class="cb" style="padding:0;height:400px;">
+        <div id="zonesMap" style="height:100%;width:100%;"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleSb()"></div>
+<div class="toast" id="zoneToast"></div>
+
+<div class="modal" id="createZoneModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Create Zone</h3>
+      <button type="button" class="modal-close" id="createZoneModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="createZoneForm" class="modal-form">
+      <label class="mf-lbl">Zone Name
+        <input class="mf-in" name="zoneName" required placeholder="Zone D" />
+      </label>
+      <label class="mf-lbl">Cell
+        <input class="mf-in" name="zoneCell" required placeholder="Bibare" />
+      </label>
+      <label class="mf-lbl">District
+        <input class="mf-in" name="zoneDistrict" required placeholder="Gasabo" />
+      </label>
+      <label class="mf-lbl">Sector
+        <input class="mf-in" name="zoneSector" required placeholder="Kimironko" />
+      </label>
+      <label class="mf-lbl">Operator
+        <input class="mf-in" name="zoneOperator" placeholder="Unassigned" />
+      </label>
+      <div class="mf-actions">
+        <button type="button" class="mf-btn sec" id="createZoneCancel">Cancel</button>
+        <button type="submit" class="mf-btn">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="modifyZoneModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Modify Zone</h3>
+      <button type="button" class="modal-close" id="modifyZoneModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="modifyZoneForm" class="modal-form">
+      <label class="mf-lbl">Select Zone
+        <select class="mf-in" name="zoneSelect" id="modifyZoneSelect" required></select>
+      </label>
+      <label class="mf-lbl">Zone Name
+        <input class="mf-in" name="zoneName" required />
+      </label>
+      <label class="mf-lbl">District
+        <input class="mf-in" name="zoneDistrict" required />
+      </label>
+      <label class="mf-lbl">Sector
+        <input class="mf-in" name="zoneSector" required />
+      </label>
+      <label class="mf-lbl">Operator
+        <input class="mf-in" name="zoneOperator" />
+      </label>
+      <label class="mf-lbl">Status
+        <select class="mf-in" name="zoneStatus" required>
+          <option value="Assigned">Assigned</option>
+          <option value="Pending">Pending</option>
+        </select>
+      </label>
+      <div class="mf-actions">
+        <button type="button" class="mf-btn sec" id="modifyZoneCancel">Cancel</button>
+        <button type="submit" class="mf-btn">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="deleteZoneModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Delete Zone</h3>
+      <button type="button" class="modal-close" id="deleteZoneModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="deleteZoneForm" class="modal-form">
+      <label class="mf-lbl">Select Zone
+        <select class="mf-in" name="zoneSelect" id="deleteZoneSelect" required></select>
+      </label>
+      <p class="ci-meta" style="color:#b54708;margin:0;">This action removes the zone from this table view.</p>
+      <div class="mf-actions">
+        <button type="button" class="mf-btn sec" id="deleteZoneCancel">Cancel</button>
+        <button type="submit" class="mf-btn" style="background:#d32f2f;">Delete</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/js/api_helper.js"></script>
+<script>
+function toggleSb() {
+  var sb = document.querySelector('.sb');
+  var overlay = document.getElementById('overlay');
+  if (sb) sb.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('open');
+}
+
+document.getElementById('logoutBtn')?.addEventListener('click', function () {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('userRole');
+  localStorage.removeItem('adminName');
+  window.location.href = '/login';
+});
+
+(function () {
+  var d = document.getElementById('dashboardDate');
+  if (!d) return;
+  var s = d.getAttribute('data-subtitle') || d.textContent.trim();
+  var n = new Date();
+  var l = n.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
+  d.textContent = l + ' — ' + s;
+})();
+
+(function(){
+  var zoneTableBody=document.getElementById('zoneTableBody');
+  var zoneToast=document.getElementById('zoneToast');
+
+  var createZoneBtn=document.getElementById('createZoneBtn');
+  var modifyZoneBtn=document.getElementById('modifyZoneBtn');
+  var deleteZoneBtn=document.getElementById('deleteZoneBtn');
+
+  var createZoneModal=document.getElementById('createZoneModal');
+  var modifyZoneModal=document.getElementById('modifyZoneModal');
+  var deleteZoneModal=document.getElementById('deleteZoneModal');
+
+  var createZoneForm=document.getElementById('createZoneForm');
+  var modifyZoneForm=document.getElementById('modifyZoneForm');
+  var deleteZoneForm=document.getElementById('deleteZoneForm');
+
+  var modifyZoneSelect=document.getElementById('modifyZoneSelect');
+  var deleteZoneSelect=document.getElementById('deleteZoneSelect');
+
+  function openModal(modal){
+    if(!modal)return;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+    document.body.classList.add('is-modal-open');
+  }
+
+  function closeModal(modal){
+    if(!modal)return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+    var hasOpenModal=!!document.querySelector('.modal.open');
+    if(!hasOpenModal)document.body.classList.remove('is-modal-open');
+  }
+
+  function showToast(message,isError){
+    if(!zoneToast)return;
+    zoneToast.textContent=message;
+    zoneToast.classList.remove('show','err');
+    if(isError)zoneToast.classList.add('err');
+    requestAnimationFrame(function(){zoneToast.classList.add('show');});
+    window.setTimeout(function(){zoneToast.classList.remove('show');},2600);
+  }
+
+  function getRowData(row){
+    var zoneName=(row.querySelector('.zn')||{}).textContent||'';
+    var cell=(row.querySelector('.zg')||{}).textContent||'';
+    var district=(row.cells[1]||{}).textContent||'';
+    var sector=(row.cells[2]||{}).textContent||'';
+    var operator=(row.cells[3]||{}).textContent||'';
+    var status=(row.cells[4]||{}).textContent||'';
+    return {
+      zoneName:zoneName.trim(),
+      cell:cell.trim(),
+      district:district.trim(),
+      sector:sector.trim(),
+      operator:operator.trim()==='Unassigned'?'':operator.trim(),
+      status:status.trim()
+    };
+  }
+
+  
+
+// --- TOAST NOTIFICATION HELPER ---
+function showToast(message, isError) {
+    const toast = document.getElementById('zoneToast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.remove('show', 'err');
+    if (isError) toast.classList.add('err');
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+// --- REDIRECT ACTIONS TO COMMAND CENTRE ---
+// Zones require map coordinates to exist, so we send the Admin to the spatial tool!
+document.getElementById('createZoneBtn').addEventListener('click', () => window.location.href = '/templates/interactive-map.html');
+document.getElementById('modifyZoneBtn').addEventListener('click', () => window.location.href = '/templates/interactive-map.html');
+document.getElementById('deleteZoneBtn').addEventListener('click', () => window.location.href = '/templates/interactive-map.html');
+
+// --- FETCH & RENDER LIVE DATA ---
+async function loadAdminZones() {
+    try {
+        // Fetch real data using our global helper!
+        const zones = await API.get('/zones/');
+        const tbody = document.getElementById('zoneTableBody');
+        tbody.innerHTML = ''; 
+
+        // 1. Populate the Table
+        zones.forEach(zone => {
+            const isAssigned = zone.zone_operator_name ? true : false;
+            const opText = isAssigned ? zone.zone_operator_name : '<span class="ci-meta">Unassigned</span>';
+            const statusClass = isAssigned ? 'ok' : 'pe';
+            const statusText = isAssigned ? 'Assigned' : 'Pending';
+
+            const row = `<tr>
+              <td><div class="zn">${zone.name}</div><div class="zg">${zone.cell || 'N/A'}</div></td>
+              <td>${zone.district}</td>
+              <td>${zone.sector}</td>
+              <td>${opText}</td>
+              <td><span class="b ${statusClass}">${statusText}</span></td>
+            </tr>`;
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
+
+        // 2. Populate the Map (Using the tactical Voyager style)
+        const mapContainer = document.getElementById('zonesMap');
+        if (mapContainer) {
+            const zonesMap = L.map('zonesMap').setView([-1.95, 30.08], 13);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 18
+            }).addTo(zonesMap);
+
+            zones.forEach(zone => {
+                if (zone.latitude && zone.longitude) {
+                    const circle = L.circle([zone.latitude, zone.longitude], {
+                        color: '#2e7d52', fillColor: '#48a870', fillOpacity: 0.35, weight: 2, radius: 800
+                    }).addTo(zonesMap);
+
+                    const isAssigned = zone.zone_operator_name ? true : false;
+                    const badgeBg = isAssigned ? '#e8f8f5' : '#fdf2e9';
+                    const badgeCol = isAssigned ? '#117a65' : '#d35400';
+                    const badgeText = isAssigned ? 'Operator Assigned' : 'Pending Assignment';
+
+                    const popupContent = `
+                        <div style="font-size:.85rem; text-align:center;">
+                            <h3 style="margin:0 0 6px 0; color:#2c3e50; border-bottom:1px solid #eee; padding-bottom:4px;">${zone.name}</h3>
+                            <p style="margin:4px 0; color:#34495e;">${zone.district} · ${zone.sector}</p>
+                            <p style="margin:4px 0; color:#34495e;"><strong>Operator:</strong> ${zone.zone_operator_name || '<i>Unassigned</i>'}</p>
+                            <span style="display:inline-block; margin-top:6px; padding:2px 8px; background-color:${badgeBg}; color:${badgeCol}; border-radius:12px; font-size:11px; font-weight:bold;">${badgeText}</span>
+                        </div>`;
+                    circle.bindPopup(popupContent);
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching zones:', error.message);
+        showToast('Failed to load zones from server', true);
+    }
+}
+
+// Boot the live data
+loadAdminZones();
+</script>
+</body>
+</html>

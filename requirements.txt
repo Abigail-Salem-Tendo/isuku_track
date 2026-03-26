@@ -4,6 +4,7 @@ flask-sqlalchemy
 flask-migrate
 flask-bcrypt
 flask-jwt-extended
+flask-mail
 
 # Database
 pymysql
@@ -11,3 +12,6 @@ cryptography
 
 # Environment
 python-dotenv
+
+
+appwrite

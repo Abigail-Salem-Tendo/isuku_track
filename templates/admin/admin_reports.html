@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports - Admin | Isuku Track</title>
+  <link rel="stylesheet" href="/static/css/admin_dash.css" />
+</head>
+<body>
+<aside class="sb" aria-label="Admin sidebar navigation">
+  <div class="sb-top"><div class="sb-logo" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div><div><div class="sb-name">Isuku Track</div><div class="sb-role">Admin Panel</div></div></div>
+  <div class="sb-sec"><div class="sb-lbl">Overview</div><a class="sb-a" href="admin_dash.html">Dashboard</a><a class="sb-a" href="admin_zones.html">Zones</a><a class="sb-a" href="admin_users.html">Users</a><a class="sb-a" href="admin_zone_operator.html">Zone Operator</a></div>
+  <div class="sb-sec"><div class="sb-lbl">Operations</div><a class="sb-a" href="admin_schedules.html">Schedules</a><a class="sb-a" href="admin_claims.html">Claims</a><a class="sb-a" href="admin_payments.html">Payments</a></div>
+  <div class="sb-sec"><div class="sb-lbl">Reports</div><a class="sb-a on" href="admin_reports.html" aria-current="page">Reports</a></div>
+  <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
+</aside>
+<div class="main"><header class="topbar"><div class="tb-l"><h1>Reports</h1><p id="dashboardDate" data-subtitle="View system and zone operator reports">View system and zone operator reports</p></div><div class="tb-r"><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
+  <div class="sg report-filters" aria-label="Report time period filters">
+    <div class="sc period-filter-card">
+      <div class="sc-lbl">Report Period</div>
+      <label for="reportPeriodFilter" class="period-filter-label">Choose Time Period</label>
+      <select id="reportPeriodFilter" class="period-filter-select" aria-label="Select report time period">
+        <option value="weekly" selected>This Week (last 7 days)</option>
+        <option value="monthly">This Month (current month)</option>
+        <option value="yearly">This Year (calendar year)</option>
+      </select>
+      <div class="sc-sub">Use this filter to switch report summaries</div>
+    </div>
+  </div>
+
+  <div class="sg" id="reportStats">
+    <div class="sc gr">
+      <div class="sc-lbl">New Users Registered</div>
+      <div class="sc-val" id="statNewUsers">0</div>
+      <div class="sc-sub">in selected period</div>
+    </div>
+    <div class="sc am">
+      <div class="sc-lbl">Total Revenue</div>
+      <div class="sc-val" id="statTotalRevenue">0</div>
+      <div class="sc-sub">RWF collected</div>
+    </div>
+    <div class="sc bl">
+      <div class="sc-lbl">Active Vehicles</div>
+      <div class="sc-val" id="statActiveVehicles">0</div>
+      <div class="sc-sub">in collection</div>
+    </div>
+    <div class="sc rd">
+      <div class="sc-lbl">Waste Collected</div>
+      <div class="sc-val" id="statWasteCollected">0</div>
+      <div class="sc-sub">total units</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <section class="card">
+      <div class="ch">
+        <div class="ct">Zone Operator Reports</div>
+      </div>
+      <div class="cb cb--pt" id="reportsList">
+        <div class="rr">
+          <div><div class="rz">Zone A — Jean P.</div><div class="rm">Submitted Sun 8 Mar · Auto-generated</div></div>
+          <div class="rs"><div>Claims: <span>12</span></div><div>Resolved: <span>10</span></div><div>Payments: <span>28</span></div><div>Revenue: <span>28,000 RWF</span></div></div>
+        </div>
+        <div class="rr">
+          <div><div class="rz">Zone B — Amina K.</div><div class="rm">Submitted Sun 8 Mar · Vehicle issue noted</div></div>
+          <div class="rs"><div>Claims: <span>18</span></div><div>Resolved: <span>13</span></div><div>Payments: <span>32</span></div><div>Revenue: <span>32,000 RWF</span></div></div>
+        </div>
+        <div class="rr">
+          <div><div class="rz">Zone C — Eric M.</div><div class="rm">Submitted Sun 8 Mar · Route optimization suggested</div></div>
+          <div class="rs"><div>Claims: <span>7</span></div><div>Resolved: <span>7</span></div><div>Payments: <span>19</span></div><div>Revenue: <span>19,000 RWF</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="ch">
+        <div class="ct">Vehicle Collection Performance</div>
+      </div>
+      <div class="cb cb--pt" id="vehiclePerformance">
+        <div class="vi">
+          <div>
+            <div class="vi-plate">RAD 001A</div>
+            <div class="vi-driver">Jean-Claude M.</div>
+          </div>
+          <div class="vi-stats">
+            <div><span class="vi-label">Trips:</span> <span>14</span></div>
+            <div><span class="vi-label">Zones:</span> <span>Zone A, Zone B</span></div>
+            <div><span class="vi-label">Waste Collected:</span> <span>2,400 units</span></div>
+          </div>
+          <span class="b ok">Active</span>
+        </div>
+        <div class="vi">
+          <div>
+            <div class="vi-plate">RAD 002B</div>
+            <div class="vi-driver">Claudine U.</div>
+          </div>
+          <div class="vi-stats">
+            <div><span class="vi-label">Trips:</span> <span>9</span></div>
+            <div><span class="vi-label">Zones:</span> <span>Zone C, Zone E</span></div>
+            <div><span class="vi-label">Waste Collected:</span> <span>1,650 units</span></div>
+          </div>
+          <span class="b ok">Active</span>
+        </div>
+        <div class="vi">
+          <div>
+            <div class="vi-plate">RAD 003C</div>
+            <div class="vi-driver">Patrick N.</div>
+          </div>
+          <div class="vi-stats">
+            <div><span class="vi-label">Trips:</span> <span>0</span></div>
+            <div><span class="vi-label">Zones:</span> <span>N/A</span></div>
+            <div><span class="vi-label">Waste Collected:</span> <span>0 units</span></div>
+          </div>
+          <span class="b op">Maintenance</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</main></div>
+<div class="overlay" id="overlay" onclick="toggleSb()"></div>
+<script>
+function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}
+document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});
+(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();
+
+(function(){
+  var periodSelect=document.getElementById('reportPeriodFilter');
+  if(!periodSelect)return;
+
+  var reportData={
+    weekly:{newUsers:24,revenue:187500,activeVehicles:3,wasteCollected:4050},
+    monthly:{newUsers:98,revenue:750000,activeVehicles:4,wasteCollected:16200},
+    yearly:{newUsers:1204,revenue:9000000,activeVehicles:4,wasteCollected:194400}
+  };
+
+  function updateReportStats(period){
+    var data=reportData[period]||reportData.weekly;
+    var newUsersEl=document.getElementById('statNewUsers');
+    var revenueEl=document.getElementById('statTotalRevenue');
+    var vehiclesEl=document.getElementById('statActiveVehicles');
+    var wasteEl=document.getElementById('statWasteCollected');
+    
+    if(newUsersEl)newUsersEl.textContent=String(data.newUsers);
+    if(revenueEl)revenueEl.textContent=data.revenue.toLocaleString()+' RWF';
+    if(vehiclesEl)vehiclesEl.textContent=String(data.activeVehicles);
+    if(wasteEl)wasteEl.textContent=data.wasteCollected.toLocaleString()+' units';
+  }
+
+  periodSelect.addEventListener('change',function(){
+    var period=periodSelect.value||'weekly';
+    updateReportStats(period);
+  });
+
+  updateReportStats(periodSelect.value||'weekly');
+})();
+</script>
+</body>
+</html>

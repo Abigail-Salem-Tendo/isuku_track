@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vehicles - Admin | Isuku Track</title>
+  <link rel="stylesheet" href="/static/css/admin_dash.css" />
+</head>
+<body>
+<aside class="sb" aria-label="Admin sidebar navigation">
+  <div class="sb-top"><div class="sb-logo" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div><div><div class="sb-name">Isuku Track</div><div class="sb-role">Admin Panel</div></div></div>
+  <div class="sb-sec"><div class="sb-lbl">Overview</div><a class="sb-a" href="admin_dash.html">Dashboard</a><a class="sb-a" href="admin_zones.html">Zones</a><a class="sb-a" href="admin_users.html">Users</a><a class="sb-a" href="admin_zone_operator.html">Zone Operator</a></div>
+  <div class="sb-sec"><div class="sb-lbl">Operations</div><a class="sb-a" href="admin_schedules.html">Schedules</a><a class="sb-a on" href="admin_vehicles.html" aria-current="page">Vehicles</a><a class="sb-a" href="admin_claims.html">Claims</a><a class="sb-a" href="admin_payments.html">Payments</a></div>
+  <div class="sb-sec"><div class="sb-lbl">Reports</div><a class="sb-a" href="admin_reports.html">Reports</a></div>
+  <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
+</aside>
+
+<div class="main"><header class="topbar"><div class="tb-l"><h1>Vehicles Management</h1><p id="dashboardDate" data-subtitle="Manage fleet availability and assignments">Manage fleet availability and assignments</p></div><div class="tb-r"><button type="button" id="createVehicleBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Create new vehicle">+ Add Vehicle</button><button type="button" id="modifyVehicleBtn" style="background:#1976d2;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Modify vehicle">✎ Modify Vehicle</button><button type="button" id="deleteVehicleBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Delete vehicle">🗑 Delete Vehicle</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
+
+  <div class="sg status-ribbon zone-operator-status-ribbon" aria-label="Vehicle status filters">
+    <button class="sc ftab on" type="button" data-vehicle-filter="Available">
+      <div class="sc-lbl">Available</div>
+      <div class="sc-val" id="vehicleAvailableCount">0</div>
+      <div class="sc-sub">ready for assignment</div>
+    </button>
+    <button class="sc ftab" type="button" data-vehicle-filter="In Use">
+      <div class="sc-lbl">In Use</div>
+      <div class="sc-val" id="vehicleInUseCount">0</div>
+      <div class="sc-sub">active in collection</div>
+    </button>
+    <button class="sc ftab" type="button" data-vehicle-filter="Maintenance">
+      <div class="sc-lbl">Maintenance</div>
+      <div class="sc-val" id="vehicleMaintenanceCount">0</div>
+      <div class="sc-sub">under repair</div>
+    </button>
+  </div>
+
+  <section class="card" aria-labelledby="vehiclesTableTitle">
+    <div class="ch">
+      <div class="ct" id="vehiclesTableTitle">Fleet Overview</div>
+    </div>
+    <div class="cb cb--pt" role="region" aria-label="Vehicles data table">
+      <table class="zt">
+        <thead>
+          <tr>
+            <th>Plate Number</th>
+            <th>Driver</th>
+            <th>Phone</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="vehicleTableBody">
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main></div>
+
+<div class="overlay" id="overlay" onclick="toggleSb()"></div>
+
+<div class="modal" id="vehicleModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="vehicleModalTitle">Add Vehicle</h3>
+      <button type="button" class="modal-close" id="vehicleModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="vehicleModalForm" class="modal-form"></form>
+  </div>
+</div>
+
+<div class="modal" id="modifyVehicleModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Modify Vehicle</h3>
+      <button type="button" class="modal-close" id="modifyVehicleModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="modifyVehicleModalForm" class="modal-form"></form>
+  </div>
+</div>
+
+<div class="modal" id="deleteVehicleModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Delete Vehicle</h3>
+      <button type="button" class="modal-close" id="deleteVehicleModalClose" aria-label="Close">×</button>
+    </div>
+    <form id="deleteVehicleModalForm" class="modal-form"></form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/static/js/api_helper.js"></script>
+<script>
+  // --- UI TOGGLES & LOGOUT ---
+  function toggleSb() {
+      document.querySelector('.sb')?.classList.toggle('open');
+      document.getElementById('overlay')?.classList.toggle('open');
+  }
+  
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = '/login';
+  });
+  
+  (function setDate() {
+      const d = document.getElementById('dashboardDate');
+      if (!d) return;
+      const s = d.getAttribute('data-subtitle') || d.textContent.trim();
+      const l = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+      d.textContent = `${l} — ${s}`;
+  })();
+  
+  // --- GLOBAL STATE ---
+  let globalVehicles = [];
+  let currentFilter = 'Available';
+  
+  // --- API FETCH & RENDER ---
+  async function fetchAndRenderVehicles() {
+      try {
+          globalVehicles = await API.get('/vehicles/');
+          renderTable();
+          updateCounters();
+      } catch (error) {
+          Swal.fire('Error', 'Failed to load fleet data', 'error');
+      }
+  }
+  
+  function getDisplayStatus(dbStatus) {
+      if (dbStatus === 'in_use') return 'In Use';
+      if (dbStatus === 'maintenance') return 'Maintenance';
+      return 'Available';
+  }
+  
+  function renderTable() {
+      const tbody = document.getElementById('vehicleTableBody');
+      tbody.innerHTML = '';
+  
+      globalVehicles.forEach(v => {
+          const displayStatus = getDisplayStatus(v.status);
+          
+          // Only show vehicles matching the selected top tab
+          if (displayStatus !== currentFilter) return;
+  
+          let badgeClass = 'ok';
+          if (v.status === 'in_use') badgeClass = 'go';
+          if (v.status === 'maintenance') badgeClass = 'op';
+  
+          const row = `
+              <tr>
+                  <td>${v.plate_number}</td>
+                  <td>${v.driver_name}</td>
+                  <td>${v.driver_phone}</td>
+                  <td><span class="b ${badgeClass}">${displayStatus}</span></td>
+              </tr>`;
+          tbody.insertAdjacentHTML('beforeend', row);
+      });
+  }
+  
+  function updateCounters() {
+      const counts = { 'Available': 0, 'In Use': 0, 'Maintenance': 0 };
+      globalVehicles.forEach(v => {
+          counts[getDisplayStatus(v.status)]++;
+      });
+  
+      document.getElementById('vehicleAvailableCount').textContent = counts['Available'];
+      document.getElementById('vehicleInUseCount').textContent = counts['In Use'];
+      document.getElementById('vehicleMaintenanceCount').textContent = counts['Maintenance'];
+  }
+  
+  // --- TAB FILTERING ---
+  document.querySelectorAll('.zone-operator-status-ribbon .ftab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+          document.querySelectorAll('.zone-operator-status-ribbon .ftab').forEach(t => t.classList.remove('on'));
+          const clickedTab = e.currentTarget;
+          clickedTab.classList.add('on');
+          
+          currentFilter = clickedTab.getAttribute('data-vehicle-filter');
+          renderTable(); // Re-render table with new filter
+      });
+  });
+  
+  // --- MODAL HELPERS ---
+  function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+  }
+  
+  function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+  }
+  
+  // --- CREATE VEHICLE ---
+  document.getElementById('createVehicleBtn').addEventListener('click', () => {
+      document.getElementById('vehicleModalForm').innerHTML = `
+          <label class="mf-lbl">Plate Number<input class="mf-in" id="newPlate" required placeholder="RAD 001A" /></label>
+          <label class="mf-lbl">Driver Name<input class="mf-in" id="newDriver" required placeholder="John Doe" /></label>
+          <label class="mf-lbl">Phone Number<input class="mf-in" id="newPhone" required placeholder="0788..." /></label>
+          <label class="mf-lbl">Status
+              <select class="mf-in" id="newStatus">
+                  <option value="available">Available</option>
+                  <option value="in_use">In Use</option>
+                  <option value="maintenance">Maintenance</option>
+              </select>
+          </label>
+          <div class="mf-actions">
+              <button type="button" class="mf-btn sec" onclick="closeModal('vehicleModal')">Cancel</button>
+              <button type="submit" class="mf-btn">Add Vehicle</button>
+          </div>`;
+      openModal('vehicleModal');
+  });
+  
+  document.getElementById('vehicleModalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+          plate_number: document.getElementById('newPlate').value.trim().toUpperCase(),
+          driver_name: document.getElementById('newDriver').value.trim(),
+          driver_phone: document.getElementById('newPhone').value.trim(),
+          status: document.getElementById('newStatus').value
+      };
+  
+      try {
+          await API.post('/vehicles/', payload);
+          closeModal('vehicleModal');
+          Swal.fire('Created!', 'Vehicle added successfully.', 'success');
+          fetchAndRenderVehicles();
+      } catch (error) { Swal.fire('Error', error.message, 'error'); }
+  });
+  
+  // --- MODIFY VEHICLE ---
+  document.getElementById('modifyVehicleBtn').addEventListener('click', () => {
+      if (globalVehicles.length === 0) return Swal.fire('Info', 'No vehicles to modify', 'info');
+      
+      let options = '<option value="">Choose vehicle...</option>';
+      globalVehicles.forEach(v => { options += `<option value="${v.id}">${v.plate_number}</option>`; });
+  
+      document.getElementById('modifyVehicleModalForm').innerHTML = `
+          <label class="mf-lbl">Select Vehicle<select class="mf-in" id="modSelect" required>${options}</select></label>
+          <label class="mf-lbl">Driver Name<input class="mf-in" id="modDriver" required /></label>
+          <label class="mf-lbl">Phone Number<input class="mf-in" id="modPhone" required /></label>
+          <label class="mf-lbl">Status
+              <select class="mf-in" id="modStatus">
+                  <option value="available">Available</option>
+                  <option value="in_use">In Use</option>
+                  <option value="maintenance">Maintenance</option>
+              </select>
+          </label>
+          <div class="mf-actions">
+              <button type="button" class="mf-btn sec" onclick="closeModal('modifyVehicleModal')">Cancel</button>
+              <button type="submit" class="mf-btn" style="background:#1976d2;">Update</button>
+          </div>`;
+      
+      // Auto-fill form when selection changes
+      document.getElementById('modSelect').addEventListener('change', (e) => {
+          const v = globalVehicles.find(x => x.id == e.target.value);
+          if (v) {
+              document.getElementById('modDriver').value = v.driver_name;
+              document.getElementById('modPhone').value = v.driver_phone;
+              document.getElementById('modStatus').value = v.status;
+          }
+      });
+  
+      openModal('modifyVehicleModal');
+  });
+  
+  document.getElementById('modifyVehicleModalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const vId = document.getElementById('modSelect').value;
+      if (!vId) return;
+  
+      const payload = {
+          driver_name: document.getElementById('modDriver').value.trim(),
+          driver_phone: document.getElementById('modPhone').value.trim(),
+          status: document.getElementById('modStatus').value
+      };
+  
+      try {
+          await API.put(`/vehicles/${vId}`, payload);
+          closeModal('modifyVehicleModal');
+          Swal.fire('Updated!', 'Vehicle updated.', 'success');
+          fetchAndRenderVehicles();
+      } catch (error) { Swal.fire('Error', error.message, 'error'); }
+  });
+  
+  // --- DELETE VEHICLE ---
+  document.getElementById('deleteVehicleBtn').addEventListener('click', () => {
+      if (globalVehicles.length === 0) return Swal.fire('Info', 'No vehicles to delete', 'info');
+      
+      let options = '<option value="">Choose vehicle...</option>';
+      globalVehicles.forEach(v => { options += `<option value="${v.id}">${v.plate_number}</option>`; });
+  
+      document.getElementById('deleteVehicleModalForm').innerHTML = `
+          <label class="mf-lbl">Select Vehicle<select class="mf-in" id="delSelect" required>${options}</select></label>
+          <div class="mf-actions">
+              <button type="button" class="mf-btn sec" onclick="closeModal('deleteVehicleModal')">Cancel</button>
+              <button type="submit" class="mf-btn" style="background:#d32f2f;">Delete</button>
+          </div>`;
+      openModal('deleteVehicleModal');
+  });
+  
+  document.getElementById('deleteVehicleModalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const vId = document.getElementById('delSelect').value;
+      if (!vId) return;
+  
+      try {
+          await API.delete(`/vehicles/${vId}`);
+          closeModal('deleteVehicleModal');
+          Swal.fire('Deleted!', 'Vehicle removed from fleet.', 'success');
+          fetchAndRenderVehicles();
+      } catch (error) { Swal.fire('Error', error.message, 'error'); }
+  });
+  
+  // Boot App
+  fetchAndRenderVehicles();
+  </script>
+</body>
+</html>
