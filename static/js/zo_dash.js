@@ -542,29 +542,6 @@ function initZoneMap() {
     attribution: '© OpenStreetMap'
   }).addTo(map);
 
-  // Route A (blue line)
-  const routeA = [
-    [-1.9380, 30.1100],
-    [-1.9390, 30.1120],
-    [-1.9405, 30.1130],
-    [-1.9420, 30.1125],
-    [-1.9430, 30.1140]
-  ];
-  L.polyline(routeA, { color: '#3b82f6', weight: 4, opacity: 0.8 })
-    .addTo(map)
-    .bindPopup('<b>Route A</b><br>Kibagabaga North<br>KG 11 Ave → KG 15 Ave');
-
-  // Route B (orange line)
-  const routeB = [
-    [-1.9410, 30.1090],
-    [-1.9420, 30.1105],
-    [-1.9435, 30.1115],
-    [-1.9445, 30.1100]
-  ];
-  L.polyline(routeB, { color: '#f59e0b', weight: 4, opacity: 0.8 })
-    .addTo(map)
-    .bindPopup('<b>Route B</b><br>Market Area');
-
   // Resident locations with bin icons
   const residents = [
     { pos: [-1.9385, 30.1110], name: 'Alice Mutoni', paid: true, collected: true, hasClaim: true },
