@@ -45,17 +45,94 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   document.getElementById('todayDate').textContent = today;
 
-  // ── Load zone info from backend ──
-  // TODO: replace with real fetch when backend is ready
-  // fetch('/api/resident/profile', { headers: { Authorization: 'Bearer ' + localStorage.getItem('authToken') } })
-  //   .then(r => r.json())
-  //   .then(data => {
-  //     document.getElementById('zoneName').textContent = data.zone.name;
-  //     document.getElementById('zoneGeo').textContent = data.zone.district + ' · ' + data.zone.sector + ' · ' + data.zone.cell + ' · ' + data.zone.village;
-  //     document.getElementById('sidebarRole').textContent = data.zone.name + ' Resident';
-  //     document.getElementById('zoName').textContent = data.zone.operator_name;
-  //     document.getElementById('zoPhone').textContent = data.zone.operator_phone;
-  //   });
+  // ── Loyalty Points Progress ──
+  function updateLoyaltyProgress(currentPoints, targetPoints = 100) {
+    const percentage = Math.min((currentPoints / targetPoints) * 100, 100);
+    const remaining = Math.max(targetPoints - currentPoints, 0);
+
+    document.getElementById('loyaltyPoints').textContent = currentPoints;
+    document.getElementById('loyaltyTarget').textContent = targetPoints;
+    document.getElementById('loyaltyProgressFill').style.width = percentage + '%';
+    document.getElementById('loyaltyRemaining').textContent = remaining;
+
+    // Update label text based on progress
+    const labelEl = document.querySelector('.loyalty-progress__label');
+    if (remaining === 0) {
+      labelEl.textContent = 'Reward unlocked! 🎉';
+    } else {
+      labelEl.innerHTML = '<span id="loyaltyRemaining">' + remaining + '</span> pts to next reward';
+    }
+  }
+
+  // ── Load resident data from backend ──
+  async function loadResidentData() {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        console.error('No access token found');
+        return;
+      }
+
+      const response = await fetch('/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const user = data.user;
+
+        // Update name
+        document.getElementById('welcomeName').textContent = user.username;
+        document.getElementById('sidebarName').textContent = user.username;
+
+        // Update avatar initials
+        const initials = user.username.split(' ').map(n => n[0]).join('').toUpperCase();
+        document.getElementById('sidebarAvatar').textContent = initials;
+
+        // Store username for future use
+        localStorage.setItem('userName', user.username);
+
+        // Update loyalty points
+        updateLoyaltyProgress(user.loyalty_points || 0, 100);
+
+        // Update zone info if available
+        if (user.zone) {
+          document.getElementById('zoneName').textContent = user.zone.name;
+          document.getElementById('zoneGeo').textContent =
+            `${user.zone.district} · ${user.zone.sector} · ${user.zone.cell} · ${user.zone.village}`;
+          document.getElementById('sidebarRole').textContent = `${user.zone.name} Resident`;
+
+          // Update zone operator info if available
+          if (user.zone.zone_operator) {
+            document.getElementById('zoName').textContent = user.zone.zone_operator.name;
+            document.getElementById('zoPhone').textContent = user.zone.zone_operator.phone;
+          } else {
+            document.getElementById('zoName').textContent = 'Not assigned';
+            document.getElementById('zoPhone').textContent = '—';
+          }
+        } else {
+          document.getElementById('zoneName').textContent = 'No zone assigned';
+          document.getElementById('zoneGeo').textContent = '';
+          document.getElementById('sidebarRole').textContent = 'Resident';
+        }
+      } else if (response.status === 401) {
+        // Token expired or invalid, redirect to login
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      } else {
+        console.error('Failed to load resident data:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error loading resident data:', error);
+    }
+  }
+
+  // Load resident data on page load
+  loadResidentData();
 
   // ── Load next schedule from backend ──
   // TODO: replace with real fetch when backend is ready
@@ -73,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
       let valid = true;
 
       const type = document.getElementById('claimType');
-      const loc  = document.getElementById('claimLocation');
+      const loc = document.getElementById('claimLocation');
       const desc = document.getElementById('claimDesc');
 
       if (!type.value) {
