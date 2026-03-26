@@ -150,8 +150,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let valid = true;
 
     const fullName = document.getElementById('fullName');
-    const phone    = document.getElementById('phone');
-    const zone     = document.getElementById('zone');
+    const phone = document.getElementById('phone');
+    const zone = document.getElementById('zone');
 
     if (!fullName.value.trim()) {
       fullName.classList.add('error');
@@ -219,9 +219,9 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     let valid = true;
 
-    const current  = document.getElementById('currentPassword');
-    const newPass  = document.getElementById('newPassword');
-    const confirm  = document.getElementById('confirmPassword');
+    const current = document.getElementById('currentPassword');
+    const newPass = document.getElementById('newPassword');
+    const confirm = document.getElementById('confirmPassword');
 
     if (!current.value) {
       current.classList.add('error');
