@@ -861,19 +861,16 @@ window.openOperatorModal = function(operatorId = null) {
 
             const data = await response.json();
 
-            if (response.ok) {
-                // If a reset link was generated, show it to the admin!
-                if (data.reset_link) {
-                    Swal.fire({
-                        title: 'Operator Created!',
-                        html: `Send this setup link to the operator so they can set their password:<br><br><input type="text" value="http://127.0.0.1:5500${data.reset_link}" style="width:100%; padding:5px; text-align:center;" readonly>`,
-                        icon: 'success',
-                        confirmButtonText: 'Done'
-                    }).then(() => location.reload());
-                } else {
-                    Swal.fire({ title: 'Updated!', text: 'Operator successfully updated.', icon: 'success', timer: 1500, showConfirmButton: false })
-                    .then(() => location.reload());
-                }
+            if (data.reset_token) {
+                // dynamically grabbing the frontend domain (e.g., http://127.0.0.1:5500)
+                const frontendSetupLink = `${window.location.origin}/templates/reset-password.html?token=${data.reset_token}`;
+                
+                Swal.fire({
+                    title: 'Operator Created!',
+                    html: `Send this setup link to the operator:<br><br><input type="text" value="${frontendSetupLink}" style="width:100%; padding:5px; text-align:center;" readonly>`,
+                    icon: 'success',
+                    confirmButtonText: 'Done'
+                }).then(() => location.reload());
             } else {
                 Swal.fire('Error', data.error || 'Operation failed', 'error');
             }
