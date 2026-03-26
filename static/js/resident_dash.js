@@ -64,20 +64,75 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Initialize with current points (hardcoded for now, replace with API call later)
-  updateLoyaltyProgress(45, 100);
+  // ── Load resident data from backend ──
+  async function loadResidentData() {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        console.error('No access token found');
+        return;
+      }
 
-  // ── Load zone info from backend ──
-  // TODO: replace with real fetch when backend is ready
-  // fetch('/api/resident/profile', { headers: { Authorization: 'Bearer ' + localStorage.getItem('authToken') } })
-  //   .then(r => r.json())
-  //   .then(data => {
-  //     document.getElementById('zoneName').textContent = data.zone.name;
-  //     document.getElementById('zoneGeo').textContent = data.zone.district + ' · ' + data.zone.sector + ' · ' + data.zone.cell + ' · ' + data.zone.village;
-  //     document.getElementById('sidebarRole').textContent = data.zone.name + ' Resident';
-  //     document.getElementById('zoName').textContent = data.zone.operator_name;
-  //     document.getElementById('zoPhone').textContent = data.zone.operator_phone;
-  //   });
+      const response = await fetch('/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const user = data.user;
+
+        // Update name
+        document.getElementById('welcomeName').textContent = user.username;
+        document.getElementById('sidebarName').textContent = user.username;
+
+        // Update avatar initials
+        const initials = user.username.split(' ').map(n => n[0]).join('').toUpperCase();
+        document.getElementById('sidebarAvatar').textContent = initials;
+
+        // Store username for future use
+        localStorage.setItem('userName', user.username);
+
+        // Update loyalty points
+        updateLoyaltyProgress(user.loyalty_points || 0, 100);
+
+        // Update zone info if available
+        if (user.zone) {
+          document.getElementById('zoneName').textContent = user.zone.name;
+          document.getElementById('zoneGeo').textContent =
+            `${user.zone.district} · ${user.zone.sector} · ${user.zone.cell} · ${user.zone.village}`;
+          document.getElementById('sidebarRole').textContent = `${user.zone.name} Resident`;
+
+          // Update zone operator info if available
+          if (user.zone.zone_operator) {
+            document.getElementById('zoName').textContent = user.zone.zone_operator.name;
+            document.getElementById('zoPhone').textContent = user.zone.zone_operator.phone;
+          } else {
+            document.getElementById('zoName').textContent = 'Not assigned';
+            document.getElementById('zoPhone').textContent = '—';
+          }
+        } else {
+          document.getElementById('zoneName').textContent = 'No zone assigned';
+          document.getElementById('zoneGeo').textContent = '';
+          document.getElementById('sidebarRole').textContent = 'Resident';
+        }
+      } else if (response.status === 401) {
+        // Token expired or invalid, redirect to login
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      } else {
+        console.error('Failed to load resident data:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error loading resident data:', error);
+    }
+  }
+
+  // Load resident data on page load
+  loadResidentData();
 
   // ── Load next schedule from backend ──
   // TODO: replace with real fetch when backend is ready
