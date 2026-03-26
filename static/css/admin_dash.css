@@ -1039,6 +1039,14 @@ body {
   min-height: auto;
 }
 
+button.mn-item {
+  border: none;
+  background: transparent;
+  font: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 .mn-item.active { color: var(--g2); }
 
 .mn-item svg { width: 22px; height: 22px; }

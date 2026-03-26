@@ -6,6 +6,22 @@
   <title>Zones - Admin | Isuku Track</title>
   <link rel="stylesheet" href="/static/css/admin_dash.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #zonesMap {
+      position: relative;
+      z-index: 0;
+      transition: opacity .2s ease;
+    }
+
+    .modal {
+      z-index: 1300;
+    }
+
+    body.is-modal-open #zonesMap {
+      opacity: .14;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
 <aside class="sb" aria-label="Admin sidebar navigation">
@@ -187,6 +203,65 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
   d.textContent = l + ' — ' + s;
 })();
 
+(function(){
+  var zoneTableBody=document.getElementById('zoneTableBody');
+  var zoneToast=document.getElementById('zoneToast');
+
+  var createZoneBtn=document.getElementById('createZoneBtn');
+  var modifyZoneBtn=document.getElementById('modifyZoneBtn');
+  var deleteZoneBtn=document.getElementById('deleteZoneBtn');
+
+  var createZoneModal=document.getElementById('createZoneModal');
+  var modifyZoneModal=document.getElementById('modifyZoneModal');
+  var deleteZoneModal=document.getElementById('deleteZoneModal');
+
+  var createZoneForm=document.getElementById('createZoneForm');
+  var modifyZoneForm=document.getElementById('modifyZoneForm');
+  var deleteZoneForm=document.getElementById('deleteZoneForm');
+
+  var modifyZoneSelect=document.getElementById('modifyZoneSelect');
+  var deleteZoneSelect=document.getElementById('deleteZoneSelect');
+
+  function openModal(modal){
+    if(!modal)return;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+    document.body.classList.add('is-modal-open');
+  }
+
+  function closeModal(modal){
+    if(!modal)return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+    var hasOpenModal=!!document.querySelector('.modal.open');
+    if(!hasOpenModal)document.body.classList.remove('is-modal-open');
+  }
+
+  function showToast(message,isError){
+    if(!zoneToast)return;
+    zoneToast.textContent=message;
+    zoneToast.classList.remove('show','err');
+    if(isError)zoneToast.classList.add('err');
+    requestAnimationFrame(function(){zoneToast.classList.add('show');});
+    window.setTimeout(function(){zoneToast.classList.remove('show');},2600);
+  }
+
+  function getRowData(row){
+    var zoneName=(row.querySelector('.zn')||{}).textContent||'';
+    var cell=(row.querySelector('.zg')||{}).textContent||'';
+    var district=(row.cells[1]||{}).textContent||'';
+    var sector=(row.cells[2]||{}).textContent||'';
+    var operator=(row.cells[3]||{}).textContent||'';
+    var status=(row.cells[4]||{}).textContent||'';
+    return {
+      zoneName:zoneName.trim(),
+      cell:cell.trim(),
+      district:district.trim(),
+      sector:sector.trim(),
+      operator:operator.trim()==='Unassigned'?'':operator.trim(),
+      status:status.trim()
+    };
+  }
 
   
 
