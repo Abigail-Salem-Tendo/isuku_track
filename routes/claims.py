@@ -9,6 +9,38 @@ from datetime import datetime, timezone
 
 claims_bp = Blueprint("claims", __name__)
 
+
+# --- GET: All category enums (claim, suggestion, rejection) ---
+@claims_bp.route("/categories", methods=["GET"])
+@role_required("resident", "zone_operator", "admin")
+def get_categories():
+    return jsonify({
+        "claim": [
+            {"value": "missed_collection", "label": "Missed Collection"},
+            {"value": "overflow", "label": "Overflow"},
+            {"value": "illegal_dumping", "label": "Illegal Dumping"},
+            {"value": "damaged_infrastructure", "label": "Damaged Infrastructure"},
+            {"value": "environmental_hazard", "label": "Environmental Hazard"},
+            {"value": "other", "label": "Other"},
+        ],
+        "suggestion": [
+            {"value": "route_optimization", "label": "Route Optimization"},
+            {"value": "vehicle_issues", "label": "Vehicle Issues"},
+            {"value": "resident_disputes", "label": "Resident Disputes"},
+            {"value": "staffing_concerns", "label": "Staffing Concerns"},
+            {"value": "infrastructure_needs", "label": "Infrastructure Needs"},
+        ],
+        "rejection": [
+            {"value": "insufficient_evidence", "label": "Insufficient Evidence"},
+            {"value": "duplicate_claim", "label": "Duplicate Claim"},
+            {"value": "not_in_zone", "label": "Not In Zone"},
+            {"value": "false_claim", "label": "False Claim"},
+            {"value": "resolved_already", "label": "Already Resolved"},
+            {"value": "other", "label": "Other"},
+        ],
+    }), 200
+
+
 # Helper function to apply date filters to a query
 def apply_date_filters(query):
     date_from = request.args.get("from")
