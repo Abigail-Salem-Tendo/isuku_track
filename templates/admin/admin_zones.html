@@ -67,27 +67,6 @@
             </tr>
           </thead>
           <tbody id="zoneTableBody">
-            <tr>
-              <td><div class="zn">Zone A</div><div class="zg">Kamatamu</div></td>
-              <td>Gasabo</td>
-              <td>Kimironko</td>
-              <td>Jean P.</td>
-              <td><span class="b ok">Assigned</span></td>
-            </tr>
-            <tr>
-              <td><div class="zn">Zone B</div><div class="zg">Bibare</div></td>
-              <td>Gasabo</td>
-              <td>Remera</td>
-              <td>Amina K.</td>
-              <td><span class="b ok">Assigned</span></td>
-            </tr>
-            <tr>
-              <td><div class="zn">Zone C</div><div class="zg">Nyarutarama</div></td>
-              <td>Gasabo</td>
-              <td>Kacyiru</td>
-              <td><span class="ci-meta">Unassigned</span></td>
-              <td><span class="b pe">Pending</span></td>
-            </tr>
           </tbody>
         </table>
       </div>
@@ -193,6 +172,7 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/js/api_helper.js"></script>
 <script>
 function toggleSb() {
   var sb = document.querySelector('.sb');
@@ -283,174 +263,88 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
     };
   }
 
-  function getRows(){
-    if(!zoneTableBody)return[];
-    return Array.from(zoneTableBody.querySelectorAll('tr'));
-  }
-
-  function populateZoneSelects(){
-    var rows=getRows();
-    if(modifyZoneSelect){
-      modifyZoneSelect.innerHTML=rows.map(function(row,idx){
-        var data=getRowData(row);
-        return '<option value="'+idx+'">'+data.zoneName+'</option>';
-      }).join('');
-    }
-    if(deleteZoneSelect){
-      deleteZoneSelect.innerHTML=rows.map(function(row,idx){
-        var data=getRowData(row);
-        return '<option value="'+idx+'">'+data.zoneName+'</option>';
-      }).join('');
-    }
-  }
-
-  function loadModifyFormFromSelection(){
-    if(!modifyZoneForm||!modifyZoneSelect)return;
-    var index=Number(modifyZoneSelect.value);
-    var rows=getRows();
-    if(Number.isNaN(index)||!rows[index])return;
-    var data=getRowData(rows[index]);
-    modifyZoneForm.querySelector('input[name="zoneName"]').value=data.zoneName;
-    modifyZoneForm.querySelector('input[name="zoneDistrict"]').value=data.district;
-    modifyZoneForm.querySelector('input[name="zoneSector"]').value=data.sector;
-    modifyZoneForm.querySelector('input[name="zoneOperator"]').value=data.operator;
-    modifyZoneForm.querySelector('select[name="zoneStatus"]').value=data.status==='Assigned'?'Assigned':'Pending';
-  }
-
-  if(createZoneBtn){
-    createZoneBtn.addEventListener('click',function(){openModal(createZoneModal);});
-  }
-  if(modifyZoneBtn){
-    modifyZoneBtn.addEventListener('click',function(){
-      populateZoneSelects();
-      loadModifyFormFromSelection();
-      openModal(modifyZoneModal);
-    });
-  }
-  if(deleteZoneBtn){
-    deleteZoneBtn.addEventListener('click',function(){
-      populateZoneSelects();
-      openModal(deleteZoneModal);
-    });
-  }
-
-  ['createZoneModalClose','createZoneCancel'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el)el.addEventListener('click',function(){closeModal(createZoneModal);});
-  });
-  ['modifyZoneModalClose','modifyZoneCancel'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el)el.addEventListener('click',function(){closeModal(modifyZoneModal);});
-  });
-  ['deleteZoneModalClose','deleteZoneCancel'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el)el.addEventListener('click',function(){closeModal(deleteZoneModal);});
-  });
-
-  if(modifyZoneSelect){
-    modifyZoneSelect.addEventListener('change',loadModifyFormFromSelection);
-  }
-
-  if(createZoneForm){
-    createZoneForm.addEventListener('submit',function(e){
-      e.preventDefault();
-      if(!zoneTableBody)return;
-      var zoneName=createZoneForm.querySelector('input[name="zoneName"]').value.trim();
-      var zoneCell=createZoneForm.querySelector('input[name="zoneCell"]').value.trim();
-      var zoneDistrict=createZoneForm.querySelector('input[name="zoneDistrict"]').value.trim();
-      var zoneSector=createZoneForm.querySelector('input[name="zoneSector"]').value.trim();
-      var zoneOperator=createZoneForm.querySelector('input[name="zoneOperator"]').value.trim();
-      var isAssigned=zoneOperator.length>0;
-      var rowHtml=''+
-      '<tr>'+
-      '<td><div class="zn">'+zoneName+'</div><div class="zg">'+zoneCell+'</div></td>'+
-      '<td>'+zoneDistrict+'</td>'+
-      '<td>'+zoneSector+'</td>'+
-      '<td>'+(isAssigned?zoneOperator:'<span class="ci-meta">Unassigned</span>')+'</td>'+
-      '<td><span class="b '+(isAssigned?'ok':'pe')+'">'+(isAssigned?'Assigned':'Pending')+'</span></td>'+
-      '</tr>';
-      zoneTableBody.insertAdjacentHTML('afterbegin',rowHtml);
-      createZoneForm.reset();
-      closeModal(createZoneModal);
-      showToast('Zone created successfully');
-    });
-  }
-
-  if(modifyZoneForm){
-    modifyZoneForm.addEventListener('submit',function(e){
-      e.preventDefault();
-      var rows=getRows();
-      var index=Number(modifyZoneSelect.value);
-      if(Number.isNaN(index)||!rows[index]){
-        showToast('Please select a zone to modify',true);
-        return;
-      }
-      var row=rows[index];
-      var zoneName=modifyZoneForm.querySelector('input[name="zoneName"]').value.trim();
-      var zoneDistrict=modifyZoneForm.querySelector('input[name="zoneDistrict"]').value.trim();
-      var zoneSector=modifyZoneForm.querySelector('input[name="zoneSector"]').value.trim();
-      var zoneOperator=modifyZoneForm.querySelector('input[name="zoneOperator"]').value.trim();
-      var zoneStatus=modifyZoneForm.querySelector('select[name="zoneStatus"]').value;
-      row.querySelector('.zn').textContent=zoneName;
-      row.cells[1].textContent=zoneDistrict;
-      row.cells[2].textContent=zoneSector;
-      row.cells[3].innerHTML=zoneOperator?zoneOperator:'<span class="ci-meta">Unassigned</span>';
-      row.cells[4].innerHTML='<span class="b '+(zoneStatus==='Assigned'?'ok':'pe')+'">'+zoneStatus+'</span>';
-      closeModal(modifyZoneModal);
-      showToast('Zone updated successfully');
-    });
-  }
-
-  if(deleteZoneForm){
-    deleteZoneForm.addEventListener('submit',function(e){
-      e.preventDefault();
-      var rows=getRows();
-      var index=Number(deleteZoneSelect.value);
-      if(Number.isNaN(index)||!rows[index]){
-        showToast('Please select a zone to delete',true);
-        return;
-      }
-      var zoneName=(rows[index].querySelector('.zn')||{}).textContent||'selected zone';
-      rows[index].remove();
-      closeModal(deleteZoneModal);
-      showToast(zoneName.trim()+' deleted');
-    });
-  }
-
-  [createZoneModal,modifyZoneModal,deleteZoneModal].forEach(function(modal){
-    if(!modal)return;
-    modal.addEventListener('click',function(e){
-      if(e.target===modal)closeModal(modal);
-    });
-  });
-})();
-
-(function(){
-  var mapContainer=document.getElementById('zonesMap');
-  if(!mapContainer)return;
-  var zonesMap=L.map('zonesMap').setView([-1.95,30.08],14);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors',maxZoom:18}).addTo(zonesMap);
   
-  async function loadZones(){
-    try{
-      var response=await fetch('/api/zones/');
-      var zones=await response.json();
-      zones.forEach(function(zone){
-        if(zone.latitude && zone.longitude && zone.sector==='Kimironko'){
-          var circle=L.circle([zone.latitude,zone.longitude],{color:'#2e7d52',fillColor:'#48a870',fillOpacity:0.35,weight:2,radius:800}).addTo(zonesMap);
-          var isAssigned=zone.zone_operator_name?true:false;
-          var badgeClass=isAssigned?'status-badge':'status-badge pending';
-          var badgeText=isAssigned?'Operator Assigned':'Pending Assignment';
-          var popupContent='<div style="font-size:.85rem;"><h3 style="margin:0 0 6px 0;color:#2c3e50;border-bottom:1px solid #eee;padding-bottom:4px;">'+zone.name+'</h3><p style="margin:4px 0;color:#34495e;"><strong>District:</strong> '+zone.district+'</p><p style="margin:4px 0;color:#34495e;"><strong>Sector:</strong> '+zone.sector+'</p><p style="margin:4px 0;color:#34495e;"><strong>Cell:</strong> '+zone.cell+'</p><p style="margin:4px 0;color:#34495e;"><strong>Operator:</strong> '+(zone.zone_operator_name||'<i>Not yet assigned</i>')+'</p><p style="margin:4px 0;color:#34495e;"><strong>Contact:</strong> '+(zone.zone_operator_phone||'N/A')+'</p><span style="display:inline-block;margin-top:6px;padding:2px 6px;background-color:'+(isAssigned?'#e8f8f5':'#fdf2e9')+';color:'+(isAssigned?'#117a65':'#d35400')+';border-radius:12px;font-size:11px;font-weight:bold;">'+badgeText+'</span></div>';
-          circle.bindPopup(popupContent);
+
+// --- TOAST NOTIFICATION HELPER ---
+function showToast(message, isError) {
+    const toast = document.getElementById('zoneToast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.remove('show', 'err');
+    if (isError) toast.classList.add('err');
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+// --- REDIRECT ACTIONS TO COMMAND CENTRE ---
+// Zones require map coordinates to exist, so we send the Admin to the spatial tool!
+document.getElementById('createZoneBtn').addEventListener('click', () => window.location.href = '/templates/interactive-map.html');
+document.getElementById('modifyZoneBtn').addEventListener('click', () => window.location.href = '/templates/interactive-map.html');
+document.getElementById('deleteZoneBtn').addEventListener('click', () => window.location.href = '/templates/interactive-map.html');
+
+// --- FETCH & RENDER LIVE DATA ---
+async function loadAdminZones() {
+    try {
+        // Fetch real data using our global helper!
+        const zones = await API.get('/zones/');
+        const tbody = document.getElementById('zoneTableBody');
+        tbody.innerHTML = ''; 
+
+        // 1. Populate the Table
+        zones.forEach(zone => {
+            const isAssigned = zone.zone_operator_name ? true : false;
+            const opText = isAssigned ? zone.zone_operator_name : '<span class="ci-meta">Unassigned</span>';
+            const statusClass = isAssigned ? 'ok' : 'pe';
+            const statusText = isAssigned ? 'Assigned' : 'Pending';
+
+            const row = `<tr>
+              <td><div class="zn">${zone.name}</div><div class="zg">${zone.cell || 'N/A'}</div></td>
+              <td>${zone.district}</td>
+              <td>${zone.sector}</td>
+              <td>${opText}</td>
+              <td><span class="b ${statusClass}">${statusText}</span></td>
+            </tr>`;
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
+
+        // 2. Populate the Map (Using the tactical Voyager style)
+        const mapContainer = document.getElementById('zonesMap');
+        if (mapContainer) {
+            const zonesMap = L.map('zonesMap').setView([-1.95, 30.08], 13);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 18
+            }).addTo(zonesMap);
+
+            zones.forEach(zone => {
+                if (zone.latitude && zone.longitude) {
+                    const circle = L.circle([zone.latitude, zone.longitude], {
+                        color: '#2e7d52', fillColor: '#48a870', fillOpacity: 0.35, weight: 2, radius: 800
+                    }).addTo(zonesMap);
+
+                    const isAssigned = zone.zone_operator_name ? true : false;
+                    const badgeBg = isAssigned ? '#e8f8f5' : '#fdf2e9';
+                    const badgeCol = isAssigned ? '#117a65' : '#d35400';
+                    const badgeText = isAssigned ? 'Operator Assigned' : 'Pending Assignment';
+
+                    const popupContent = `
+                        <div style="font-size:.85rem; text-align:center;">
+                            <h3 style="margin:0 0 6px 0; color:#2c3e50; border-bottom:1px solid #eee; padding-bottom:4px;">${zone.name}</h3>
+                            <p style="margin:4px 0; color:#34495e;">${zone.district} · ${zone.sector}</p>
+                            <p style="margin:4px 0; color:#34495e;"><strong>Operator:</strong> ${zone.zone_operator_name || '<i>Unassigned</i>'}</p>
+                            <span style="display:inline-block; margin-top:6px; padding:2px 8px; background-color:${badgeBg}; color:${badgeCol}; border-radius:12px; font-size:11px; font-weight:bold;">${badgeText}</span>
+                        </div>`;
+                    circle.bindPopup(popupContent);
+                }
+            });
         }
-      });
-    }catch(error){
-      console.error('Error loading zones:',error);
+    } catch (error) {
+        console.error('Error fetching zones:', error.message);
+        showToast('Failed to load zones from server', true);
     }
-  }
-  loadZones();
-})();
+}
+
+// Boot the live data
+loadAdminZones();
 </script>
 </body>
 </html>

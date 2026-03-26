@@ -99,6 +99,9 @@
 <div class="main">
   <div class="topbar">
     <div class="tb-l">
+      <div class="ham" onclick="toggleSb()" aria-label="Toggle sidebar" role="button">
+        <span></span><span></span><span></span>
+      </div>
       <h1>Schedules</h1>
       <p>Kimironko Zone A · 3 upcoming this week</p>
     </div>
@@ -111,9 +114,6 @@
         <div class="notif-dot"></div>
       </div>
       <div class="av">JP</div>
-      <div class="ham" onclick="toggleSb()">
-        <span></span><span></span><span></span>
-      </div>
     </div>
   </div>
 
@@ -314,7 +314,7 @@
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
 
 <nav class="mob-nav">
-  <a class="mn-item" href="zo_schedules.html" class="mn-item active" style="flex:1">
+  <a class="mn-item active" href="zo_schedules.html" style="flex:1">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="4" width="18" height="18" rx="2"/>
       <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
@@ -333,8 +333,7 @@
   <a class="mn-item mn-home" href="zo_dash.html">
     <div class="mn-home-inner">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
       </svg>
     </div>
     <span>Home</span>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,289 +9,301 @@
   <link rel="stylesheet" href="/static/css/dashboard.css" />
   <link rel="stylesheet" href="/static/css/resident.css" />
 </head>
+
 <body>
-<div class="resident-layout">
+  <div class="resident-layout">
 
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <aside class="sidebar" id="sidebar">
-    <a href="/static/pages/resident/resident_dash.html" class="sidebar__brand">
-      <div class="sidebar__brand-icon">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 4h2a2 2 0 0 1 2 2v1H4V6a2 2 0 0 1 2-2h2m0 0V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1M9 4h6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2L19 7"/></svg>
+    <aside class="sidebar" id="sidebar">
+      <a href="/resident/dashboard" class="sidebar__brand">
+        <div class="sidebar__brand-icon">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16 4h2a2 2 0 0 1 2 2v1H4V6a2 2 0 0 1 2-2h2m0 0V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1M9 4h6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2L19 7" />
+          </svg>
+        </div>
+        <div class="sidebar__brand-text">
+          <span class="sidebar__brand-name">Isuku Track</span>
+          <span class="sidebar__brand-role">Resident</span>
+        </div>
+      </a>
+
+      <div class="sidebar__section">
+        <div class="sidebar__section-label">My Home</div>
+        <a href="/resident/dashboard" class="sidebar__nav-item">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="/resident/resident_schedule" class="sidebar__nav-item">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          Collection Schedule
+        </a>
+        <a href="/resident/resident_claims" class="sidebar__nav-item">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          My Claims
+        </a>
       </div>
-      <div class="sidebar__brand-text">
-        <span class="sidebar__brand-name">Isuku Track</span>
-        <span class="sidebar__brand-role">Resident</span>
+
+      <div class="sidebar__section">
+        <div class="sidebar__section-label">Account</div>
+        <a href="/resident/resident_payments" class="sidebar__nav-item">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+          Submit Payment
+        </a>
+        <a href="/resident/resident_profile" class="sidebar__nav-item active">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          Profile
+        </a>
+        <button class="sidebar__nav-item logout-btn" id="logoutBtn"
+          style="width:100%;background:none;border:none;cursor:pointer;font-family:inherit;">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Log Out
+        </button>
       </div>
+
+      <div class="sidebar__user">
+        <div class="sidebar__user-avatar" id="sidebarAvatar">R</div>
+        <div>
+          <div class="sidebar__user-name" id="sidebarName">Resident</div>
+          <div class="sidebar__user-role" id="sidebarRole">Resident</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="resident-content">
+
+      <div class="topbar">
+        <button class="topbar__menu-btn" id="menuBtn">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <span class="topbar__title">Profile</span>
+        <button class="topbar__bell">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 0 1-6 0v-1m6 0H9" />
+          </svg>
+          <span class="topbar__bell-badge"></span>
+        </button>
+      </div>
+
+      <main class="resident-main">
+
+        <div class="page-header">
+          <h1>My Profile</h1>
+          <p>View and update your personal information</p>
+        </div>
+
+        <!-- Profile Avatar Card -->
+        <div class="profile-avatar-card">
+          <div class="profile-avatar" id="profileAvatar">R</div>
+          <div class="profile-avatar-info">
+            <div class="profile-avatar-name" id="profileName">Resident</div>
+            <div class="profile-avatar-zone" id="profileZone">Loading zone...</div>
+          </div>
+          <!-- Loyalty points -->
+          <div class="profile-points">
+            <div class="profile-points__value" id="profilePoints">—</div>
+            <div class="profile-points__label">Loyalty Points</div>
+          </div>
+        </div>
+
+        <!-- Edit Personal Info -->
+        <div class="section">
+          <div class="section__header">
+            <span class="section__title">Personal Information</span>
+          </div>
+          <div class="dashboard-form">
+            <form id="profileForm" novalidate>
+
+              <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" name="fullName" placeholder="Your full name" />
+                <span class="error-message" id="fullNameError">Full name is required</span>
+              </div>
+
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Your email" disabled />
+                <p class="field-note">Email cannot be changed. Contact admin if needed.</p>
+              </div>
+
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="07XXXXXXXX" />
+                <span class="error-message" id="phoneError">Phone number is required</span>
+              </div>
+
+              <!-- Zone change -->
+              <div class="form-group">
+                <label for="zone">Zone</label>
+                <select id="zone" name="zone">
+                  <option value="">— Loading zones... —</option>
+                </select>
+                <span class="error-message" id="zoneError">Please select a zone</span>
+                <p class="field-note">Only change this if you have moved to a different area.</p>
+              </div>
+
+              <div style="margin-top: 8px;">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="section">
+          <div class="section__header">
+            <span class="section__title">Change Password</span>
+          </div>
+          <div class="dashboard-form">
+            <form id="passwordForm" novalidate>
+
+              <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <div class="input-wrapper">
+                  <input type="password" id="currentPassword" name="currentPassword"
+                    placeholder="Enter current password" />
+                  <button type="button" class="toggle-password" data-target="currentPassword">Show</button>
+                </div>
+                <span class="error-message" id="currentPasswordError">Current password is required</span>
+              </div>
+
+              <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <div class="input-wrapper">
+                  <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" />
+                  <button type="button" class="toggle-password" data-target="newPassword">Show</button>
+                </div>
+                <span class="error-message" id="newPasswordError">Password must be at least 6 characters</span>
+              </div>
+
+              <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <div class="input-wrapper">
+                  <input type="password" id="confirmPassword" name="confirmPassword"
+                    placeholder="Repeat new password" />
+                  <button type="button" class="toggle-password" data-target="confirmPassword">Show</button>
+                </div>
+                <span class="error-message" id="confirmPasswordError">Passwords do not match</span>
+              </div>
+
+              <div style="margin-top: 8px;">
+                <button type="submit" class="btn btn-secondary">Update Password</button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Mobile bottom nav -->
+  <nav class="mob-nav">
+    <a class="mn-item" href="/resident/resident_schedule">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+      </svg>
+      <span>Schedule</span>
     </a>
-
-    <div class="sidebar__section">
-      <div class="sidebar__section-label">My Home</div>
-      <a href="/static/pages/resident/resident_dash.html" class="sidebar__nav-item">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        Dashboard
-      </a>
-      <a href="/static/pages/resident/resident_schedule.html" class="sidebar__nav-item">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        Collection Schedule
-      </a>
-      <a href="/static/pages/resident/resident_claims.html" class="sidebar__nav-item">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-        My Claims
-      </a>
-    </div>
-
-    <div class="sidebar__section">
-      <div class="sidebar__section-label">Account</div>
-      <a href="/static/pages/resident/resident_payments.html" class="sidebar__nav-item">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-        Submit Payment
-      </a>
-      <a href="/static/pages/resident/resident_profile.html" class="sidebar__nav-item active">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-        Profile
-      </a>
-      <button class="sidebar__nav-item logout-btn" id="logoutBtn" style="width:100%;background:none;border:none;cursor:pointer;font-family:inherit;">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-        Log Out
-      </button>
-    </div>
-
-    <div class="sidebar__user">
-      <div class="sidebar__user-avatar" id="sidebarAvatar">R</div>
-      <div>
-        <div class="sidebar__user-name" id="sidebarName">Resident</div>
-        <div class="sidebar__user-role" id="sidebarRole">Resident</div>
-      </div>
-    </div>
-  </aside>
-
-  <div class="resident-content">
-
-    <div class="topbar">
-      <button class="topbar__menu-btn" id="menuBtn">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
-      <span class="topbar__title">Profile</span>
-      <button class="topbar__bell">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 0 1-6 0v-1m6 0H9"/></svg>
-        <span class="topbar__bell-badge"></span>
-      </button>
-    </div>
-
-    <main class="resident-main">
-
-      <div class="page-header">
-        <h1>My Profile</h1>
-        <p>View and update your personal information</p>
-      </div>
-
-      <!-- Profile Avatar Card -->
-      <div class="profile-avatar-card">
-        <div class="profile-avatar" id="profileAvatar">R</div>
-        <div class="profile-avatar-info">
-          <div class="profile-avatar-name" id="profileName">Resident</div>
-          <div class="profile-avatar-zone" id="profileZone">Loading zone...</div>
-        </div>
-        <!-- Loyalty points -->
-        <div class="profile-points">
-          <div class="profile-points__value" id="profilePoints">—</div>
-          <div class="profile-points__label">Loyalty Points</div>
-        </div>
-      </div>
-
-      <!-- Edit Personal Info -->
-      <div class="section">
-        <div class="section__header">
-          <span class="section__title">Personal Information</span>
-        </div>
-        <div class="dashboard-form">
-          <form id="profileForm" novalidate>
-
-            <div class="form-group">
-              <label for="fullName">Full Name</label>
-              <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                placeholder="Your full name"
-              />
-              <span class="error-message" id="fullNameError">Full name is required</span>
-            </div>
-
-            <div class="form-group">
-              <label for="email">Email Address</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="Your email"
-                disabled
-              />
-              <p class="field-note">Email cannot be changed. Contact admin if needed.</p>
-            </div>
-
-            <div class="form-group">
-              <label for="phone">Phone Number</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                placeholder="07XXXXXXXX"
-              />
-              <span class="error-message" id="phoneError">Phone number is required</span>
-            </div>
-
-            <!-- Zone change -->
-            <div class="form-group">
-              <label for="zone">Zone</label>
-              <select id="zone" name="zone">
-                <option value="">— Loading zones... —</option>
-              </select>
-              <span class="error-message" id="zoneError">Please select a zone</span>
-              <p class="field-note">Only change this if you have moved to a different area.</p>
-            </div>
-
-            <div style="margin-top: 8px;">
-              <button type="submit" class="btn btn-primary">Save Changes</button>
-            </div>
-
-          </form>
-        </div>
-      </div>
-
-      <!-- Change Password -->
-      <div class="section">
-        <div class="section__header">
-          <span class="section__title">Change Password</span>
-        </div>
-        <div class="dashboard-form">
-          <form id="passwordForm" novalidate>
-
-            <div class="form-group">
-              <label for="currentPassword">Current Password</label>
-              <div class="input-wrapper">
-                <input
-                  type="password"
-                  id="currentPassword"
-                  name="currentPassword"
-                  placeholder="Enter current password"
-                />
-                <button type="button" class="toggle-password" data-target="currentPassword">Show</button>
-              </div>
-              <span class="error-message" id="currentPasswordError">Current password is required</span>
-            </div>
-
-            <div class="form-group">
-              <label for="newPassword">New Password</label>
-              <div class="input-wrapper">
-                <input
-                  type="password"
-                  id="newPassword"
-                  name="newPassword"
-                  placeholder="Enter new password"
-                />
-                <button type="button" class="toggle-password" data-target="newPassword">Show</button>
-              </div>
-              <span class="error-message" id="newPasswordError">Password must be at least 6 characters</span>
-            </div>
-
-            <div class="form-group">
-              <label for="confirmPassword">Confirm New Password</label>
-              <div class="input-wrapper">
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  placeholder="Repeat new password"
-                />
-                <button type="button" class="toggle-password" data-target="confirmPassword">Show</button>
-              </div>
-              <span class="error-message" id="confirmPasswordError">Passwords do not match</span>
-            </div>
-
-            <div style="margin-top: 8px;">
-              <button type="submit" class="btn btn-secondary">Update Password</button>
-            </div>
-
-          </form>
-        </div>
-      </div>
-
-    </main>
-  </div>
-</div>
-
-<!-- Mobile bottom nav -->
-<nav class="mob-nav">
-  <a class="mn-item" href="/static/pages/resident/resident_schedule.html">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2"/>
-      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-      <line x1="3" y1="10" x2="21" y2="10"/>
-    </svg>
-    <span>Schedule</span>
-  </a>
-  <a class="mn-item" href="/static/pages/resident/resident_claims.html">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-    </svg>
-    <span>Claims</span>
-  </a>
-  <a class="mn-item mn-home" href="/static/pages/resident/resident_dash.html">
-    <div class="mn-home-inner">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+    <a class="mn-item" href="/resident/resident_claims">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
       </svg>
-    </div>
-    <span>Home</span>
-  </a>
-  <a class="mn-item" href="/static/pages/resident/resident_payments.html">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="2" y="5" width="20" height="14" rx="2"/>
-      <line x1="2" y1="10" x2="22" y2="10"/>
-    </svg>
-    <span>Payments</span>
-  </a>
-  <div class="mn-profile-wrap">
-    <div class="mn-item active" onclick="toggleProfileDd(event)" style="flex:none;width:100%;justify-content:center;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
+      <span>Claims</span>
+    </a>
+    <a class="mn-item mn-home" href="/resident/dashboard">
+      <div class="mn-home-inner">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      </div>
+      <span>Home</span>
+    </a>
+    <a class="mn-item" href="/resident/resident_payments">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="5" width="20" height="14" rx="2" />
+        <line x1="2" y1="10" x2="22" y2="10" />
       </svg>
-      <span>Profile</span>
-    </div>
-    <div class="mn-profile-dd" id="profileDd">
-      <div class="dd-user">
-        <div class="dd-user-av" id="ddAvatar">R</div>
-        <div class="dd-user-name" id="ddName">Resident</div>
-        <div class="dd-user-role" id="ddRole">Zone A Resident</div>
+      <span>Payments</span>
+    </a>
+    <div class="mn-profile-wrap">
+      <div class="mn-item active" onclick="toggleProfileDd(event)" style="flex:none;width:100%;justify-content:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        <span>Profile</span>
       </div>
-      <a href="/static/pages/resident/resident_profile.html" class="dd-item">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-        My Profile
-      </a>
-      <a href="/static/pages/resident/settings.html" class="dd-item">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-        Settings
-      </a>
-      <div class="dd-item dd-logout" onclick="if(confirm('Logout?'))window.location.href='/logout'">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-        Logout
+      <div class="mn-profile-dd" id="profileDd">
+        <div class="dd-user">
+          <div class="dd-user-av" id="ddAvatar">R</div>
+          <div class="dd-user-name" id="ddName">Resident</div>
+          <div class="dd-user-role" id="ddRole">Zone A Resident</div>
+        </div>
+        <a href="/resident/resident_profile" class="dd-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          My Profile
+        </a>
+        <a href="/static/pages/resident/settings.html" class="dd-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          Settings
+        </a>
+        <div class="dd-item dd-logout" onclick="if(confirm('Logout?'))window.location.href='/logout'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Logout
+        </div>
       </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
   <script src="/static/js/auth.js"></script>
   <script src="/static/js/resident_profile.js"></script>
@@ -302,7 +315,7 @@
       dd.classList.toggle('show');
     }
     // Close dropdown when clicking elsewhere
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       const dd = document.getElementById('profileDd');
       if (dd && !e.target.closest('.mn-profile-wrap')) {
         dd.classList.remove('show');
@@ -310,4 +323,5 @@
     });
   </script>
 </body>
+
 </html>

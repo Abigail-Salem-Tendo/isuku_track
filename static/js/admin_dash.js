@@ -67,24 +67,13 @@ document.addEventListener('DOMContentLoaded', function () {
   function getDefaultState() {
     return {
       residents: 1204,
-      zones: [
-        { id: 1, name: 'Zone A', location: 'Gasabo · Kimironko', operator: 'Jean P.', schedule: 'Completed', claims: 2 },
-        { id: 2, name: 'Zone B', location: 'Gasabo · Bibare', operator: 'Amina K.', schedule: 'Ongoing', claims: 5 },
-        { id: 3, name: 'Zone C', location: 'Kacyiru · Nyarutarama', operator: 'Eric M.', schedule: 'Pending', claims: 1 },
-        { id: 4, name: 'Zone D', location: 'Gasabo · Kibagabaga', operator: 'Diane U.', schedule: 'Completed', claims: 0 },
-        { id: 5, name: 'Zone E', location: 'Gasabo · Rwezamenyo', operator: 'Patrick N.', schedule: 'Ongoing', claims: 3 }
-      ],
+      zones : [],
+      vehicles : [],
       claims: [
         { id: 'CLM-4012', title: 'Overflow at KG 11 Ave', zone: 'Zone A', when: '2h ago', status: 'Open' },
         { id: 'CLM-4018', title: 'Illegal dumping — KN 5', zone: 'Zone B', when: '4h ago', status: 'In Progress' },
         { id: 'CLM-4021', title: 'Missed collection', zone: 'Zone B', when: 'Yesterday', status: 'Resolved' },
         { id: 'CLM-4032', title: 'Damaged bin — Street 4', zone: 'Zone E', when: 'Yesterday', status: 'Open' }
-      ],
-      vehicles: [
-        { id: 1, plate: 'RAD 001A', driver: 'Jean-Claude M.', phone: '0788 123 456', status: 'In Use' },
-        { id: 2, plate: 'RAD 002B', driver: 'Claudine U.', phone: '0722 987 654', status: 'Available' },
-        { id: 3, plate: 'RAD 003C', driver: 'Patrick N.', phone: '0755 456 789', status: 'Maintenance' },
-        { id: 4, plate: 'RAD 004D', driver: 'Amina K.', phone: '0788 321 654', status: 'In Use' }
       ],
       reports: [
         { id: 1, zone: 'Zone A', operator: 'Jean P.', submitted: 'Sun 8 Mar', note: 'Auto-generated', claims: 12, resolved: 10, payments: 28, revenue: 28000, status: 'Reviewed' },
@@ -100,6 +89,52 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveState() {
     // Data is persisted to backend via API calls
+  }
+  // --- INTEGRATION: Fetch Live Telemetry  ---
+  async function fetchLiveTelemetry() {
+    try {
+      // Fetch only Zones and Vehicles
+      const [zonesData, vehiclesData] = await Promise.all([
+          API.get('/zones/'),
+          API.get('/vehicles/')
+      ]);
+
+      // Map backend Zone data to frontend table format
+      state.zones = zonesData.map(function(z) {
+          return {
+              id: z.id,
+              name: z.name,
+              location: z.district + ' · ' + z.sector,
+              operator: z.zone_operator_name || 'Unassigned',
+              schedule: z.zone_operator_name ? 'Ongoing' : 'Pending', // Simulated schedule status
+              claims: 0 
+          };
+      });
+
+      // Map backend Vehicle data to frontend list format
+      state.vehicles = vehiclesData.map(function(v) {
+          // Convert snake_case status to Title Case
+          var statusDisplay = 'Available';
+          if (v.status === 'in_use') statusDisplay = 'In Use';
+          if (v.status === 'maintenance') statusDisplay = 'Maintenance';
+
+          return {
+              id: v.id,
+              plate: v.plate_number,
+              driver: v.driver_name,
+              phone: v.driver_phone,
+              status: statusDisplay
+          };
+      });
+
+      // Re-render the dashboard UI with the fresh data!
+      renderAll();
+      showToast('Zones and Fleet synced', false);
+
+    } catch (error) {
+      console.error("Failed to load live dashboard data:", error);
+      showToast("Sync failed: Check network", true);
+    }
   }
 
   function showToast(message, isError) {
@@ -224,12 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var formHtml = '';
 
     if (action === 'new-zone') {
-      modalTitle.textContent = 'Create New Zone';
-      formHtml =
-        '<label class="mf-lbl">Zone Name<input class="mf-in" name="zoneName" required placeholder="Zone F" /></label>' +
-        '<label class="mf-lbl">District / Sector<input class="mf-in" name="zoneLocation" required placeholder="Gasabo · Gisozi" /></label>' +
-        '<label class="mf-lbl">Operator<input class="mf-in" name="zoneOperator" required placeholder="Nadine T." /></label>' +
-        '<div class="mf-actions"><button type="button" class="mf-btn sec" data-close-modal>Cancel</button><button type="submit" class="mf-btn">Save Zone</button></div>';
+      window.location.href = '/templates/interactive-map.html';
     }
 
     if (action === 'create-schedule') {
@@ -639,6 +669,7 @@ document.addEventListener('DOMContentLoaded', function () {
   bindActions();
   setActiveNav('overview');
   renderAll();
+  fetchLiveTelemetry();
 
   document.querySelectorAll('.mob-nav .mn-item[href]').forEach(function (el) {
     el.addEventListener('click', function (event) {

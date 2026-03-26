@@ -592,6 +592,7 @@ body {
 
 @media (max-width: 680px) {
   body { padding-bottom: 0; }
+  body.sb-open .mob-nav { display: none !important; }
   .sb { transform: translateX(-100%); transition: transform .28s cubic-bezier(.4,0,.2,1); z-index: 100; }
   .sb.open { transform: translateX(0); box-shadow: 4px 0 32px rgba(0,0,0,.3); }
   .overlay.open { display: block; }
@@ -601,7 +602,8 @@ body {
   .sb.open ~ .main .map-container { opacity: 0; pointer-events: none; }
 
   .topbar { padding: 12px 18px; }
-  .tb-r .icon-btn, .tb-r .av { display: none; }
+  .tb-l { display: flex; align-items: center; gap: 12px; }
+  .tb-r .av { display: none; }
   .tb-l h1 { font-size: 1rem; }
   .tb-l p  { display: none; }
   .ham { display: flex; }
@@ -712,4 +714,297 @@ body {
 .chart-container {
   position: relative;
   height: 200px;
+}
+
+/* ============================================
+   LOYALTY POINTS STYLES
+   ============================================ */
+
+/* Points badge in claims */
+.points-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  font-size: .62rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+  letter-spacing: .3px;
+}
+
+/* Points awarded (for resolved claims) */
+.points-awarded {
+  display: inline-block;
+  background: var(--g-light);
+  color: var(--g1);
+  font-size: .62rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* Loyalty points in residents list */
+.loyalty-pts {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff8ec;
+  padding: 4px 10px;
+  border-radius: 12px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+.loyalty-pts svg {
+  flex-shrink: 0;
+}
+.loyalty-pts span {
+  font-size: .78rem;
+  font-weight: 700;
+  color: #d97706;
+}
+
+/* Top contributor item */
+.top-contributor {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.top-contributor:last-child {
+  border-bottom: none;
+}
+.tc-rank {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--g-light);
+  color: var(--g1);
+  font-size: .75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tc-rank.gold {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+}
+.tc-rank.silver {
+  background: linear-gradient(135deg, #9ca3af, #6b7280);
+  color: #fff;
+}
+.tc-rank.bronze {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #fff;
+}
+.tc-av {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--g-light);
+  color: var(--g1);
+  font-size: .7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tc-info {
+  flex: 1;
+  min-width: 0;
+}
+.tc-name {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--txt);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tc-sub {
+  font-size: .72rem;
+  color: var(--txt-l);
+}
+.tc-points {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: .78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: linear-gradient(135deg, var(--g1), var(--g2));
+  color: #fff;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: .88rem;
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(46, 125, 82, .4);
+  z-index: 300;
+  opacity: 0;
+  transition: all .3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+.toast svg {
+  flex-shrink: 0;
+}
+.toast-points {
+  background: rgba(255,255,255,.2);
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--txt-l);
+}
+.empty-state svg {
+  margin-bottom: 12px;
+  opacity: .5;
+}
+.empty-state p {
+  font-size: .85rem;
+}
+
+/* ============================================
+   MAP FULLSCREEN STYLES
+   ============================================ */
+
+/* Fullscreen button */
+.fullscreen-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: var(--g-light);
+  color: var(--g1);
+  cursor: pointer;
+  transition: all .2s;
+}
+.fullscreen-btn:hover {
+  background: var(--g1);
+  color: #fff;
+}
+
+/* Map card fullscreen mode */
+.map-card.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  margin: 0 !important;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+}
+.map-card.fullscreen .ch {
+  border-radius: 0;
+  padding: 16px 24px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+}
+.map-card.fullscreen .cb {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.map-card.fullscreen .map-container {
+  flex: 1;
+  height: auto !important;
+  min-height: 0;
+  border-radius: 0;
+}
+.map-card.fullscreen .map-legend {
+  padding: 12px 24px;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  margin: 0 !important;
+}
+
+/* Map container base */
+.map-container {
+  height: 280px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #e8f0eb;
+}
+
+/* Fullscreen overlay */
+.fullscreen-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 999;
+}
+.fullscreen-overlay.show {
+  display: block;
+}
+
+/* Trash bin custom marker */
+.leaflet-bin-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bin-marker {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s;
+}
+.bin-marker:hover {
+  transform: scale(1.15);
+}
+.bin-marker.active {
+  background: linear-gradient(135deg, #48a870, #2e7d52);
+}
+.bin-marker.attention {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+.bin-marker svg {
+  width: 16px;
+  height: 16px;
+  fill: #fff;
 }

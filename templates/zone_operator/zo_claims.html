@@ -122,6 +122,9 @@
 <div class="main">
   <div class="topbar">
     <div class="tb-l">
+      <div class="ham" onclick="toggleSb()" aria-label="Toggle sidebar" role="button">
+        <span></span><span></span><span></span>
+      </div>
       <h1>Claims to Review</h1>
       <p>Kimironko Zone A · 7 pending claims</p>
     </div>
@@ -134,9 +137,6 @@
         <div class="notif-dot"></div>
       </div>
       <div class="av">JP</div>
-      <div class="ham" onclick="toggleSb()">
-        <span></span><span></span><span></span>
-      </div>
     </div>
   </div>
 
@@ -145,23 +145,23 @@
     <div class="sg">
       <div class="sc">
         <div class="sc-lbl">Pending</div>
-        <div class="sc-val" style="color:var(--red)">7</div>
+        <div class="sc-val" style="color:var(--red)" id="pendingCount">7</div>
         <div class="sc-sub"><span class="dn">2 urgent</span></div>
       </div>
       <div class="sc">
         <div class="sc-lbl">In Progress</div>
-        <div class="sc-val" style="color:#a06010">3</div>
+        <div class="sc-val" style="color:#a06010" id="inProgressCount">3</div>
         <div class="sc-sub">being reviewed</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Resolved</div>
-        <div class="sc-val">18</div>
+        <div class="sc-val" id="resolvedCount">18</div>
         <div class="sc-sub">this month</div>
       </div>
       <div class="sc">
-        <div class="sc-lbl">Avg Response</div>
-        <div class="sc-val" style="font-size:1.2rem">4.2h</div>
-        <div class="sc-sub"><span class="up">↓0.8h</span> faster</div>
+        <div class="sc-lbl">Points Awarded</div>
+        <div class="sc-val" style="color:#f59e0b" id="totalPointsAwarded">0</div>
+        <div class="sc-sub">this month</div>
       </div>
     </div>
 
@@ -175,11 +175,11 @@
     <div class="card">
       <div class="ch">
         <div class="ct">All Claims</div>
-        <span class="b op" style="font-size:.73rem;">7 pending</span>
+        <span class="b op" style="font-size:.73rem;" id="pendingBadge">7 pending</span>
       </div>
-      <div class="cb">
+      <div class="cb" id="claimsListContainer">
 
-        <div class="ci">
+        <div class="ci" data-category="overflow" data-claim-id="1">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3 6 5 6 21 6"/>
@@ -188,16 +188,16 @@
             </svg>
           </div>
           <div>
-            <div class="ci-ttl">Overflow — KG 11 Ave &nbsp;<span class="b op" style="font-size:.62rem;">Urgent</span></div>
+            <div class="ci-ttl">Overflow — KG 11 Ave &nbsp;<span class="b op" style="font-size:.62rem;">Urgent</span> <span class="points-badge">+15 pts</span></div>
             <div class="ci-meta">Alice M. · 2h ago</div>
           </div>
           <div class="ci-acts">
-            <button class="btn-ok">Approve</button>
+            <button class="btn-ok" onclick="approveClaim(this, 15, 'Alice M.')">Approve</button>
             <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
           </div>
         </div>
 
-        <div class="ci">
+        <div class="ci" data-category="illegal_dumping" data-claim-id="2">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
@@ -205,16 +205,16 @@
             </svg>
           </div>
           <div>
-            <div class="ci-ttl">Illegal dumping — KN 5 Rd &nbsp;<span class="b op" style="font-size:.62rem;">Urgent</span></div>
+            <div class="ci-ttl">Illegal dumping — KN 5 Rd &nbsp;<span class="b op" style="font-size:.62rem;">Urgent</span> <span class="points-badge">+20 pts</span></div>
             <div class="ci-meta">Bob N. · 4h ago</div>
           </div>
           <div class="ci-acts">
-            <button class="btn-ok">Approve</button>
+            <button class="btn-ok" onclick="approveClaim(this, 20, 'Bob N.')">Approve</button>
             <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
           </div>
         </div>
 
-        <div class="ci">
+        <div class="ci" data-category="overflow" data-claim-id="3">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3 6 5 6 21 6"/>
@@ -223,16 +223,16 @@
             </svg>
           </div>
           <div>
-            <div class="ci-ttl">Overflow — KG 9 Ave</div>
+            <div class="ci-ttl">Overflow — KG 9 Ave <span class="points-badge">+15 pts</span></div>
             <div class="ci-meta">Marie J. · 6h ago</div>
           </div>
           <div class="ci-acts">
-            <button class="btn-ok">Approve</button>
+            <button class="btn-ok" onclick="approveClaim(this, 15, 'Marie J.')">Approve</button>
             <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
           </div>
         </div>
 
-        <div class="ci">
+        <div class="ci" data-category="missed_collection" data-claim-id="4">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -241,7 +241,7 @@
             </svg>
           </div>
           <div>
-            <div class="ci-ttl">Missed collection — Kamatamu</div>
+            <div class="ci-ttl">Missed collection — Kamatamu <span class="points-badge">+10 pts</span></div>
             <div class="ci-meta">Grace K. · Yesterday</div>
           </div>
           <div class="ci-acts">
@@ -249,7 +249,7 @@
           </div>
         </div>
 
-        <div class="ci">
+        <div class="ci" data-category="damaged_infrastructure" data-claim-id="5">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
@@ -258,16 +258,16 @@
             </svg>
           </div>
           <div>
-            <div class="ci-ttl">Damaged bin — Street 4</div>
+            <div class="ci-ttl">Damaged bin — Street 4 <span class="points-badge">+25 pts</span></div>
             <div class="ci-meta">David U. · 2 days ago</div>
           </div>
           <div class="ci-acts">
-            <button class="btn-ok">Approve</button>
+            <button class="btn-ok" onclick="approveClaim(this, 25, 'David U.')">Approve</button>
             <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
           </div>
         </div>
 
-        <div class="ci">
+        <div class="ci" data-category="other" data-claim-id="6">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="1" y="3" width="15" height="13"/>
@@ -276,7 +276,7 @@
             </svg>
           </div>
           <div>
-            <div class="ci-ttl">Vehicle blocking access — KN 3</div>
+            <div class="ci-ttl">Vehicle blocking access — KN 3 <span class="points-badge">+5 pts</span></div>
             <div class="ci-meta">Paul R. · 1 day ago</div>
           </div>
           <div class="ci-acts">
@@ -284,7 +284,7 @@
           </div>
         </div>
 
-        <div class="ci">
+        <div class="ci" data-category="other" data-claim-id="7">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -292,16 +292,16 @@
             </svg>
           </div>
           <div>
-            <div class="ci-ttl">Noise during collection — KG 15</div>
+            <div class="ci-ttl">Noise during collection — KG 15 <span class="points-badge">+5 pts</span></div>
             <div class="ci-meta">Sara O. · 2 days ago</div>
           </div>
           <div class="ci-acts">
-            <button class="btn-ok">Approve</button>
+            <button class="btn-ok" onclick="approveClaim(this, 5, 'Sara O.')">Approve</button>
             <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
           </div>
         </div>
 
-        <div class="ci">
+        <div class="ci" data-category="missed_collection" data-claim-id="8">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3 6 5 6 21 6"/>
@@ -310,16 +310,16 @@
             </svg>
           </div>
           <div>
-            <div class="ci-ttl">Missed collection — KG 15 Ave</div>
+            <div class="ci-ttl">Missed collection — KG 15 Ave <span class="points-badge">+10 pts</span></div>
             <div class="ci-meta">John M. · 3 days ago</div>
           </div>
           <div class="ci-acts">
-            <button class="btn-ok">Approve</button>
+            <button class="btn-ok" onclick="approveClaim(this, 10, 'John M.')">Approve</button>
             <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
           </div>
         </div>
 
-        <div class="ci">
+        <div class="ci resolved" data-category="damaged_infrastructure" data-claim-id="9">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
@@ -327,7 +327,7 @@
             </svg>
           </div>
           <div>
-            <div class="ci-ttl">Bin replacement — KG 7 Ave</div>
+            <div class="ci-ttl">Bin replacement — KG 7 Ave <span class="points-awarded">+25 pts awarded</span></div>
             <div class="ci-meta">Eve K. · 5 days ago</div>
           </div>
           <div class="ci-acts">
@@ -363,8 +363,7 @@
   <a class="mn-item mn-home" href="zo_dash.html">
     <div class="mn-home-inner">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
       </svg>
     </div>
     <span>Home</span>
