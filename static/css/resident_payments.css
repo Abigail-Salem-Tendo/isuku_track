@@ -1,0 +1,841 @@
+/* ============================================
+   RESIDENT PAYMENTS MODULE CSS
+   Modern, Responsive Design System - Light Theme Only
+   ============================================ */
+
+/* CSS Variables - Light Theme Only */
+:root {
+  --rp-primary: #2e7d52;
+  --rp-primary-dark: #236b44;
+  --rp-primary-light: #e8f3ee;
+  --rp-secondary: #f59e0b;
+  --rp-danger: #dc2626;
+  --rp-danger-light: #fee2e2;
+  --rp-success: #10b981;
+  --rp-success-light: #d1fae5;
+  --rp-warning: #f59e0b;
+  --rp-warning-light: #fef3c7;
+  --rp-info: #3b82f6;
+  --rp-info-light: #dbeafe;
+  --rp-gray-50: #f9fafb;
+  --rp-gray-100: #f3f4f6;
+  --rp-gray-200: #e5e7eb;
+  --rp-gray-300: #d1d5db;
+  --rp-gray-400: #9ca3af;
+  --rp-gray-500: #6b7280;
+  --rp-gray-600: #4b5563;
+  --rp-gray-700: #374151;
+  --rp-gray-800: #1f2937;
+  --rp-gray-900: #111827;
+  --rp-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --rp-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --rp-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --rp-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  --rp-radius-sm: 0.375rem;
+  --rp-radius-md: 0.5rem;
+  --rp-radius-lg: 0.75rem;
+  --rp-radius-xl: 1rem;
+}
+
+/* ============================================
+   RESIDENT PAYMENT SUMMARY CARDS
+   ============================================ */
+.rp-payment-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.rp-summary-card {
+  background: #ffffff;
+  border-radius: var(--rp-radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--rp-shadow-sm);
+  transition: all 0.3s ease;
+  border: 1px solid var(--rp-gray-200);
+}
+
+.rp-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--rp-shadow-md);
+}
+
+.rp-summary-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--rp-primary-light);
+  border-radius: var(--rp-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rp-primary);
+}
+
+.rp-summary-content {
+  flex: 1;
+}
+
+.rp-summary-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  color: var(--rp-gray-500);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.rp-summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--rp-gray-900);
+  display: block;
+  line-height: 1.2;
+}
+
+.rp-summary-sub {
+  font-size: 0.75rem;
+  color: var(--rp-gray-500);
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* Specific card styles */
+.rp-summary-card--collected .rp-summary-icon {
+  background: var(--rp-success-light);
+  color: var(--rp-success);
+}
+
+.rp-summary-card--pending .rp-summary-icon {
+  background: var(--rp-warning-light);
+  color: var(--rp-warning);
+}
+
+.rp-summary-card--target .rp-summary-icon {
+  background: var(--rp-info-light);
+  color: var(--rp-info);
+}
+
+.rp-summary-card--rate .rp-summary-icon {
+  background: var(--rp-primary-light);
+  color: var(--rp-primary);
+}
+
+/* ============================================
+   QUICK ACTIONS
+   ============================================ */
+.rp-quick-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.rp-quick-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: #ffffff;
+  border: 1px solid var(--rp-gray-300);
+  border-radius: var(--rp-radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--rp-gray-700);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rp-quick-action-btn:hover {
+  background: var(--rp-gray-50);
+  border-color: var(--rp-gray-400);
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   FILTER TABS
+   ============================================ */
+.rp-ftabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--rp-gray-200);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.rp-ftab {
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--rp-gray-600);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  white-space: nowrap;
+}
+
+.rp-ftab:hover {
+  color: var(--rp-primary);
+}
+
+.rp-ftab.on {
+  color: var(--rp-primary);
+}
+
+.rp-ftab.on::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--rp-primary);
+  border-radius: 2px;
+}
+
+.rp-ftab-count {
+  display: inline-block;
+  background: var(--rp-gray-200);
+  color: var(--rp-gray-600);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 1rem;
+  margin-left: 0.5rem;
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.rp-card {
+  background: #ffffff;
+  border-radius: var(--rp-radius-lg);
+  box-shadow: var(--rp-shadow-sm);
+  border: 1px solid var(--rp-gray-200);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.rp-card-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--rp-gray-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.rp-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--rp-gray-900);
+}
+
+.rp-card-subtitle {
+  font-size: 0.875rem;
+  color: var(--rp-gray-500);
+}
+
+.rp-card-body {
+  padding: 1.5rem;
+}
+
+/* ============================================
+   PAYMENT TABLE
+   ============================================ */
+.rp-table-scroll {
+  overflow-x: auto;
+}
+
+.rp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rp-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: var(--rp-gray-50);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--rp-gray-500);
+  border-bottom: 1px solid var(--rp-gray-200);
+}
+
+.rp-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--rp-gray-200);
+  font-size: 0.875rem;
+  color: var(--rp-gray-700);
+}
+
+.rp-table tr:hover {
+  background: var(--rp-gray-50);
+}
+
+/* Payment Method Badges */
+.rp-pay-method {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.rp-pay-method.momo {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.rp-pay-method.airtel {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.rp-pay-method.bank {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.rp-pay-method.cash {
+  background: #d1fae5;
+  color: #059669;
+}
+
+/* Status Badges */
+.rp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.rp-badge.pending {
+  background: var(--rp-warning-light);
+  color: var(--rp-warning);
+}
+
+.rp-badge.approved {
+  background: var(--rp-success-light);
+  color: var(--rp-success);
+}
+
+.rp-badge.rejected {
+  background: var(--rp-danger-light);
+  color: var(--rp-danger);
+}
+
+.rp-amount-cell {
+  font-weight: 600;
+  color: var(--rp-gray-900);
+}
+
+/* Table Pagination */
+.rp-table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--rp-gray-200);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.rp-pag-info {
+  font-size: 0.875rem;
+  color: var(--rp-gray-500);
+}
+
+.rp-pag-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.rp-pag-btn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--rp-gray-300);
+  background: #ffffff;
+  border-radius: var(--rp-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--rp-gray-600);
+}
+
+.rp-pag-btn:hover:not(:disabled) {
+  border-color: var(--rp-primary);
+  color: var(--rp-primary);
+}
+
+.rp-pag-btn.active {
+  background: var(--rp-primary);
+  border-color: var(--rp-primary);
+  color: #ffffff;
+}
+
+.rp-pag-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Button Styles */
+.rp-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: var(--rp-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--rp-radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rp-btn-primary:hover {
+  background: var(--rp-primary-dark);
+  transform: translateY(-1px);
+}
+
+.rp-btn-primary:active {
+  transform: translateY(0);
+}
+
+.rp-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: #ffffff;
+  color: var(--rp-danger);
+  border: 1px solid var(--rp-danger);
+  border-radius: var(--rp-radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rp-btn-secondary:hover {
+  background: var(--rp-danger-light);
+}
+
+.rp-btn-link {
+  background: none;
+  border: none;
+  color: var(--rp-primary);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: color 0.2s ease;
+}
+
+.rp-btn-link:hover {
+  color: var(--rp-primary-dark);
+  text-decoration: underline;
+}
+
+/* ============================================
+   MODAL/POPUP STYLES WITH BLUR EFFECT
+   ============================================ */
+.rp-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.rp-modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.rp-modal {
+  background: #ffffff;
+  border-radius: var(--rp-radius-xl);
+  width: 90%;
+  max-width: 550px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--rp-shadow-xl);
+  animation: rpModalSlideIn 0.3s ease;
+}
+
+@keyframes rpModalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.rp-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--rp-gray-200);
+}
+
+.rp-modal-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--rp-gray-900);
+  margin: 0;
+}
+
+.rp-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--rp-gray-400);
+  padding: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--rp-radius-sm);
+  transition: all 0.2s ease;
+}
+
+.rp-modal-close:hover {
+  color: var(--rp-gray-600);
+  background: var(--rp-gray-100);
+}
+
+.rp-modal-content {
+  padding: 1.5rem;
+}
+
+.rp-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--rp-gray-200);
+}
+
+/* Payment Detail Modal */
+.rp-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.rp-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.rp-detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--rp-gray-500);
+}
+
+.rp-detail-value {
+  font-size: 0.875rem;
+  color: var(--rp-gray-900);
+  font-weight: 500;
+}
+
+.rp-detail-amount {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--rp-primary);
+}
+
+/* Form Styles */
+.rp-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.rp-form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--rp-gray-700);
+  margin-bottom: 0.5rem;
+}
+
+.rp-form-group input,
+.rp-form-group select,
+.rp-form-group textarea {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--rp-gray-300);
+  border-radius: var(--rp-radius-md);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  background: #ffffff;
+}
+
+.rp-form-group input:focus,
+.rp-form-group select:focus,
+.rp-form-group textarea:focus {
+  outline: none;
+  border-color: var(--rp-primary);
+  box-shadow: 0 0 0 3px rgba(46, 125, 82, 0.1);
+}
+
+.rp-form-group input.error,
+.rp-form-group select.error {
+  border-color: var(--rp-danger);
+}
+
+.rp-error-message {
+  display: none;
+  font-size: 0.75rem;
+  color: var(--rp-danger);
+  margin-top: 0.25rem;
+}
+
+.rp-error-message.visible {
+  display: block;
+}
+
+/* File Input Styling */
+.rp-file-input-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  border: 2px dashed var(--rp-gray-300);
+  border-radius: var(--rp-radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--rp-gray-50);
+}
+
+.rp-file-input-wrapper:hover {
+  border-color: var(--rp-primary);
+  background: var(--rp-primary-light);
+}
+
+.rp-file-input-wrapper input[type="file"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+
+.rp-file-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--rp-gray-600);
+  margin-bottom: 0.25rem;
+}
+
+.rp-file-hint {
+  font-size: 0.75rem;
+  color: var(--rp-gray-400);
+}
+
+/* Form Row */
+.rp-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 0;
+}
+
+/* ============================================
+   TOAST NOTIFICATIONS
+   ============================================ */
+.rp-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: #ffffff;
+  border-radius: var(--rp-radius-md);
+  box-shadow: var(--rp-shadow-lg);
+  z-index: 1100;
+  transform: translateX(400px);
+  transition: transform 0.3s ease;
+  border-left: 4px solid var(--rp-success);
+}
+
+.rp-toast.show {
+  transform: translateX(0);
+}
+
+.rp-toast-success {
+  border-left-color: var(--rp-success);
+}
+
+.rp-toast-success svg {
+  color: var(--rp-success);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+  .rp-payment-summary {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .rp-summary-card {
+    padding: 0.875rem;
+  }
+
+  .rp-summary-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .rp-summary-value {
+    font-size: 1.125rem;
+  }
+
+  .rp-quick-actions {
+    flex-direction: column;
+  }
+
+  .rp-quick-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .rp-ftabs {
+    gap: 0;
+  }
+
+  .rp-ftab {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.813rem;
+  }
+
+  .rp-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .rp-card-body {
+    padding: 1rem;
+  }
+
+  .rp-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .rp-table-pagination {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .rp-modal {
+    width: 95%;
+    margin: 1rem;
+  }
+
+  .rp-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rp-modal-actions {
+    flex-direction: column;
+  }
+
+  .rp-modal-actions button {
+    width: 100%;
+  }
+
+  .rp-toast {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    transform: translateY(400px);
+  }
+
+  .rp-toast.show {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .rp-payment-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .rp-table th,
+  .rp-table td {
+    padding: 0.75rem;
+  }
+
+  .rp-pay-method {
+    font-size: 0.7rem;
+    padding: 0.125rem 0.5rem;
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes rpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rp-card {
+  animation: rpFadeIn 0.3s ease;
+}
+
+/* Loading State */
+.rp-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}

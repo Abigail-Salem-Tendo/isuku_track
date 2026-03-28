@@ -9,6 +9,10 @@ const PANE_CONFIG = {
     title: 'Create your account',
     subtitle: 'Register as a resident in Kimironko',
   },
+  forgot: {
+    title: 'Reset your password',
+    subtitle: 'Enter your email to receive reset instructions',
+  },
 };
 
 // ── Tab switching ──
@@ -20,8 +24,15 @@ function switchPane(target) {
     pane.classList.toggle('auth-pane--active', pane.id === `pane-${target}`);
   });
   const config = PANE_CONFIG[target];
-  document.getElementById('formTitle').textContent    = config.title;
+  document.getElementById('formTitle').textContent = config.title;
   document.getElementById('formSubtitle').textContent = config.subtitle;
+
+  // Reset forgot password form if switching away
+  const forgotForm = document.getElementById('forgotPasswordForm');
+  if (forgotForm && target !== 'forgot') {
+    forgotForm.style.display = 'block';
+    forgotForm.reset();
+  }
 }
 
 document.querySelectorAll('.auth-tab').forEach((tab) => {
@@ -39,9 +50,9 @@ document.querySelectorAll('[data-switch]').forEach((link) => {
 
 document.querySelectorAll('.toggle-password').forEach((btn) => {
   btn.addEventListener('click', () => {
-    const input   = document.getElementById(btn.dataset.target);
+    const input = document.getElementById(btn.dataset.target);
     const isHidden = input.type === 'password';
-    input.type     = isHidden ? 'text' : 'password';
+    input.type = isHidden ? 'text' : 'password';
     btn.textContent = isHidden ? 'Hide' : 'Show';
   });
 });
@@ -70,13 +81,15 @@ function handleAuthSuccess(data) {
   localStorage.setItem('user', JSON.stringify(data.user));
 
   const role = data.user.role;
+  //referencing from the html pages themselves
   if (role === 'admin') {
-    window.location.href = '/admin/dashboard';
+    window.location.href = '/templates/admin/admin_dash.html';
   } else if (role === 'zone_operator') {
-    window.location.href = '/zone-operator/dashboard';
+    window.location.href = '/templates/zone_operator/zo_dash.html';
   } else {
     window.location.href = '/resident/dashboard';
   }
+  
 }
 
 // ── Load zones into the dropdown ──
@@ -207,5 +220,50 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   } finally {
     btn.disabled = false;
     btn.textContent = 'Create Account';
+  }
+});
+
+// ── Forgot Password form submit ──
+
+document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearErrors();
+
+  const email = document.getElementById('forgotEmail').value.trim();
+
+  if (!email) return showError('forgotEmailError', 'Please enter your email');
+
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  try {
+    const res = await fetch(`${API_BASE}/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError('forgotEmailError', data.error || 'Failed to send reset link');
+      return;
+    }
+
+    // Show success message
+    const formTitle = document.getElementById('formTitle');
+    const formSubtitle = document.getElementById('formSubtitle');
+    const form = document.getElementById('forgotPasswordForm');
+
+    formTitle.textContent = 'Check your email';
+    formSubtitle.textContent = `We've sent password reset instructions to ${email}`;
+    form.style.display = 'none';
+
+  } catch (err) {
+    showError('forgotEmailError', 'Network error — please try again');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send Reset Link';
   }
 });
