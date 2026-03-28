@@ -1,51 +1,67 @@
-//Helper to implement 'DRY' programming for our api calls
+
 
 const CONFIG = {
-    API_BASE_URL: 'http://127.0.0.1:5000/api' 
+    // production URL when ready deploy
+    API_BASE_URL: 'http://127.0.0.1:5000/api',
+    
+    // 2 minutes = 120,000 ms
+    CACHE_TTL: 120000 
 };
 
 const API = {
-    /**
-     * Master fetch function that handles headers, tokens, and error parsing automatically.
-     */
+   
     request: async function(endpoint, method = 'GET', body = null) {
         const token = localStorage.getItem('access_token');
-        
-        const headers = {
-            'Content-Type': 'application/json'
-        };
+        const formattedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+        const url = `${CONFIG.API_BASE_URL}${formattedEndpoint}`;
+        const cacheKey = `isuku_cache_${formattedEndpoint}`;
 
-        // Automatically attach the JWT if the user is logged in
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
+        // --- 1. SMART CACHE INTERCEPT (GET Requests Only) ---
+        if (method === 'GET') {
+            const cachedData = sessionStorage.getItem(cacheKey);
+            if (cachedData) {
+                const parsedCache = JSON.parse(cachedData);
+                const now = new Date().getTime();
+                
+                // If the cache is younger than our TTL, return it instantly
+                if (now - parsedCache.timestamp < CONFIG.CACHE_TTL) {
+                    console.log(`⚡ [Cache Hit] Loaded instantly: ${formattedEndpoint}`);
+                    return parsedCache.data;
+                }
+            }
+        } else {
+            // --- 2. CACHE INVALIDATION ---
+            // If we are doing a POST, PUT, or DELETE, the database is changing.
+            
+            this.clearCache();
         }
 
-        const options = {
-            method: method,
-            headers: headers
-        };
+        // --- 3. NETWORK REQUEST ---
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        if (body) {
-            options.body = JSON.stringify(body);
-        }
+        const options = { method: method, headers: headers };
+        if (body) options.body = JSON.stringify(body);
 
         try {
-            // Ensure endpoint starts with a slash
-            const formattedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-            const response = await fetch(`${CONFIG.API_BASE_URL}${formattedEndpoint}`, options);
+            const response = await fetch(url, options);
             
-            // Global check for expired tokens / unauthorized access
             if (response.status === 401) {
                 console.warn("Unauthorized: Token may be expired.");
-                // Forcing logout by redirecting to login page
-                // window.location.href = '/login';
             }
 
             const data = await response.json();
 
-            // If the backend returns an error (400, 404, 500, etc.), throwing it so the UI can catch it
             if (!response.ok) {
                 throw new Error(data.error || data.message || 'API request failed');
+            }
+
+            // --- 4. SAVE TO CACHE ---
+            if (method === 'GET') {
+                sessionStorage.setItem(cacheKey, JSON.stringify({
+                    timestamp: new Date().getTime(),
+                    data: data
+                }));
             }
 
             return data;
@@ -55,20 +71,22 @@ const API = {
         }
     },
 
-    // ---  Convenience Methods ---
-    get: function(endpoint) { 
-        return this.request(endpoint, 'GET'); 
+    // --- Cache Nuke Utility ---
+    clearCache: function() {
+        const keysToRemove = [];
+        for (let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i);
+            if (key.startsWith('isuku_cache_')) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(key => sessionStorage.removeItem(key));
+        console.log("🔥 [Cache Cleared] Database mutation detected.");
     },
-    
-    post: function(endpoint, body) { 
-        return this.request(endpoint, 'POST', body); 
-    },
-    
-    put: function(endpoint, body) { 
-        return this.request(endpoint, 'PUT', body); 
-    },
-    
-    delete: function(endpoint) { 
-        return this.request(endpoint, 'DELETE'); 
-    }
+
+    // --- Clean Convenience Methods ---
+    get: function(endpoint) { return this.request(endpoint, 'GET'); },
+    post: function(endpoint, body) { return this.request(endpoint, 'POST', body); },
+    put: function(endpoint, body) { return this.request(endpoint, 'PUT', body); },
+    delete: function(endpoint) { return this.request(endpoint, 'DELETE'); }
 };
