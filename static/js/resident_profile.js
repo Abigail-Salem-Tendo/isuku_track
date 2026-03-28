@@ -235,11 +235,12 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('profileName').textContent = user.username;
         document.getElementById('profileEmail').textContent = user.email || '';
 
-        // Member since
-        if (user.created_at) {
-          var d = new Date(user.created_at);
-          var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-          document.getElementById('profileMemberSince').textContent = months[d.getMonth()] + ' ' + d.getFullYear();
+        // Zone details
+        var zoneDetailsEl = document.getElementById('profileZoneDetails');
+        if (user.zone && zoneDetailsEl) {
+          zoneDetailsEl.textContent = user.zone.district + ' · ' + user.zone.sector + ' · ' + user.zone.cell + ' · ' + user.zone.village;
+        } else if (zoneDetailsEl) {
+          zoneDetailsEl.textContent = '';
         }
 
         // Loyalty progress bar
