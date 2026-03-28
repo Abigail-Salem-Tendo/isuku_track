@@ -1,13 +1,13 @@
-/* resident.css — Sidebar layout for all
+/* resident.css  Sidebar layout for all resident pages
    resident pages. Import after dashboard.css */
 
-/* ── Overall Layout ── */
+/*  Overall Layout  */
 .resident-layout {
   display: flex;
   min-height: 100vh;
 }
 
-/* ── Sidebar ── */
+/*  Sidebar  */
 .sidebar {
   width: min(82vw, 280px);
   background: #111827;
@@ -205,7 +205,7 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
-/* ── Sidebar Overlay (mobile) ── */
+/*  Sidebar Overlay (mobile)  */
 .sidebar-overlay {
   display: none;
   position: fixed;
@@ -218,7 +218,7 @@
   display: block;
 }
 
-/* ── Top Bar (mobile only) ── */
+/*  Top Bar (mobile only)  */
 .topbar {
   display: flex;
   align-items: center;
@@ -340,7 +340,7 @@
   text-decoration: none;
 }
 
-/* ── Page Content ── */
+/*  Page Content  */
 .resident-content {
   flex: 1;
   min-width: 0;
@@ -352,7 +352,7 @@
   max-width: 900px;
 }
 
-/* ── Mobile Bottom Navigation (matching zo pages) ── */
+/*  Mobile Bottom Navigation (matching zo pages)  */
 .mob-nav {
   display: none;
   position: fixed;
@@ -543,7 +543,7 @@
   }
 }
 
-/* ── Desktop ── */
+/*  Desktop  */
 @media (min-width: 1024px) {
 
   /* Sidebar always visible */
@@ -578,7 +578,7 @@
   }
 }
 
-/* ── Welcome Card ── */
+/*  Welcome Card  */
 .welcome-card {
   background: #1a2e1a;
   border-radius: 12px;
@@ -676,7 +676,7 @@
   flex-shrink: 0;
 }
 
-/* ── Next Collection ── */
+/* Next Collection */
 .next-collection {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -722,7 +722,7 @@
   margin-top: 4px;
 }
 
-/* ── Loyalty Points Card ── */
+/* Loyalty Points Card */
 .loyalty-card {
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
   border: 1px solid #bbf7d0;
@@ -806,7 +806,7 @@
   opacity: 0.8;
 }
 
-/* ── Dashboard two-column grid ── */
+/* Dashboard two-column grid */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -848,4 +848,39 @@
     flex-direction: row;
     align-items: stretch;
   }
+}
+
+/*  Password toggle  */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper input {
+  padding-right: 40px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.toggle-password:hover {
+  color: var(--text-primary);
+}
+
+.toggle-password svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
 }
