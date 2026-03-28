@@ -66,19 +66,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getDefaultState() {
     return {
-      residents: 1204,
-      zones : [],
-      vehicles : [],
-      claims: [
-        { id: 'CLM-4012', title: 'Overflow at KG 11 Ave', zone: 'Zone A', when: '2h ago', status: 'Open' },
-        { id: 'CLM-4018', title: 'Illegal dumping — KN 5', zone: 'Zone B', when: '4h ago', status: 'In Progress' },
-        { id: 'CLM-4021', title: 'Missed collection', zone: 'Zone B', when: 'Yesterday', status: 'Resolved' },
-        { id: 'CLM-4032', title: 'Damaged bin — Street 4', zone: 'Zone E', when: 'Yesterday', status: 'Open' }
-      ],
+      residents: 0,
+      zones: [],
+      vehicles: [],
+      claims: [],
+      payments: [], 
       reports: [
-        { id: 1, zone: 'Zone A', operator: 'Jean P.', submitted: 'Sun 8 Mar', note: 'Auto-generated', claims: 12, resolved: 10, payments: 28, revenue: 28000, status: 'Reviewed' },
-        { id: 2, zone: 'Zone B', operator: 'Amina K.', submitted: 'Sun 8 Mar', note: 'Vehicle issue noted', claims: 18, resolved: 13, payments: 32, revenue: 32000, status: 'Pending' },
-        { id: 3, zone: 'Zone C', operator: 'Eric M.', submitted: 'Sun 8 Mar', note: 'Route optimization suggested', claims: 7, resolved: 7, payments: 19, revenue: 19000, status: 'Pending' }
+        // Keeping dummy data (for now) since backend reports require a specific zone_id
+        { id: 1, zone: 'Zone A', operator: 'Jean P.', submitted: 'Sun 8 Mar', note: 'Auto-generated', claims: 12, resolved: 10, payments: 28, revenue: 28000, status: 'Reviewed' }
       ]
     };
   }
@@ -91,51 +86,99 @@ document.addEventListener('DOMContentLoaded', function () {
     // Data is persisted to backend via API calls
   }
   // --- INTEGRATION: Fetch Live Telemetry  ---
-  async function fetchLiveTelemetry() {
-    try {
-      // Fetch only Zones and Vehicles
-      const [zonesData, vehiclesData] = await Promise.all([
-          API.get('/zones/'),
-          API.get('/vehicles/')
-      ]);
+ async function fetchLiveTelemetry() {
+  try {
+    // Fetching EVERYTHING in parallel
+    const [zonesData, vehiclesData, claimsData, paymentsData, residentsData] = await Promise.all([
+        API.get('/zones/'),
+        API.get('/vehicles/'),
+        API.get('/claims/'),
+        API.get('/payments/'),
+        API.get('/auth/users?role=resident')
+    ]);
 
-      // Map backend Zone data to frontend table format
-      state.zones = zonesData.map(function(z) {
-          return {
-              id: z.id,
-              name: z.name,
-              location: z.district + ' · ' + z.sector,
-              operator: z.zone_operator_name || 'Unassigned',
-              schedule: z.zone_operator_name ? 'Ongoing' : 'Pending', // Simulated schedule status
-              claims: 0 
-          };
-      });
+    // 1. Map Zones
+    state.zones = zonesData.map(function(z) {
+        return {
+            id: z.id,
+            name: z.name,
+            location: z.district + ' · ' + z.sector,
+            operator: z.zone_operator_name || 'Unassigned',
+            schedule: z.zone_operator_name ? 'Ongoing' : 'Pending', 
+            claims: 0 
+        };
+    });
 
-      // Map backend Vehicle data to frontend list format
-      state.vehicles = vehiclesData.map(function(v) {
-          // Convert snake_case status to Title Case
-          var statusDisplay = 'Available';
-          if (v.status === 'in_use') statusDisplay = 'In Use';
-          if (v.status === 'maintenance') statusDisplay = 'Maintenance';
+    // 2. Map Vehicles
+    state.vehicles = vehiclesData.map(function(v) {
+        var statusDisplay = 'Available';
+        if (v.status === 'in_use') statusDisplay = 'In Use';
+        if (v.status === 'maintenance') statusDisplay = 'Maintenance';
 
-          return {
-              id: v.id,
-              plate: v.plate_number,
-              driver: v.driver_name,
-              phone: v.driver_phone,
-              status: statusDisplay
-          };
-      });
+        return {
+            id: v.id,
+            plate: v.plate_number,
+            driver: v.driver_name,
+            phone: v.driver_phone,
+            status: statusDisplay
+        };
+    });
 
-      // Re-render the dashboard UI with the fresh data!
-      renderAll();
-      showToast('Zones and Fleet synced', false);
+    // 3. Map Claims
+    state.claims = claimsData.map(function(c) {
+        // Find the zone name for UI display
+        const zoneObj = zonesData.find(z => z.id === c.zone_id);
+        const zoneName = zoneObj ? zoneObj.name : 'Unknown Zone';
+        
+        // Format date simply
+        const dateObj = new Date(c.reported_at);
+        const dateStr = dateObj.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
 
-    } catch (error) {
-      console.error("Failed to load live dashboard data:", error);
-      showToast("Sync failed: Check network", true);
-    }
+        // Map backend status (open, under_review, approved, rejected) to UI
+        let statusDisplay = 'Open';
+        if (c.status === 'under_review') statusDisplay = 'In Progress';
+        if (c.status === 'approved') statusDisplay = 'Resolved';
+
+        return {
+            id: `CLM-${c.id}`,
+            title: c.claim_category.replace('_', ' ').toUpperCase(),
+            zone: zoneName,
+            when: dateStr,
+            status: statusDisplay
+        };
+    });
+
+    // 4. Map Payments (To calculate the revenue in renderStats)
+    // renderStats looks at state.reports for revenue. We will override renderStats to use this instead.
+    state.payments = paymentsData;
+
+    // 5. Total Residents
+    state.residents = residentsData.length;
+
+    // Overriding the renderStats function locally just for the revenue calculation
+    const originalRenderStats = renderStats;
+    renderStats = function() {
+        originalRenderStats(); // Call original
+        
+        // Calculate real revenue from approved payments
+        const approvedPayments = state.payments.filter(p => p.status === 'approved');
+        const realRevenue = approvedPayments.reduce((sum, p) => sum + p.amount, 0);
+        
+        const statPaymentsWeek = document.getElementById('statPaymentsWeek');
+        const revenueTotal = document.querySelector('.revenue-total');
+        
+        if (statPaymentsWeek) statPaymentsWeek.textContent = realRevenue.toLocaleString() + ' RWF';
+        if (revenueTotal) revenueTotal.textContent = realRevenue.toLocaleString() + ' RWF total';
+    };
+
+    renderAll();
+    showToast('Dashboard fully synced', false);
+
+  } catch (error) {
+    console.error("Failed to load live dashboard data:", error);
+    showToast("Sync failed: Check network", true);
   }
+}
 
   function showToast(message, isError) {
     if (!toast) return;
