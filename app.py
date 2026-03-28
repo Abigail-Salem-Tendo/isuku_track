@@ -60,7 +60,7 @@ def create_app():
     def resident_claims():
         return render_template("resident/resident_claims.html")
 
-    @app.route("/resident/payments")
+    @app.route("/resident/resident_payments")
     def resident_payments():
         return render_template("resident/resident_payments.html")
 
