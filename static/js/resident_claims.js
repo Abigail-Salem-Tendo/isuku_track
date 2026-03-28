@@ -1,57 +1,52 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const desktopBreakpoint = window.matchMedia('(min-width: 1024px)');
-  const compactFormBreakpoint = window.matchMedia('(max-width: 639px)');
+  var desktopBreakpoint = window.matchMedia('(min-width: 1024px)');
+  var compactFormBreakpoint = window.matchMedia('(max-width: 639px)');
 
-  const menuBtn = document.getElementById('menuBtn');
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const sidebarName = document.getElementById('sidebarName');
-  const sidebarAvatar = document.getElementById('sidebarAvatar');
+  var menuBtn = document.getElementById('menuBtn');
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebarOverlay');
+  var logoutBtn = document.getElementById('logoutBtn');
+  var sidebarName = document.getElementById('sidebarName');
+  var sidebarAvatar = document.getElementById('sidebarAvatar');
 
-  const toggleFormBtn = document.getElementById('toggleForm');
-  const claimFormWrapper = document.getElementById('claimFormWrapper');
-  const submitClaimForm = document.getElementById('submitClaimForm');
-  const claimType = document.getElementById('claimType');
-  const claimLocation = document.getElementById('claimLocation');
-  const claimDescription = document.getElementById('claimDescription');
+  var toggleFormBtn = document.getElementById('toggleForm');
+  var claimFormWrapper = document.getElementById('claimFormWrapper');
+  var submitClaimForm = document.getElementById('submitClaimForm');
+  var claimType = document.getElementById('claimType');
+  var claimDescription = document.getElementById('claimDescription');
+  var claimPhoto = document.getElementById('claimPhoto');
 
-  const tabs = document.querySelectorAll('.tabs .tab[data-filter]');
-  const claimsList = document.getElementById('claimsList');
-  let claimCards = Array.from(document.querySelectorAll('#claimsList .card'));
+  var tabs = document.querySelectorAll('.tabs .tab[data-filter]');
+  var claimsList = document.getElementById('claimsList');
 
-  const emptyState = document.createElement('div');
-  emptyState.className = 'empty-state';
-  emptyState.hidden = true;
-  emptyState.innerHTML = '<p>No claims match this filter yet.</p>';
+  var token = localStorage.getItem('access_token');
 
-  if (claimsList) {
-    claimsList.appendChild(emptyState);
-  }
+  // Status maps for backend → UI
+  var statusBadgeClass = {
+    open: 'open',
+    under_review: 'in-progress',
+    approved: 'approved',
+    rejected: 'rejected'
+  };
+  var statusLabel = {
+    open: 'Open',
+    under_review: 'Under Review',
+    approved: 'Approved',
+    rejected: 'Rejected'
+  };
 
+  // ── Sidebar toggle ──
   function closeSidebar() {
-    if (sidebar) {
-      sidebar.classList.remove('open');
-    }
-    if (overlay) {
-      overlay.classList.remove('open');
-    }
-    if (menuBtn) {
-      menuBtn.setAttribute('aria-expanded', 'false');
-    }
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
+    if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
   }
 
   function toggleSidebar() {
-    if (!sidebar || !overlay) {
-      return;
-    }
-
-    const isOpen = sidebar.classList.toggle('open');
+    if (!sidebar || !overlay) return;
+    var isOpen = sidebar.classList.toggle('open');
     overlay.classList.toggle('open', isOpen);
-
-    if (menuBtn) {
-      menuBtn.setAttribute('aria-expanded', String(isOpen));
-    }
+    if (menuBtn) menuBtn.setAttribute('aria-expanded', String(isOpen));
   }
 
   if (menuBtn) {
@@ -59,37 +54,25 @@ document.addEventListener('DOMContentLoaded', function () {
     menuBtn.setAttribute('aria-expanded', 'false');
     menuBtn.addEventListener('click', toggleSidebar);
   }
-
-  if (overlay) {
-    overlay.addEventListener('click', closeSidebar);
-  }
+  if (overlay) overlay.addEventListener('click', closeSidebar);
 
   document.querySelectorAll('.sidebar__nav-item').forEach(function (item) {
     item.addEventListener('click', function () {
-      if (!desktopBreakpoint.matches) {
-        closeSidebar();
-      }
+      if (!desktopBreakpoint.matches) closeSidebar();
     });
   });
 
   document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape') {
-      closeSidebar();
-    }
+    if (event.key === 'Escape') closeSidebar();
   });
 
-  function syncSidebarForViewport(event) {
-    if (event.matches) {
-      closeSidebar();
-    }
-  }
-
   if (typeof desktopBreakpoint.addEventListener === 'function') {
-    desktopBreakpoint.addEventListener('change', syncSidebarForViewport);
-  } else {
-    desktopBreakpoint.addListener(syncSidebarForViewport);
+    desktopBreakpoint.addEventListener('change', function (e) {
+      if (e.matches) closeSidebar();
+    });
   }
 
+  // ── Logout ──
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function () {
       localStorage.removeItem('access_token');
@@ -99,26 +82,17 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  const name = localStorage.getItem('userName') || 'Resident';
-  const initials = name.split(' ').map(function (part) {
-    return part[0];
-  }).join('').toUpperCase();
+  // ── User info ──
+  var name = localStorage.getItem('userName') || 'Resident';
+  var initials = name.split(' ').map(function (p) { return p[0]; }).join('').toUpperCase();
+  if (sidebarName) sidebarName.textContent = name;
+  if (sidebarAvatar) sidebarAvatar.textContent = initials || 'R';
 
-  if (sidebarName) {
-    sidebarName.textContent = name;
-  }
-
-  if (sidebarAvatar) {
-    sidebarAvatar.textContent = initials || 'R';
-  }
-
-  let isFormExpanded = !compactFormBreakpoint.matches;
+  // ── Form toggle ──
+  var isFormExpanded = !compactFormBreakpoint.matches;
 
   function applyFormState() {
-    if (!toggleFormBtn || !claimFormWrapper) {
-      return;
-    }
-
+    if (!toggleFormBtn || !claimFormWrapper) return;
     claimFormWrapper.hidden = !isFormExpanded;
     toggleFormBtn.textContent = isFormExpanded ? 'Hide' : 'Show';
     toggleFormBtn.setAttribute('aria-expanded', String(isFormExpanded));
@@ -133,134 +107,193 @@ document.addEventListener('DOMContentLoaded', function () {
     applyFormState();
   }
 
+  // ── Field error helpers ──
   function setFieldError(field, errorId, hasError) {
-    const errorElement = document.getElementById(errorId);
-
-    if (field) {
-      field.classList.toggle('error', hasError);
-    }
-
-    if (errorElement) {
-      errorElement.classList.toggle('visible', hasError);
-    }
+    var errorEl = document.getElementById(errorId);
+    if (field) field.classList.toggle('error', hasError);
+    if (errorEl) errorEl.classList.toggle('visible', hasError);
   }
 
-  function applyFilter(filter) {
-    let visibleCount = 0;
-
-    claimCards.forEach(function (card) {
-      const matches = filter === 'all' || card.getAttribute('data-status') === filter;
-      card.style.display = matches ? 'block' : 'none';
-      if (matches) {
-        visibleCount += 1;
+  // ── Load categories from API ──
+  async function loadCategories() {
+    try {
+      var res = await fetch('/api/claims/categories', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (!res.ok) {
+        claimType.innerHTML = '<option value="">Failed to load</option>';
+        return;
       }
-    });
-
-    if (emptyState) {
-      emptyState.hidden = visibleCount !== 0;
+      var data = await res.json();
+      claimType.innerHTML = '<option value="">— Select claim type —</option>';
+      data.claim.forEach(function (cat) {
+        var opt = document.createElement('option');
+        opt.value = cat.value;
+        opt.textContent = cat.label;
+        claimType.appendChild(opt);
+      });
+    } catch (err) {
+      claimType.innerHTML = '<option value="">Failed to load</option>';
     }
   }
 
+  // ── Load claims from API ──
+  var allClaims = [];
+
+  async function loadClaims() {
+    if (!claimsList) return;
+    try {
+      var res = await fetch('/api/claims?type=claim', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (!res.ok) {
+        claimsList.innerHTML = '<p class="card__sub" style="padding:12px;">Failed to load claims.</p>';
+        return;
+      }
+      allClaims = await res.json();
+      renderClaims('all');
+    } catch (err) {
+      claimsList.innerHTML = '<p class="card__sub" style="padding:12px;">Network error loading claims.</p>';
+    }
+  }
+
+  function renderClaims(filter) {
+    if (!claimsList) return;
+    claimsList.innerHTML = '';
+
+    var filtered = filter === 'all'
+      ? allClaims
+      : allClaims.filter(function (c) { return c.status === filter; });
+
+    if (filtered.length === 0) {
+      claimsList.innerHTML = '<p class="card__sub" style="padding:12px;">No claims match this filter.</p>';
+      return;
+    }
+
+    filtered.forEach(function (claim) {
+      var category = (claim.claim_category || '').replace(/_/g, ' ')
+        .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+      var date = claim.reported_at
+        ? new Date(claim.reported_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : '';
+      var badgeClass = statusBadgeClass[claim.status] || 'open';
+      var badgeText = statusLabel[claim.status] || claim.status;
+
+      var card = document.createElement('div');
+      card.className = 'card';
+      card.setAttribute('data-status', claim.status);
+
+      var html = '<div class="card__row"><div>' +
+        '<div class="card__title">' + category + '</div>' +
+        '<div class="card__sub">' + claim.description + '</div>' +
+        '<div class="card__sub">Submitted ' + date + '</div>' +
+        '</div><span class="badge badge--' + badgeClass + '">' + badgeText + '</span></div>';
+
+      if (claim.status === 'approved' && claim.points_awarded) {
+        html += '<div class="card__points">+' + claim.points_awarded + ' pts awarded</div>';
+      }
+      if (claim.status === 'rejected' && claim.rejection_detail) {
+        html += '<div class="card__sub" style="padding:4px 16px 8px;color:var(--danger);">Reason: ' + claim.rejection_detail + '</div>';
+      }
+
+      card.innerHTML = html;
+      claimsList.appendChild(card);
+    });
+  }
+
+  // ── Tab filtering ──
   tabs.forEach(function (tab) {
     tab.addEventListener('click', function () {
-      tabs.forEach(function (item) {
-        item.classList.remove('active');
-      });
+      tabs.forEach(function (t) { t.classList.remove('active'); });
       tab.classList.add('active');
-      applyFilter(tab.getAttribute('data-filter'));
+      renderClaims(tab.getAttribute('data-filter'));
     });
   });
 
-  applyFilter('all');
-
-  function createClaimCard(typeLabel, locationLabel, descriptionLabel) {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.setAttribute('data-status', 'open');
-
-    const row = document.createElement('div');
-    row.className = 'card__row';
-
-    const content = document.createElement('div');
-
-    const title = document.createElement('div');
-    title.className = 'card__title';
-    title.textContent = typeLabel;
-
-    const location = document.createElement('div');
-    location.className = 'card__sub';
-    location.textContent = locationLabel;
-
-    const submitted = document.createElement('div');
-    submitted.className = 'card__sub';
-    submitted.textContent = 'Submitted ' + new Date().toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric'
-    });
-
-    const description = document.createElement('div');
-    description.className = 'card__sub';
-    description.textContent = descriptionLabel;
-
-    const badge = document.createElement('span');
-    badge.className = 'badge badge--open';
-    badge.textContent = 'Open';
-
-    content.appendChild(title);
-    content.appendChild(location);
-    content.appendChild(submitted);
-    content.appendChild(description);
-    row.appendChild(content);
-    row.appendChild(badge);
-    card.appendChild(row);
-
-    return card;
-  }
-
+  // ── Submit claim form ──
   if (submitClaimForm) {
-    submitClaimForm.addEventListener('submit', function (event) {
-      event.preventDefault();
+    submitClaimForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
 
-      const selectedType = claimType ? claimType.value.trim() : '';
-      const locationValue = claimLocation ? claimLocation.value.trim() : '';
-      const descriptionValue = claimDescription ? claimDescription.value.trim() : '';
+      var typeVal = claimType ? claimType.value.trim() : '';
+      var descVal = claimDescription ? claimDescription.value.trim() : '';
+      var hasPhoto = claimPhoto && claimPhoto.files.length > 0;
 
-      const typeHasError = !selectedType;
-      const locationHasError = !locationValue;
-      const descriptionHasError = !descriptionValue;
-      const isValid = !typeHasError && !locationHasError && !descriptionHasError;
+      var typeErr = !typeVal;
+      var descErr = !descVal;
+      var photoErr = !hasPhoto;
 
-      setFieldError(claimType, 'claimTypeError', typeHasError);
-      setFieldError(claimLocation, 'claimLocationError', locationHasError);
-      setFieldError(claimDescription, 'claimDescriptionError', descriptionHasError);
+      setFieldError(claimType, 'claimTypeError', typeErr);
+      setFieldError(claimDescription, 'claimDescriptionError', descErr);
+      setFieldError(claimPhoto, 'claimPhotoError', photoErr);
 
-      if (!isValid) {
-        return;
-      }
+      if (typeErr || descErr || photoErr) return;
 
-      const selectedOption = claimType.options[claimType.selectedIndex];
-      const typeLabel = selectedOption ? selectedOption.textContent : 'Claim';
-      const newCard = createClaimCard(typeLabel, locationValue, descriptionValue);
+      var btn = submitClaimForm.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Submitting claim...';
 
-      if (claimsList) {
-        claimsList.insertBefore(newCard, claimsList.firstChild);
-        claimCards = Array.from(document.querySelectorAll('#claimsList .card'));
-      }
+      try {
+        // Step 1: Upload photo
+        var formData = new FormData();
+        formData.append('photo', claimPhoto.files[0]);
+        var uploadRes = await fetch('/api/upload/photo', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + token },
+          body: formData
+        });
+        var uploadData = await uploadRes.json();
+        if (!uploadRes.ok) {
+          alert(uploadData.error || 'Failed to upload photo');
+          return;
+        }
 
-      tabs.forEach(function (tab) {
-        tab.classList.toggle('active', tab.getAttribute('data-filter') === 'open');
-      });
-      applyFilter('open');
+        // Step 2: Submit claim
+        var claimRes = await fetch('/api/claims', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+          },
+          body: JSON.stringify({
+            claim_category: typeVal,
+            description: descVal,
+            photo_url: uploadData.photo_url
+          })
+        });
+        var claimData = await claimRes.json();
+        if (!claimRes.ok) {
+          alert(claimData.error || 'Failed to submit claim');
+          return;
+        }
 
-      submitClaimForm.reset();
-      setFieldError(claimType, 'claimTypeError', false);
-      setFieldError(claimLocation, 'claimLocationError', false);
-      setFieldError(claimDescription, 'claimDescriptionError', false);
+        alert('Claim submitted successfully!');
+        submitClaimForm.reset();
+        setFieldError(claimType, 'claimTypeError', false);
+        setFieldError(claimDescription, 'claimDescriptionError', false);
+        setFieldError(claimPhoto, 'claimPhotoError', false);
 
-      if (!desktopBreakpoint.matches) {
-        isFormExpanded = false;
-        applyFormState();
+        // Reload claims and switch to open filter
+        await loadClaims();
+        tabs.forEach(function (t) {
+          t.classList.toggle('active', t.getAttribute('data-filter') === 'open');
+        });
+        renderClaims('open');
+
+        if (!desktopBreakpoint.matches) {
+          isFormExpanded = false;
+          applyFormState();
+        }
+      } catch (err) {
+        alert('Network error — please try again');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Claim';
       }
     });
   }
+
+  // ── Load everything on page load ──
+  loadCategories();
+  loadClaims();
 });
