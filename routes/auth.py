@@ -146,8 +146,30 @@ def get_current_user():
     
     if not user:
         return jsonify({"error": "User not found"}), 404
-    
-    return jsonify({"user": user.to_dict()}), 200
+
+    data = user.to_dict()
+
+    if user.zone:
+        data["zone"] = {
+            "id": user.zone.id,
+            "name": user.zone.name,
+            "district": user.zone.district,
+            "sector": user.zone.sector,
+            "cell": user.zone.cell,
+            "village": user.zone.village,
+        }
+        if user.zone.zone_operator:
+            data["zone"]["zone_operator"] = {
+                "name": user.zone.zone_operator.username,
+                "phone": user.zone.zone_operator.phone_number,
+                "email": user.zone.zone_operator.email,
+            }
+        else:
+            data["zone"]["zone_operator"] = None
+    else:
+        data["zone"] = None
+
+    return jsonify({"user": data}), 200
 
 @auth_bp.route("/profile", methods=["PUT"])
 @role_required("resident", "zone_operator", "admin")
