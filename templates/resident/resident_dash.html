@@ -186,10 +186,10 @@
               </svg>
             </div>
             <div class="next-collection__info">
-              <div class="next-collection__time">Today at 14:00 — Route A</div>
-              <div class="next-collection__detail" id="collectionDetail">Loading...</div>
+              <div class="next-collection__time" id="collectionTime">Checking...</div>
+              <div class="next-collection__detail" id="collectionDetail"></div>
             </div>
-            <span class="badge badge--upcoming">Not Started Yet</span>
+            <span class="badge badge--upcoming" id="collectionStatus">—</span>
           </div>
         </div>
 
@@ -215,24 +215,19 @@
                 <div class="form-group">
                   <label for="claimType">Issue Type</label>
                   <select id="claimType" name="claimType">
-                    <option value="">— Select issue type —</option>
-                    <option value="overflow">Overflow</option>
-                    <option value="damaged">Damaged Bin</option>
-                    <option value="illegal_dumping">Illegal Dumping</option>
-                    <option value="missed_collection">Missed Collection</option>
-                    <option value="other">Other</option>
+                    <option value="">Loading categories...</option>
                   </select>
                   <span class="error-message" id="claimTypeError">Please select an issue type</span>
-                </div>
-                <div class="form-group">
-                  <label for="claimLocation">Location</label>
-                  <input type="text" id="claimLocation" placeholder="Enter the location of the issue" />
-                  <span class="error-message" id="claimLocationError">Location is required</span>
                 </div>
                 <div class="form-group">
                   <label for="claimDesc">Description</label>
                   <textarea id="claimDesc" placeholder="Describe the issue" rows="3"></textarea>
                   <span class="error-message" id="claimDescError">Description is required</span>
+                </div>
+                <div class="form-group">
+                  <label for="claimPhoto">Photo (required)</label>
+                  <input type="file" id="claimPhoto" accept="image/jpeg,image/png,image/webp" />
+                  <span class="error-message" id="claimPhotoError">Photo is required</span>
                 </div>
                 <button type="submit" class="btn btn-primary">Submit Claim</button>
               </form>
@@ -245,32 +240,8 @@
               <span class="section__title">My Claim History</span>
               <a href="/resident/resident_claims" class="section__link">View all →</a>
             </div>
-            <div class="card">
-              <div class="card__row">
-                <div>
-                  <div class="card__title">Overflow</div>
-                  <div class="card__sub">Submitted 3 Mar · Approved</div>
-                </div>
-                <span class="badge badge--approved">Approved</span>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card__row">
-                <div>
-                  <div class="card__title">Damaged bin</div>
-                  <div class="card__sub">Submitted 1 Mar</div>
-                </div>
-                <span class="badge badge--in-progress">In Progress</span>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card__row">
-                <div>
-                  <div class="card__title">Missed collection</div>
-                  <div class="card__sub">Submitted 20 Feb</div>
-                </div>
-                <span class="badge badge--approved">Resolved</span>
-              </div>
+            <div id="recentClaims">
+              <p class="card__sub" style="padding:12px;">Loading claims...</p>
             </div>
           </div>
 
