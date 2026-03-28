@@ -126,27 +126,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 3. Map Claims
     state.claims = claimsData.map(function(c) {
-        // Find the zone name for UI display
-        const zoneObj = zonesData.find(z => z.id === c.zone_id);
-        const zoneName = zoneObj ? zoneObj.name : 'Unknown Zone';
-        
-        // Format date simply
-        const dateObj = new Date(c.reported_at);
-        const dateStr = dateObj.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
+      // Find the zone name for UI display
+      const zoneObj = zonesData.find(z => z.id === c.zone_id);
+      const zoneName = zoneObj ? zoneObj.name : 'Unknown Zone';
+      
+      // Format date simply
+      const dateObj = new Date(c.reported_at);
+      const dateStr = dateObj.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
 
-        // Map backend status (open, under_review, approved, rejected) to UI
-        let statusDisplay = 'Open';
-        if (c.status === 'under_review') statusDisplay = 'In Progress';
-        if (c.status === 'approved') statusDisplay = 'Resolved';
+      // Map backend status (open, under_review, approved, rejected) to UI
+      let statusDisplay = 'Open';
+      if (c.status === 'under_review') statusDisplay = 'In Progress';
+      if (c.status === 'approved') statusDisplay = 'Resolved';
+      if (c.status === 'rejected') statusDisplay = 'Rejected';
 
-        return {
-            id: `CLM-${c.id}`,
-            title: c.claim_category.replace('_', ' ').toUpperCase(),
-            zone: zoneName,
-            when: dateStr,
-            status: statusDisplay
-        };
-    });
+      // SAFELY handle the category name (Suggestions vs Claims)
+      // Using regex /_/g to replace ALL underscores, just in case
+      const rawCategory = c.claim_category || c.suggestion_category || 'Uncategorized';
+      const formattedTitle = rawCategory.replace(/_/g, ' ').toUpperCase();
+
+      return {
+          id: `CLM-${c.id}`,
+          title: formattedTitle,
+          zone: zoneName,
+          when: dateStr,
+          status: statusDisplay
+      };
+  });
 
     // 4. Map Payments (To calculate the revenue in renderStats)
     // renderStats looks at state.reports for revenue. We will override renderStats to use this instead.
