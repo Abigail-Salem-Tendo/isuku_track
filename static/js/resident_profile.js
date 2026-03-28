@@ -233,7 +233,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Hero card
         document.getElementById('profileName').textContent = user.username;
-        document.getElementById('profileEmail').textContent = user.email || '';
 
         // Zone details
         var zoneDetailsEl = document.getElementById('profileZoneDetails');
