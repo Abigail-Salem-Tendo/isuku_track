@@ -30,9 +30,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function () {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userRole');
-      window.location.href = '/static/pages/login.html';
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
     });
   }
 

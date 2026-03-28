@@ -92,10 +92,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function () {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('userName');
-      window.location.href = '/static/pages/login1.html';
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
     });
   }
 
