@@ -146,6 +146,88 @@ if (saveBtn) {
   });
 }
 
+/* ── Weekly report send (manual with date range) ── */
+const sendReportBtn = document.getElementById('sendReportBtn');
+if (sendReportBtn) {
+  // Set default dates (last 7 days)
+  const today = new Date();
+  const lastWeek = new Date(today);
+  lastWeek.setDate(today.getDate() - 7);
+
+  const fromDateInput = document.getElementById('fromDate');
+  const toDateInput = document.getElementById('toDate');
+
+  if (fromDateInput && toDateInput) {
+    fromDateInput.value = lastWeek.toISOString().split('T')[0];
+    toDateInput.value = today.toISOString().split('T')[0];
+  }
+
+  sendReportBtn.addEventListener('click', async () => {
+    const fromDate = fromDateInput ? fromDateInput.value : '';
+    const toDate = toDateInput ? toDateInput.value : '';
+
+    // Validate dates
+    if (!fromDate || !toDate) {
+      alert('Please select both From Date and To Date');
+      return;
+    }
+
+    if (new Date(fromDate) > new Date(toDate)) {
+      alert('From Date cannot be after To Date');
+      return;
+    }
+
+    // Get remarks
+    const remarksInput = document.getElementById('remarksInput');
+    const remarks = remarksInput ? remarksInput.value.trim() : '';
+
+    // Prepare payload
+    const payload = {
+      from_date: fromDate,
+      to_date: toDate,
+      remarks: remarks
+    };
+
+    // Update button state
+    sendReportBtn.disabled = true;
+    sendReportBtn.textContent = 'Sending...';
+
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/reports', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        sendReportBtn.textContent = 'Report Sent ✓';
+        sendReportBtn.style.background = 'var(--g1)';
+        // Clear textarea
+        if (remarksInput) remarksInput.value = '';
+        setTimeout(() => {
+          sendReportBtn.textContent = 'Send Report';
+          sendReportBtn.style.background = '';
+          sendReportBtn.disabled = false;
+        }, 3000);
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Failed to send report');
+        sendReportBtn.textContent = 'Send Report';
+        sendReportBtn.disabled = false;
+      }
+    } catch (err) {
+      console.error('Error sending report:', err);
+      alert('Error sending report. Please try again.');
+      sendReportBtn.textContent = 'Send Report';
+      sendReportBtn.disabled = false;
+    }
+  });
+}
+
 if (document.querySelector('.ftabs')) applyActiveFilter();
 
 const residentsSearchInput = document.querySelector('.search-inp');
