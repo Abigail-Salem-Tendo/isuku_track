@@ -6,7 +6,6 @@ from models.zone import Zone
 from models.vehicle import Vehicle
 from models.claims import Claim
 from models.payment import Payment, MonthlyPrice
-from models.notification import Notification
 from routes.auth import auth_bp
 from routes.vehicle_routes import vehicle_bp
 from routes.zone_routes import zone_bp
@@ -16,6 +15,7 @@ from routes.claims import claims_bp
 from routes.upload import upload_bp
 from routes.reports import reports_bp
 from routes.payment_routes import payment_bp
+from routes.notifications import notifications_bp
 from flask import render_template
 
 
@@ -40,6 +40,7 @@ def create_app():
     app.register_blueprint(upload_bp, url_prefix='/api/upload')
     app.register_blueprint(reports_bp, url_prefix='/api/reports')
     app.register_blueprint(payment_bp, url_prefix='/api/payments')
+    app.register_blueprint(notifications_bp, url_prefix='/api/notifications')
 
 
     @app.route("/")
