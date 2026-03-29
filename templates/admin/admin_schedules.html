@@ -242,13 +242,18 @@
       const zoneSelect = document.getElementById('newSchedZone');
       const selectedOption = zoneSelect.options[zoneSelect.selectedIndex];
       
-      const payload = {
-          zone_id: parseInt(zoneSelect.value),
-          zone_operator_id: parseInt(selectedOption.getAttribute('data-op')),
-          date_time_start: new Date(document.getElementById('newSchedStart').value).toISOString(),
-          date_time_end: new Date(document.getElementById('newSchedEnd').value).toISOString(),
-          status: document.getElementById('newSchedStatus').value
-      };
+     // Grab the raw HTML5 datetime-local string (e.g. "2026-03-31T11:30")
+    // and append ":00" to explicitly match the backend's ISO 8601 expectation.
+    const startString = document.getElementById('newSchedStart').value;
+    const endString = document.getElementById('newSchedEnd').value;
+
+    const payload = {
+        zone_id: parseInt(zoneSelect.value),
+        zone_operator_id: parseInt(selectedOption.getAttribute('data-op')),
+        date_time_start: startString.length === 16 ? startString + ':00' : startString,
+        date_time_end: endString.length === 16 ? endString + ':00' : endString,
+        status: document.getElementById('newSchedStatus').value
+    };
   
       try {
           await API.post('/schedules/', payload);
