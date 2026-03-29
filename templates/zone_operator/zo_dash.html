@@ -398,41 +398,59 @@
       <div class="card">
         <div class="ch">
           <div class="ct">Weekly Report</div>
-          <a class="ca" href="zo_report.html">Send Report →</a>
+          <a class="ca" href="zo_report.html">View All →</a>
         </div>
         <div class="cb">
-          <div class="deadline" style="background:#e8f5e9;color:#2e7d52;">
+          <div class="deadline" style="background:#e8f5e9;color:#2e7d52;margin-bottom:16px;">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <polyline points="14 2 14 8 20 8"/>
             </svg>
-            Select date range and send report manually
+            Weekly reports help admin track zone performance
           </div>
 
-          <div class="rsec">
-            <label>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-              </svg>
-              Quick Notes
-            </label>
-            <div class="remark-suggestions" style="margin-bottom:10px;">
-              <label for="quickNoteSuggestion">Suggestions</label>
-              <select id="quickNoteSuggestion" class="remark-select">
-                <option value="">Choose a quick suggestion...</option>
-                <option value="Collection coverage was stable this week with minor delays in evening rounds.">Stable collection coverage</option>
-                <option value="Payment follow-up is required for a few households with pending balances.">Payment follow-up note</option>
-                <option value="Most complaints were resolved within the reporting period.">Issue resolution update</option>
-                <option value="No major operational interruptions were recorded this week.">Operational status summary</option>
-              </select>
+          <!-- Recent Reports List -->
+          <div class="recent-reports">
+            <div class="si" style="margin-bottom:10px;">
+              <div class="si-time"><div class="st" style="font-size:.78rem;">Mar 23</div><div class="sd">Sun</div></div>
+              <div class="si-info">
+                <div class="si-ttl">Week of Mar 16–22</div>
+                <div class="si-rt">32 payments · 96% rate</div>
+              </div>
+              <div class="si-right">
+                <span class="b ok" style="font-size:.7rem;">Sent</span>
+              </div>
             </div>
-            <textarea id="quickNotesInput" class="rta" style="min-height:120px;" placeholder="Draft your remarks here before sending the full report..."></textarea>
+
+            <div class="si" style="margin-bottom:10px;">
+              <div class="si-time"><div class="st" style="font-size:.78rem;">Mar 16</div><div class="sd">Sun</div></div>
+              <div class="si-info">
+                <div class="si-ttl">Week of Mar 9–15</div>
+                <div class="si-rt">28 payments · 94% rate</div>
+              </div>
+              <div class="si-right">
+                <span class="b ok" style="font-size:.7rem;">Sent</span>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-time"><div class="st" style="font-size:.78rem;">Mar 9</div><div class="sd">Sun</div></div>
+              <div class="si-info">
+                <div class="si-ttl">Week of Mar 2–8</div>
+                <div class="si-rt">30 payments · 95% rate</div>
+              </div>
+              <div class="si-right">
+                <span class="b ok" style="font-size:.7rem;">Sent</span>
+              </div>
+            </div>
           </div>
 
-          <a href="zo_report.html" class="btn-save" style="display:block;text-align:center;text-decoration:none;">Go to Report Page</a>
+          <a href="zo_report.html" class="btn-save" style="display:block;text-align:center;text-decoration:none;margin-top:16px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Create New Report
+          </a>
         </div>
       </div>
 

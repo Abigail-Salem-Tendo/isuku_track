@@ -313,16 +313,6 @@ document.querySelectorAll('.pay-actions').forEach(wrap => {
   if (rb) rb.addEventListener('click', () => { wrap.innerHTML = '<span class="b op">Rejected</span>'; applyActiveFilter(); });
 });
 
-/* ── Weekly report save ── */
-const saveBtn = document.querySelector('.btn-save');
-if (saveBtn) {
-  saveBtn.addEventListener('click', () => {
-    saveBtn.textContent = 'Saved ✓';
-    saveBtn.style.background = 'var(--g1)';
-    setTimeout(() => { saveBtn.textContent = 'Save Remarks'; saveBtn.style.background = ''; }, 2000);
-  });
-}
-
 /* ── Weekly report send (manual with date range) ── */
 const sendReportBtn = document.getElementById('sendReportBtn');
 if (sendReportBtn) {
