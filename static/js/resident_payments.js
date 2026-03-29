@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // ── Form submission (validation-only for now) ──
   const form = document.getElementById('paymentForm');
   if (form) {
-    form.addEventListener('submit', function (e) {
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
       let valid = true;
 
@@ -326,7 +326,50 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       if (valid) {
-        showToast('Form validated. Submit integration is next step.');
+        const submitBtn = form.querySelector('[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Uploading...';
+
+        try {
+          // 1. Upload proof file to Appwrite via backend
+          const formData = new FormData();
+          formData.append('photo', file);
+
+          const token = localStorage.getItem('access_token');
+          const uploadRes = await fetch('http://127.0.0.1:5000/api/upload/photo', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+          });
+
+          const uploadData = await uploadRes.json();
+          if (!uploadRes.ok) throw new Error(uploadData.error || 'File upload failed');
+
+          // 2. Parse month/year from "YYYY-MM" format
+          const [yearStr, monthStr] = month.split('-');
+          const paymentYear = parseInt(yearStr);
+          const paymentMonth = parseInt(monthStr);
+
+          // 3. Submit payment
+          submitBtn.textContent = 'Submitting...';
+          await API.post('/payments/', {
+            payment_month: paymentMonth,
+            payment_year: paymentYear,
+            payment_method: method,
+            transaction_reference: (document.getElementById('transactionId').value || '').trim() || null,
+            proof_url: uploadData.photo_url
+          });
+
+          closeAddPaymentModal();
+          showToast('Payment submitted successfully! Awaiting review.');
+          loadPaymentData();
+
+        } catch (err) {
+          showToast(err.message || 'Failed to submit payment. Please try again.');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Payment';
+        }
       }
     });
   }
