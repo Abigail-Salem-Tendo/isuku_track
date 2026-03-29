@@ -9,54 +9,121 @@
 <body>
 <aside class="sb" aria-label="Admin sidebar navigation">
   <div class="sb-top">
-    <div class="sb-logo" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div>
-    <div><div class="sb-name">Isuku Track</div><div class="sb-role">Admin Panel</div></div>
+    <div class="sb-logo" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line>
+        <line x1="14" y1="11" x2="14" y2="17"></line>
+      </svg>
+    </div>
+    <div>
+      <div class="sb-name">Isuku Track</div>
+      <div class="sb-role">Admin Panel</div>
+    </div>
   </div>
-  <div class="sb-sec"><div class="sb-lbl">Overview</div><a class="sb-a" href="admin_dash.html">Dashboard</a><a class="sb-a" href="admin_zones.html">Zones</a><a class="sb-a" href="admin_users.html">Users</a><a class="sb-a on" href="admin_zone_operator.html" aria-current="page">Zone Operator</a></div>
-  <div class="sb-sec"><div class="sb-lbl">Operations</div><a class="sb-a" href="admin_schedules.html">Schedules</a><a class="sb-a" href="admin_claims.html">Claims</a><a class="sb-a" href="admin_payments.html">Payments</a></div>
-  <div class="sb-sec"><div class="sb-lbl">Reports</div><a class="sb-a" href="admin_reports.html">Reports</a></div>
-  <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Overview</div>
+    <a class="sb-a" href="admin_dash.html" aria-label="Go to dashboard">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a class="sb-a" href="admin_zones.html" aria-label="Go to zones page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      Zones <span class="sb-badge am" id="sbZonesCount">8</span>
+    </a>
+    <a class="sb-a" href="admin_users.html" aria-label="Go to users page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Users
+    </a>
+    <a class="sb-a on" href="admin_zone_operator.html" aria-label="Go to zone operator page" aria-current="page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M17 11h6"/></svg>
+      Zone Operator
+    </a>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Operations</div>
+    <a class="sb-a" href="admin_schedules.html" aria-label="Go to schedules page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Schedules
+    </a>
+    <a class="sb-a" href="admin_vehicles.html" aria-label="Go to vehicles page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      Vehicles
+    </a>
+    <a class="sb-a" href="admin_claims.html" aria-label="Go to claims page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Claims <span class="sb-badge" id="sbClaimsCount">5</span>
+    </a>
+    <a class="sb-a" href="admin_payments.html" aria-label="Go to payments page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Payments
+    </a>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Reports</div>
+    <a class="sb-a" href="admin_reports.html" aria-label="Go to reports page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reports
+    </a>
+  </div>
+
+  <div class="sb-foot">
+    <div class="sb-user" aria-label="Administrator profile">
+      <div class="sb-av">AD</div>
+      <div>
+        <div class="sb-un">Administrator</div>
+        <div class="sb-ur">System Admin</div>
+      </div>
+    </div>
+    <button type="button" class="sb-logout" id="logoutBtn" data-profile-action="logout" aria-label="Logout">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Logout
+    </button>
+  </div>
 </aside>
-<div class="main"><header class="topbar"><div class="tb-l"><h1>Zone Operator Management</h1><p id="dashboardDate" data-subtitle="Assign and monitor zone operators">Assign and monitor zone operators</p></div><div class="tb-r"><button type="button" id="createZoBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Create new zone operator">+ Create Operator</button><button type="button" id="modifyZoBtn" style="background:#1976d2;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Modify zone operator">✎ Modify Operator</button><button type="button" id="deleteZoBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Delete zone operator">🗑 Delete Operator</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
-  <div class="sg status-ribbon zone-operator-status-ribbon" aria-label="Zone schedule status filters">
-    <button class="sc ftab on" type="button" data-zo-filter="Completed">
-      <div class="sc-lbl">Completed</div>
-      <div class="sc-val" id="zoCompletedCount">0</div>
-      <div class="sc-sub">finished schedules</div>
+<div class="main"><header class="topbar"><div class="tb-l"><h1>Zone Operator Management</h1><p id="dashboardDate" data-subtitle="Assign and monitor zone operators">Assign and monitor zone operators</p></div><div class="tb-r"><button type="button" id="createZoBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Create new zone operator">+ Create Operator</button><button type="button" id="modifyZoBtn" style="background:#1976d2;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Modify zone operator">✎ Modify Operator</button><button type="button" id="deleteZoBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Delete zone operator">🗑 Delete Operator</button><div class="notif-wrap" style="position:relative;margin-right:8px;"><button class="icon-btn" id="notifToggle" style="background:none;border:none;cursor:pointer;position:relative;padding:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="notif-dot" id="notifDot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;background:#e53e3e;border-radius:50%;"></div></button><div class="notif-panel" id="notifPanel"><div class="notif-head"><span>Notifications</span><button id="markAllReadBtn">Mark all as read</button></div><div id="notifList"></div></div></div><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
+  <div class="sg status-ribbon zone-operator-status-ribbon" aria-label="Operator status filters">
+    <button class="sc ftab on" type="button" data-zo-filter="All">
+      <div class="sc-lbl">Total Operators</div>
+      <div class="sc-val" id="zoTotalCount">0</div>
+      <div class="sc-sub">all registered</div>
     </button>
-    <button class="sc ftab" type="button" data-zo-filter="Ongoing">
-      <div class="sc-lbl">Ongoing</div>
-      <div class="sc-val" id="zoOngoingCount">0</div>
-      <div class="sc-sub">active schedules</div>
+    <button class="sc ftab" type="button" data-zo-filter="Assigned">
+      <div class="sc-lbl">Assigned</div>
+      <div class="sc-val" id="zoAssignedCount">0</div>
+      <div class="sc-sub">managing a zone</div>
     </button>
-    <button class="sc ftab" type="button" data-zo-filter="Pending">
-      <div class="sc-lbl">Pending</div>
-      <div class="sc-val" id="zoPendingCount">0</div>
-      <div class="sc-sub">not started</div>
+    <button class="sc ftab" type="button" data-zo-filter="Unassigned">
+      <div class="sc-lbl">Unassigned</div>
+      <div class="sc-val" id="zoUnassignedCount">0</div>
+      <div class="sc-sub">needs placement</div>
     </button>
   </div>
 
   <section class="card">
     <div class="ch">
-      <div class="ct">Zone Overview</div>
+      <div class="ct">Operator Directory</div>
     </div>
     <div class="cb cb--pt">
       <table class="zt">
         <thead>
           <tr>
-            <th>Zone</th>
-            <th>Operator</th>
-            <th>Schedule</th>
-            <th>Claims</th>
+            <th>Operator Name</th>
+            <th>Contact Info</th>
+            <th>Assigned Zone</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody id="zoneOperatorTableBody">
-          <tr data-zo-status="Completed"><td><div class="zn">Zone A</div><div class="zg">Gasabo · Kimironko</div></td><td>Jean P.</td><td><span class="b ok">Completed</span></td><td>2</td></tr>
-          <tr data-zo-status="Ongoing"><td><div class="zn">Zone B</div><div class="zg">Gasabo · Bibare</div></td><td>Amina K.</td><td><span class="b go">Ongoing</span></td><td>5</td></tr>
-          <tr data-zo-status="Pending"><td><div class="zn">Zone C</div><div class="zg">Kacyiru · Nyarutarama</div></td><td>Eric M.</td><td><span class="b pe">Pending</span></td><td>1</td></tr>
-          <tr data-zo-status="Completed"><td><div class="zn">Zone D</div><div class="zg">Gasabo · Kibagabaga</div></td><td>Diane U.</td><td><span class="b ok">Completed</span></td><td>0</td></tr>
-          <tr data-zo-status="Ongoing"><td><div class="zn">Zone E</div><div class="zg">Gasabo · Rwezamenyo</div></td><td>Patrick N.</td><td><span class="b go">Ongoing</span></td><td>3</td></tr>
-        </tbody>
+          </tbody>
       </table>
     </div>
   </section>
@@ -92,82 +159,244 @@
     <form id="zoDeleteModalForm" class="modal-form"></form>
   </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/static/js/api_helper.js"></script>
+<script src="/static/js/notifications.js"></script>
 <script>
-function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}
-document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});
-
-var zoModal=document.getElementById('zoModal');var zoModalForm=document.getElementById('zoModalForm');var zoModalClose=document.getElementById('zoModalClose');var createZoBtn=document.getElementById('createZoBtn');
-var modifyZoModal=document.getElementById('modifyZoModal');var modifyZoModalForm=document.getElementById('modifyZoModalForm');var modifyZoModalClose=document.getElementById('modifyZoModalClose');var modifyZoBtn=document.getElementById('modifyZoBtn');
-var zoDeleteModal=document.getElementById('zoDeleteModal');var zoDeleteModalForm=document.getElementById('zoDeleteModalForm');var zoDeleteModalClose=document.getElementById('zoDeleteModalClose');var deleteZoBtn=document.getElementById('deleteZoBtn');
-
-function closeZoModal(){if(!zoModal)return;zoModal.classList.remove('open');zoModal.setAttribute('aria-hidden','true');if(zoModalForm)zoModalForm.innerHTML='';}
-
-function openZoModal(){if(!zoModal||!zoModalForm)return;var formHtml='<label class="mf-lbl">Name<input class="mf-in" name="zoName" required placeholder="Jean-Pierre K." /></label>'+'<label class="mf-lbl">Email<input class="mf-in" name="zoEmail" type="email" required placeholder="jean@example.com" /></label>'+'<label class="mf-lbl">Phone Number<input class="mf-in" name="zoPhone" required placeholder="0788 123 456" /></label>'+'<div style="background:#f5f5f5;padding:10px;border-radius:6px;margin:12px 0;font-size:.74rem;line-height:1.4;color:var(--txt-m);"><strong>Temporary Password:</strong> A temporary password will be automatically generated and sent to the operator\'s email upon creation. They can reset it on first login.</div>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="zoFormCancel">Cancel</button><button type="submit" class="mf-btn">Create Operator</button></div>';zoModalForm.innerHTML=formHtml;zoModal.classList.add('open');zoModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('zoFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeZoModal);}}
-
-function generateTemporaryPassword(){var chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';var password='';for(var i=0;i<12;i++){password+=chars.charAt(Math.floor(Math.random()*chars.length));}return password;}
-
-function closeZoDeleteModal(){if(!zoDeleteModal)return;zoDeleteModal.classList.remove('open');zoDeleteModal.setAttribute('aria-hidden','true');if(zoDeleteModalForm)zoDeleteModalForm.innerHTML='';}
-
-function closeModifyZoModal(){if(!modifyZoModal)return;modifyZoModal.classList.remove('open');modifyZoModal.setAttribute('aria-hidden','true');if(modifyZoModalForm)modifyZoModalForm.innerHTML='';}
-
-function openModifyZoModal(){if(!modifyZoModal||!modifyZoModalForm)return;var tableBody=document.getElementById('zoneOperatorTableBody');if(!tableBody)return;var rows=Array.from(tableBody.querySelectorAll('tr'));if(rows.length===0){alert('No operators to modify');return;}var operatorOptions='<label class="mf-lbl">Select Operator to Modify<select class="mf-in" name="modifyOperator" required><option value="">Choose an operator...</option>';rows.forEach(function(row,i){var opName=row.querySelector('td:nth-child(2)').textContent.trim();operatorOptions+='<option value="'+i+'_'+opName+'">'+opName+'</option>';});operatorOptions+='</select></label>';var formHtml=operatorOptions+'<label class="mf-lbl">Name<input class="mf-in" name="zoName" required placeholder="Jean-Pierre K." /></label>'+'<label class="mf-lbl">Email<input class="mf-in" name="zoEmail" type="email" required placeholder="jean@example.com" /></label>'+'<label class="mf-lbl">Phone Number<input class="mf-in" name="zoPhone" required placeholder="0788 123 456" /></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="modifyZoFormCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#1976d2;">Update Operator</button></div>';modifyZoModalForm.innerHTML=formHtml;modifyZoModal.classList.add('open');modifyZoModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('modifyZoFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeModifyZoModal);}}
-
-function openZoDeleteModal(){if(!zoDeleteModal||!zoDeleteModalForm)return;var tableBody=document.getElementById('zoneOperatorTableBody');if(!tableBody)return;var rows=Array.from(tableBody.querySelectorAll('tr'));if(rows.length===0){alert('No operators to delete');return;}var operatorHTML='<label class="mf-lbl">Select Operator to Delete<select class="mf-in" name="zoOperator" required><option value="">Choose an operator...</option>';rows.forEach(function(row){var opName=row.querySelector('td:nth-child(2)').textContent.trim();operatorHTML+='<option value="'+opName+'">'+opName+'</option>';});operatorHTML+='</select></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="zoDeleteFormCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#d32f2f;">Delete Operator</button></div>';zoDeleteModalForm.innerHTML=operatorHTML;zoDeleteModal.classList.add('open');zoDeleteModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('zoDeleteFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeZoDeleteModal);}}
-
-if(createZoBtn){createZoBtn.addEventListener('click',openZoModal);}
-if(zoModalClose){zoModalClose.addEventListener('click',closeZoModal);}
-if(modifyZoBtn){modifyZoBtn.addEventListener('click',openModifyZoModal);}
-if(modifyZoModalClose){modifyZoModalClose.addEventListener('click',closeModifyZoModal);}
-if(deleteZoBtn){deleteZoBtn.addEventListener('click',openZoDeleteModal);}
-if(zoDeleteModalClose){zoDeleteModalClose.addEventListener('click',closeZoDeleteModal);}
-
-if(zoModalForm){zoModalForm.addEventListener('submit',function(e){e.preventDefault();var name=zoModalForm.querySelector('input[name="zoName"]').value;var email=zoModalForm.querySelector('input[name="zoEmail"]').value;var phone=zoModalForm.querySelector('input[name="zoPhone"]').value;var tempPassword=generateTemporaryPassword();console.log('Creating zone operator:',{name:name,email:email,phone:phone,temporaryPassword:tempPassword});closeZoModal();var toast=document.createElement('div');toast.className='toast show';toast.style.maxWidth='400px';var toastContent='<div style="padding:12px;"><strong>✓ Operator Created</strong><br><small style="opacity:0.9;">'+name+'</small><br><br><strong style="font-size:.85rem;">Temporary Password:</strong><br><code style="display:inline-block;background:#f0f0f0;padding:6px 8px;border-radius:4px;font-family:monospace;font-size:.8rem;margin:6px 0;letter-spacing:0.5px;">'+tempPassword+'</code><br><small style="display:block;margin-top:8px;opacity:0.85;">Sent to: '+email+'<br>Operator can reset on first login</small></div>';toast.innerHTML=toastContent;document.body.appendChild(toast);setTimeout(function(){toast.remove();},4000);})}
-
-if(modifyZoModalForm){modifyZoModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedOperator=modifyZoModalForm.querySelector('select[name="modifyOperator"]').value;var name=modifyZoModalForm.querySelector('input[name="zoName"]').value;var email=modifyZoModalForm.querySelector('input[name="zoEmail"]').value;var phone=modifyZoModalForm.querySelector('input[name="zoPhone"]').value;if(!selectedOperator){return;}console.log('Modifying zone operator:',{selectedOperator:selectedOperator,name:name,email:email,phone:phone});closeModifyZoModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Zone operator '+name+' updated successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}
-
-if(zoDeleteModalForm){zoDeleteModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedOperator=zoDeleteModalForm.querySelector('select[name="zoOperator"]').value;if(!selectedOperator||!confirm('Are you sure you want to delete '+selectedOperator+'? This action cannot be undone.')){return;}console.log('Deleting zone operator:',selectedOperator);closeZoDeleteModal();var tableBody=document.getElementById('zoneOperatorTableBody');if(tableBody){var rows=Array.from(tableBody.querySelectorAll('tr'));rows.forEach(function(row){if(row.querySelector('td:nth-child(2)').textContent.trim()===selectedOperator){row.remove();}});}var successMsg='Zone operator '+selectedOperator+' deleted successfully!';if(zoDeleteModal){var toast=document.createElement('div');toast.className='toast show';toast.textContent=successMsg;document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);}});}
-
-(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();
-
-(function(){
-  var tabs=Array.from(document.querySelectorAll('.zone-operator-status-ribbon .ftab'));
-  var rows=Array.from(document.querySelectorAll('#zoneOperatorTableBody tr'));
-  if(!tabs.length||!rows.length)return;
-
-  function rowStatus(row){
-    var status=row.getAttribute('data-zo-status')||'';
-    if(status)return status;
-    var badge=row.querySelector('td:nth-child(3) .b');
-    return badge?badge.textContent.trim():'Pending';
+  // --- UI TOGGLES & LOGOUT ---
+  function toggleSb() {
+      document.querySelector('.sb')?.classList.toggle('open');
+      document.getElementById('overlay')?.classList.toggle('open');
   }
-
-  function updateCounts(){
-    var counts={Completed:0,Ongoing:0,Pending:0};
-    rows.forEach(function(row){var s=rowStatus(row);if(counts[s]!==undefined)counts[s]+=1;});
-    var c=document.getElementById('zoCompletedCount');
-    var o=document.getElementById('zoOngoingCount');
-    var p=document.getElementById('zoPendingCount');
-    if(c)c.textContent=String(counts.Completed);
-    if(o)o.textContent=String(counts.Ongoing);
-    if(p)p.textContent=String(counts.Pending);
-  }
-
-  function applyFilter(status){
-    rows.forEach(function(row){row.style.display=rowStatus(row)===status?'':'none';});
-  }
-
-  tabs.forEach(function(tab){
-    tab.addEventListener('click',function(){
-      tabs.forEach(function(t){t.classList.remove('on');});
-      tab.classList.add('on');
-      applyFilter(tab.getAttribute('data-zo-filter')||'Completed');
-    });
+  
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = '/login';
   });
-
-  updateCounts();
-  applyFilter('Completed');
-})();
-</script>
+  
+  (function setDate() {
+      const d = document.getElementById('dashboardDate');
+      if (!d) return;
+      const s = d.getAttribute('data-subtitle') || d.textContent.trim();
+      const l = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+      d.textContent = `${l} — ${s}`;
+  })();
+  
+  // --- GLOBAL STATE ---
+  let globalZones = [];
+  let globalOperators = [];
+  let currentFilter = 'All';
+  
+  // --- API FETCH & RENDER ---
+  async function fetchAndRenderData() {
+      try {
+          const [zonesData, usersData] = await Promise.all([
+              API.get('/zones/'),
+              API.get('/auth/users?role=zone_operator')
+          ]);
+          
+          globalZones = zonesData;
+          globalOperators = usersData;
+  
+          renderTable();
+          updateCounters();
+      } catch (error) {
+          Swal.fire('Error', 'Failed to load operator data', 'error');
+      }
+  }
+  
+  function renderTable() {
+      const tbody = document.getElementById('zoneOperatorTableBody');
+      tbody.innerHTML = '';
+  
+      globalOperators.forEach(op => {
+          // Find if this operator is assigned to any zone
+          const assignedZone = globalZones.find(z => z.zone_operator_id === op.id);
+          const zoneName = assignedZone ? assignedZone.name : '<span style="color:#e74c3c;">None</span>';
+          const zoneLoc = assignedZone && assignedZone.district ? `${assignedZone.district} · ${assignedZone.sector}` : '';
+          
+          const statusDisplay = assignedZone ? 'Assigned' : 'Unassigned';
+          const badgeClass = assignedZone ? 'go' : 'pe';
+          
+          // Filter Logic
+          if (currentFilter !== 'All' && statusDisplay !== currentFilter) return;
+  
+          const row = `
+              <tr>
+                  <td><div class="zn">${op.username}</div></td>
+                  <td><div style="font-size:13px;">${op.email}</div><div class="ci-meta" style="margin-top:2px;">${op.phone_number || 'No phone'}</div></td>
+                  <td><div class="zn" style="font-size:13px;">${zoneName}</div><div class="zg">${zoneLoc}</div></td>
+                  <td><span class="b ${badgeClass}">${statusDisplay}</span></td>
+              </tr>`;
+          tbody.insertAdjacentHTML('beforeend', row);
+      });
+  
+      if (tbody.innerHTML === '') {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#7f8c8d;">No operators match this filter.</td></tr>`;
+      }
+  }
+  
+  function updateCounters() {
+      const counts = { 'All': globalOperators.length, 'Assigned': 0, 'Unassigned': 0 };
+      
+      globalOperators.forEach(op => { 
+          const isAssigned = globalZones.some(z => z.zone_operator_id === op.id);
+          if (isAssigned) counts['Assigned']++;
+          else counts['Unassigned']++;
+      });
+  
+      document.getElementById('zoTotalCount').textContent = counts['All'];
+      document.getElementById('zoAssignedCount').textContent = counts['Assigned'];
+      document.getElementById('zoUnassignedCount').textContent = counts['Unassigned'];
+  }
+  
+  // --- TAB FILTERING ---
+  document.querySelectorAll('.zone-operator-status-ribbon .ftab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+          document.querySelectorAll('.zone-operator-status-ribbon .ftab').forEach(t => t.classList.remove('on'));
+          const clickedTab = e.currentTarget;
+          clickedTab.classList.add('on');
+          currentFilter = clickedTab.getAttribute('data-zo-filter');
+          renderTable();
+      });
+  });
+  
+  // --- MODAL HELPERS ---
+  function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+  }
+  
+  function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+  }
+  
+  // --- CREATE OPERATOR ---
+  document.getElementById('createZoBtn').addEventListener('click', () => {
+      document.getElementById('zoModalForm').innerHTML = `
+          <label class="mf-lbl">Full Name<input class="mf-in" id="newZoName" required placeholder="Jean-Pierre K." /></label>
+          <label class="mf-lbl">Email<input class="mf-in" id="newZoEmail" type="email" required placeholder="jean@example.com" /></label>
+          <label class="mf-lbl">Phone Number<input class="mf-in" id="newZoPhone" required placeholder="0788..." /></label>
+          <div style="background:#f5f5f5;padding:10px;border-radius:6px;margin:12px 0;font-size:.74rem;color:var(--txt-m);">
+              <strong>Note:</strong> A secure setup link will be generated instantly for this operator.
+          </div>
+          <div class="mf-actions">
+              <button type="button" class="mf-btn sec" onclick="closeModal('zoModal')">Cancel</button>
+              <button type="submit" class="mf-btn">Create Operator</button>
+          </div>`;
+      openModal('zoModal');
+  });
+  
+  document.getElementById('zoModalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const payload = {
+          username: document.getElementById('newZoName').value.trim(),
+          email: document.getElementById('newZoEmail').value.trim(),
+          phone_number: document.getElementById('newZoPhone').value.trim(),
+          password: "TempPassword123!", 
+          role: "zone_operator"
+      };
+  
+      try {
+          const data = await API.post('/auth/register', payload);
+          closeModal('zoModal');
+          fetchAndRenderData(); 
+          
+          if (data.reset_token) {
+              const setupLink = `${window.location.origin}/templates/reset-password.html?token=${data.reset_token}`;
+              Swal.fire({
+                  title: 'Operator Created!',
+                  html: `Copy this secure setup link and send it to the operator:<br><br><input type="text" value="${setupLink}" style="width:100%; padding:8px; text-align:center; border: 1px solid #ccc; border-radius: 4px;" readonly onclick="this.select()">`,
+                  icon: 'success',
+                  confirmButtonText: 'Done'
+              });
+          } else {
+              Swal.fire('Success', 'Operator created successfully!', 'success');
+          }
+      } catch (error) { Swal.fire('Error', error.message, 'error'); }
+  });
+  
+  // --- MODIFY OPERATOR ---
+  document.getElementById('modifyZoBtn').addEventListener('click', () => {
+      if (globalOperators.length === 0) return Swal.fire('Info', 'No operators available', 'info');
+      
+      let options = '<option value="">Choose an operator...</option>';
+      globalOperators.forEach(op => { options += `<option value="${op.id}">${op.username}</option>`; });
+  
+      document.getElementById('modifyZoModalForm').innerHTML = `
+          <label class="mf-lbl">Select Operator<select class="mf-in" id="modZoSelect" required>${options}</select></label>
+          <label class="mf-lbl">Full Name<input class="mf-in" id="modZoName" required /></label>
+          <label class="mf-lbl">Phone Number<input class="mf-in" id="modZoPhone" required /></label>
+          <div class="mf-actions">
+              <button type="button" class="mf-btn sec" onclick="closeModal('modifyZoModal')">Cancel</button>
+              <button type="submit" class="mf-btn" style="background:#1976d2;">Update</button>
+          </div>`;
+          
+      document.getElementById('modZoSelect').addEventListener('change', (e) => {
+          const op = globalOperators.find(o => o.id == e.target.value);
+          if (op) {
+              document.getElementById('modZoName').value = op.username;
+              document.getElementById('modZoPhone').value = op.phone_number || '';
+          }
+      });
+  
+      openModal('modifyZoModal');
+  });
+  
+  document.getElementById('modifyZoModalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const opId = document.getElementById('modZoSelect').value;
+      if (!opId) return;
+  
+      try {
+          await API.put(`/auth/users/${opId}`, {
+              username: document.getElementById('modZoName').value.trim(),
+              phone_number: document.getElementById('modZoPhone').value.trim()
+          });
+          closeModal('modifyZoModal');
+          Swal.fire('Updated!', 'Operator details updated.', 'success');
+          fetchAndRenderData();
+      } catch (error) { Swal.fire('Error', error.message, 'error'); }
+  });
+  
+  // --- DELETE OPERATOR ---
+  document.getElementById('deleteZoBtn').addEventListener('click', () => {
+      if (globalOperators.length === 0) return Swal.fire('Info', 'No operators to delete', 'info');
+      
+      let options = '<option value="">Choose an operator...</option>';
+      globalOperators.forEach(op => { options += `<option value="${op.id}">${op.username} (${op.email})</option>`; });
+  
+      document.getElementById('zoDeleteModalForm').innerHTML = `
+          <label class="mf-lbl">Select Operator to Delete<select class="mf-in" id="delZoSelect" required>${options}</select></label>
+          <div style="background:#fff3cd;padding:10px;border-radius:6px;margin:12px 0;font-size:.74rem;color:#856404;border:1px solid #ffc107;">
+              <strong>⚠ Warning:</strong> Deleting an operator removes their system access.
+          </div>
+          <div class="mf-actions">
+              <button type="button" class="mf-btn sec" onclick="closeModal('zoDeleteModal')">Cancel</button>
+              <button type="submit" class="mf-btn" style="background:#d32f2f;">Delete</button>
+          </div>`;
+      openModal('zoDeleteModal');
+  });
+  
+  document.getElementById('zoDeleteModalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const opId = document.getElementById('delZoSelect').value;
+      if (!opId) return;
+  
+      try {
+          await API.delete(`/auth/users/${opId}`);
+          closeModal('zoDeleteModal');
+          Swal.fire('Deleted!', 'Operator account removed.', 'success');
+          fetchAndRenderData();
+      } catch (error) { Swal.fire('Error', error.message, 'error'); }
+  });
+  
+  // Boot App
+  fetchAndRenderData();
+  </script>
 </body>
 </html>

@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, get_jwt
 from extensions import db
 from models.payment import Payment, MonthlyPrice
-from models.notification import Notification
 from models.user import User
 from models.zone import Zone
 from utils.auth_helpers import role_required
@@ -364,19 +363,7 @@ def approve_payment(payment_id):
     payment.reviewed_by = int(user_id)
     payment.reviewed_at = datetime.now(timezone.utc)
 
-    # Create notification for resident
-    month_name = datetime(2000, payment.payment_month, 1).strftime("%B")
-    notification = Notification(
-        user_id=payment.resident_id,
-        title="Payment Approved",
-        message=f"Your payment of {payment.amount} {payment.currency} for {month_name} {payment.payment_year} has been approved.",
-        notification_type="payment_approved",
-        reference_id=payment.id,
-        reference_type="payment"
-    )
-
     try:
-        db.session.add(notification)
         db.session.commit()
     except Exception as e:
         db.session.rollback()
@@ -419,19 +406,7 @@ def reject_payment(payment_id):
     payment.reviewed_by = int(user_id)
     payment.reviewed_at = datetime.now(timezone.utc)
 
-    # Create notification for resident
-    month_name = datetime(2000, payment.payment_month, 1).strftime("%B")
-    notification = Notification(
-        user_id=payment.resident_id,
-        title="Payment Rejected",
-        message=f"Your payment for {month_name} {payment.payment_year} has been rejected. Reason: {rejection_reason}",
-        notification_type="payment_rejected",
-        reference_id=payment.id,
-        reference_type="payment"
-    )
-
     try:
-        db.session.add(notification)
         db.session.commit()
     except Exception as e:
         db.session.rollback()
@@ -442,65 +417,6 @@ def reject_payment(payment_id):
         "payment": payment.to_dict()
     }), 200
 
-
-# ==================== NOTIFICATIONS (Resident) ====================
-
-@payment_bp.route("/notifications", methods=["GET"])
-@role_required("resident", "zone_operator", "admin")
-def get_notifications():
-    """Get user notifications"""
-    user_id = get_jwt_identity()
-
-    unread_only = request.args.get("unread", "false").lower() == "true"
-
-    query = Notification.query.filter_by(user_id=user_id)
-
-    if unread_only:
-        query = query.filter_by(is_read=False)
-
-    notifications = query.order_by(Notification.created_at.desc()).all()
-    return jsonify([n.to_dict() for n in notifications]), 200
-
-
-@payment_bp.route("/notifications/<int:notification_id>/read", methods=["PUT"])
-@role_required("resident", "zone_operator", "admin")
-def mark_notification_read(notification_id):
-    """Mark a notification as read"""
-    user_id = get_jwt_identity()
-
-    notification = Notification.query.get_or_404(notification_id)
-
-    if notification.user_id != int(user_id):
-        return jsonify({"error": "You can only mark your own notifications as read"}), 403
-
-    notification.is_read = True
-
-    try:
-        db.session.commit()
-    except Exception:
-        db.session.rollback()
-        return jsonify({"error": "Failed to update notification"}), 500
-
-    return jsonify({
-        "message": "Notification marked as read",
-        "notification": notification.to_dict()
-    }), 200
-
-
-@payment_bp.route("/notifications/read-all", methods=["PUT"])
-@role_required("resident", "zone_operator", "admin")
-def mark_all_notifications_read():
-    """Mark all notifications as read"""
-    user_id = get_jwt_identity()
-
-    try:
-        Notification.query.filter_by(user_id=user_id, is_read=False).update({"is_read": True})
-        db.session.commit()
-    except Exception:
-        db.session.rollback()
-        return jsonify({"error": "Failed to update notifications"}), 500
-
-    return jsonify({"message": "All notifications marked as read"}), 200
 
 
 # ==================== PAYMENT HISTORY (Resident) ====================

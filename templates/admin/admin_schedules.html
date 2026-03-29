@@ -8,13 +8,88 @@
 </head>
 <body>
 <aside class="sb" aria-label="Admin sidebar navigation">
-  <div class="sb-top"><div class="sb-logo" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div><div><div class="sb-name">Isuku Track</div><div class="sb-role">Admin Panel</div></div></div>
-  <div class="sb-sec"><div class="sb-lbl">Overview</div><a class="sb-a" href="admin_dash.html">Dashboard</a><a class="sb-a" href="admin_zones.html">Zones</a><a class="sb-a" href="admin_users.html">Users</a><a class="sb-a" href="admin_zone_operator.html">Zone Operator</a></div>
-  <div class="sb-sec"><div class="sb-lbl">Operations</div><a class="sb-a on" href="admin_schedules.html" aria-current="page">Schedules</a><a class="sb-a" href="admin_claims.html">Claims</a><a class="sb-a" href="admin_payments.html">Payments</a></div>
-  <div class="sb-sec"><div class="sb-lbl">Reports</div><a class="sb-a" href="admin_reports.html">Reports</a></div>
-  <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
+  <div class="sb-top">
+    <div class="sb-logo" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line>
+        <line x1="14" y1="11" x2="14" y2="17"></line>
+      </svg>
+    </div>
+    <div>
+      <div class="sb-name">Isuku Track</div>
+      <div class="sb-role">Admin Panel</div>
+    </div>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Overview</div>
+    <a class="sb-a" href="admin_dash.html" aria-label="Go to dashboard">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a class="sb-a" href="admin_zones.html" aria-label="Go to zones page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      Zones <span class="sb-badge am" id="sbZonesCount">8</span>
+    </a>
+    <a class="sb-a" href="admin_users.html" aria-label="Go to users page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Users
+    </a>
+    <a class="sb-a" href="admin_zone_operator.html" aria-label="Go to zone operator page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M17 11h6"/></svg>
+      Zone Operator
+    </a>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Operations</div>
+    <a class="sb-a on" href="admin_schedules.html" aria-label="Go to schedules page" aria-current="page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Schedules
+    </a>
+    <a class="sb-a" href="admin_vehicles.html" aria-label="Go to vehicles page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      Vehicles
+    </a>
+    <a class="sb-a" href="admin_claims.html" aria-label="Go to claims page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Claims <span class="sb-badge" id="sbClaimsCount">5</span>
+    </a>
+    <a class="sb-a" href="admin_payments.html" aria-label="Go to payments page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Payments
+    </a>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Reports</div>
+    <a class="sb-a" href="admin_reports.html" aria-label="Go to reports page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reports
+    </a>
+  </div>
+
+  <div class="sb-foot">
+    <div class="sb-user" aria-label="Administrator profile">
+      <div class="sb-av">AD</div>
+      <div>
+        <div class="sb-un">Administrator</div>
+        <div class="sb-ur">System Admin</div>
+      </div>
+    </div>
+    <button type="button" class="sb-logout" id="logoutBtn" data-profile-action="logout" aria-label="Logout">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Logout
+    </button>
+  </div>
 </aside>
-<div class="main"><header class="topbar"><div class="tb-l"><h1>Schedules Management</h1><p id="dashboardDate" data-subtitle="Manage collection schedules across zones">Manage collection schedules across zones</p></div><div class="tb-r"><button type="button" id="createSchedBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Create new schedule">+ Create Schedule</button><button type="button" id="modifySchedBtn" style="background:#1976d2;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Modify schedule">✎ Modify Schedule</button><button type="button" id="deleteSchedBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Delete schedule">🗑 Delete Schedule</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
+<div class="main"><header class="topbar"><div class="tb-l"><h1>Schedules Management</h1><p id="dashboardDate" data-subtitle="Manage collection schedules across zones">Manage collection schedules across zones</p></div><div class="tb-r"><button type="button" id="createSchedBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Create new schedule">+ Create Schedule</button><button type="button" id="modifySchedBtn" style="background:#1976d2;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Modify schedule">✎ Modify Schedule</button><button type="button" id="deleteSchedBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Delete schedule">🗑 Delete Schedule</button><div class="notif-wrap" style="position:relative;margin-right:8px;"><button class="icon-btn" id="notifToggle" style="background:none;border:none;cursor:pointer;position:relative;padding:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="notif-dot" id="notifDot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;background:#e53e3e;border-radius:50%;"></div></button><div class="notif-panel" id="notifPanel"><div class="notif-head"><span>Notifications</span><button id="markAllReadBtn">Mark all as read</button></div><div id="notifList"></div></div></div><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
   <div class="sg status-ribbon zone-operator-status-ribbon" aria-label="Schedule status filters">
     <button class="sc ftab on" type="button" data-schedule-filter="Completed">
       <div class="sc-lbl">Completed</div>
@@ -48,11 +123,6 @@
           </tr>
         </thead>
         <tbody id="scheduleTableBody">
-          <tr data-schedule-status="Completed"><td><div class="zn">Zone A</div><div class="zg">Gasabo · Kimironko</div></td><td>Jean P.</td><td><span class="b ok">Completed</span></td><td>2</td></tr>
-          <tr data-schedule-status="Ongoing"><td><div class="zn">Zone B</div><div class="zg">Gasabo · Bibare</div></td><td>Amina K.</td><td><span class="b go">Ongoing</span></td><td>5</td></tr>
-          <tr data-schedule-status="Pending"><td><div class="zn">Zone C</div><div class="zg">Kacyiru · Nyarutarama</div></td><td>Eric M.</td><td><span class="b pe">Pending</span></td><td>1</td></tr>
-          <tr data-schedule-status="Completed"><td><div class="zn">Zone D</div><div class="zg">Gasabo · Kibagabaga</div></td><td>Diane U.</td><td><span class="b ok">Completed</span></td><td>0</td></tr>
-          <tr data-schedule-status="Ongoing"><td><div class="zn">Zone E</div><div class="zg">Gasabo · Rwezamenyo</div></td><td>Patrick N.</td><td><span class="b go">Ongoing</span></td><td>3</td></tr>
         </tbody>
       </table>
     </div>
@@ -90,72 +160,259 @@
   </div>
 </div>
 
-<script>function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();
-
-var schedModal=document.getElementById('schedModal');var schedModalForm=document.getElementById('schedModalForm');var schedModalClose=document.getElementById('schedModalClose');var createSchedBtn=document.getElementById('createSchedBtn');
-var modifySchedModal=document.getElementById('modifySchedModal');var modifySchedModalForm=document.getElementById('modifySchedModalForm');var modifySchedModalClose=document.getElementById('modifySchedModalClose');var modifySchedBtn=document.getElementById('modifySchedBtn');
-var deleteSchedModal=document.getElementById('deleteSchedModal');var deleteSchedModalForm=document.getElementById('deleteSchedModalForm');var deleteSchedModalClose=document.getElementById('deleteSchedModalClose');var deleteSchedBtn=document.getElementById('deleteSchedBtn');
-
-function closeSchedModal(){if(!schedModal)return;schedModal.classList.remove('open');schedModal.setAttribute('aria-hidden','true');if(schedModalForm)schedModalForm.innerHTML='';}
-function closeModifySchedModal(){if(!modifySchedModal)return;modifySchedModal.classList.remove('open');modifySchedModal.setAttribute('aria-hidden','true');if(modifySchedModalForm)modifySchedModalForm.innerHTML='';}
-function closeDeleteSchedModal(){if(!deleteSchedModal)return;deleteSchedModal.classList.remove('open');deleteSchedModal.setAttribute('aria-hidden','true');if(deleteSchedModalForm)deleteSchedModalForm.innerHTML='';}
-
-function openSchedModal(){if(!schedModal||!schedModalForm)return;var formHtml='<label class="mf-lbl">Zone<input class="mf-in" name="schedZone" required placeholder="Zone A" /></label>'+'<label class="mf-lbl">Schedule Date<input class="mf-in" name="schedDate" type="date" required /></label>'+'<label class="mf-lbl">Day of Collection<select class="mf-in" name="schedDay" required><option value="">Select day</option><option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option><option value="Friday">Friday</option><option value="Saturday">Saturday</option><option value="Sunday">Sunday</option></select></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="schedFormCancel">Cancel</button><button type="submit" class="mf-btn">Create Schedule</button></div>';schedModalForm.innerHTML=formHtml;schedModal.classList.add('open');schedModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('schedFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeSchedModal);}}
-
-function openModifySchedModal(){if(!modifySchedModal||!modifySchedModalForm)return;var tbody=document.querySelector('.zt tbody');if(!tbody)return;var rows=Array.from(tbody.querySelectorAll('tr'));if(rows.length===0){alert('No schedules to modify');return;}var scheduleOptions='<label class="mf-lbl">Select Schedule to Modify<select class="mf-in" name="modifySchedule" required><option value="">Choose a schedule...</option>';rows.forEach(function(row,i){var zone=row.querySelector('td:nth-child(1) .zn').textContent.trim();scheduleOptions+='<option value="'+i+'_'+zone+'">'+zone+'</option>';});scheduleOptions+='</select></label>';var formHtml=scheduleOptions+'<label class="mf-lbl">Schedule Date<input class="mf-in" name="schedDate" type="date" required /></label>'+'<label class="mf-lbl">Day of Collection<select class="mf-in" name="schedDay" required><option value="">Select day</option><option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option><option value="Friday">Friday</option><option value="Saturday">Saturday</option><option value="Sunday">Sunday</option></select></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="modifyFormCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#1976d2;">Update Schedule</button></div>';modifySchedModalForm.innerHTML=formHtml;modifySchedModal.classList.add('open');modifySchedModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('modifyFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeModifySchedModal);}}
-
-function openDeleteSchedModal(){if(!deleteSchedModal||!deleteSchedModalForm)return;var tbody=document.querySelector('.zt tbody');if(!tbody)return;var rows=Array.from(tbody.querySelectorAll('tr'));if(rows.length===0){alert('No schedules to delete');return;}var scheduleOptions='<label class="mf-lbl">Select Schedule to Delete<select class="mf-in" name="deleteSchedule" required><option value="">Choose a schedule...</option>';rows.forEach(function(row,i){var zone=row.querySelector('td:nth-child(1) .zn').textContent.trim();scheduleOptions+='<option value="'+i+'_'+zone+'">'+zone+'</option>';});scheduleOptions+='</select></label>';var formHtml=scheduleOptions+'<div style="background:#fff3cd;padding:10px;border-radius:6px;margin:12px 0;font-size:.74rem;color:#856404;border:1px solid #ffc107;"><strong>⚠ Warning:</strong> Deleting a schedule cannot be undone.</div>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="deleteFormCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#d32f2f;">Delete Schedule</button></div>';deleteSchedModalForm.innerHTML=formHtml;deleteSchedModal.classList.add('open');deleteSchedModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('deleteFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeDeleteSchedModal);}}
-
-if(createSchedBtn){createSchedBtn.addEventListener('click',openSchedModal);}
-if(modifySchedBtn){modifySchedBtn.addEventListener('click',openModifySchedModal);}
-if(deleteSchedBtn){deleteSchedBtn.addEventListener('click',openDeleteSchedModal);}
-if(schedModalClose){schedModalClose.addEventListener('click',closeSchedModal);}
-if(modifySchedModalClose){modifySchedModalClose.addEventListener('click',closeModifySchedModal);}
-if(deleteSchedModalClose){deleteSchedModalClose.addEventListener('click',closeDeleteSchedModal);}
-
-if(schedModalForm){schedModalForm.addEventListener('submit',function(e){e.preventDefault();var zone=schedModalForm.querySelector('input[name="schedZone"]').value;var date=schedModalForm.querySelector('input[name="schedDate"]').value;var day=schedModalForm.querySelector('select[name="schedDay"]').value;console.log('Creating schedule:',{zone:zone,date:date,day:day});closeSchedModal();var successMsg='Schedule for '+zone+' created successfully!';if(schedModal){var toast=document.createElement('div');toast.className='toast show';toast.textContent=successMsg;document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);}});}
-
-if(modifySchedModalForm){modifySchedModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedSchedule=modifySchedModalForm.querySelector('select[name="modifySchedule"]').value;var date=modifySchedModalForm.querySelector('input[name="schedDate"]').value;var day=modifySchedModalForm.querySelector('select[name="schedDay"]').value;if(!selectedSchedule){return;}console.log('Modifying schedule:',{selectedSchedule:selectedSchedule,date:date,day:day});closeModifySchedModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Schedule updated successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}
-
-if(deleteSchedModalForm){deleteSchedModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedSchedule=deleteSchedModalForm.querySelector('select[name="deleteSchedule"]').value;if(!selectedSchedule||!confirm('Are you sure you want to delete this schedule? This action cannot be undone.')){return;}console.log('Deleting schedule:',selectedSchedule);closeDeleteSchedModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Schedule deleted successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}
-
-(function(){
-  var tabs=Array.from(document.querySelectorAll('.zone-operator-status-ribbon .ftab'));
-  var rows=Array.from(document.querySelectorAll('#scheduleTableBody tr'));
-  if(!tabs.length||!rows.length)return;
-
-  function rowStatus(row){
-    var status=row.getAttribute('data-schedule-status')||'';
-    if(status)return status;
-    var badge=row.querySelector('td:nth-child(3) .b');
-    return badge?badge.textContent.trim():'Pending';
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/static/js/api_helper.js"></script>
+<script src="/static/js/notifications.js"></script>
+<script>
+  // --- UI TOGGLES & LOGOUT ---
+  function toggleSb() {
+      document.querySelector('.sb')?.classList.toggle('open');
+      document.getElementById('overlay')?.classList.toggle('open');
   }
-
-  function updateCounts(){
-    var counts={Completed:0,Ongoing:0,Pending:0};
-    rows.forEach(function(row){var s=rowStatus(row);if(counts[s]!==undefined)counts[s]+=1;});
-    var c=document.getElementById('scheduleCompletedCount');
-    var o=document.getElementById('scheduleOngoingCount');
-    var p=document.getElementById('schedulePendingCount');
-    if(c)c.textContent=String(counts.Completed);
-    if(o)o.textContent=String(counts.Ongoing);
-    if(p)p.textContent=String(counts.Pending);
-  }
-
-  function applyFilter(status){
-    rows.forEach(function(row){row.style.display=rowStatus(row)===status?'':'none';});
-  }
-
-  tabs.forEach(function(tab){
-    tab.addEventListener('click',function(){
-      tabs.forEach(function(t){t.classList.remove('on');});
-      tab.classList.add('on');
-      applyFilter(tab.getAttribute('data-schedule-filter')||'Completed');
-    });
+  
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = '/login';
   });
+  
+  (function setDate() {
+      const d = document.getElementById('dashboardDate');
+      if (!d) return;
+      const s = d.getAttribute('data-subtitle') || d.textContent.trim();
+      const l = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+      d.textContent = `${l} — ${s}`;
+  })();
+  
+  // --- GLOBAL STATE ---
+  let globalSchedules = [];
+  let globalZones = [];
+  let currentFilter = 'Completed';
+  
+  // --- API FETCH & RENDER ---
+  async function fetchAndRenderSchedules() {
+      try {
+          const [schedData, zonesData] = await Promise.all([
+              API.get('/schedules/'),
+              API.get('/zones/')
+          ]);
+          
+          globalSchedules = schedData;
+          globalZones = zonesData;
+  
+          renderTable();
+          updateCounters();
+      } catch (error) {
+          Swal.fire('Error', 'Failed to load schedules', 'error');
+      }
+  }
+  
+  function getDisplayStatus(dbStatus) {
+      if (dbStatus === 'completed') return 'Completed';
+      if (dbStatus === 'ongoing') return 'Ongoing';
+      return 'Pending'; // Maps 'not_started' or anything else to Pending
+  }
+  
+  function renderTable() {
+      const tbody = document.getElementById('scheduleTableBody');
+      tbody.innerHTML = '';
+  
+      globalSchedules.forEach(s => {
+          const displayStatus = getDisplayStatus(s.status);
+          
+          if (displayStatus !== currentFilter) return;
+  
+          // Find the matching zone to display rich data
+          const zone = globalZones.find(z => z.id === s.zone_id) || {};
+          const zoneName = zone.name || 'Unknown Zone';
+          const zoneLoc = zone.district ? `${zone.district} · ${zone.sector}` : '';
+          const operatorName = zone.zone_operator_name || '<span class="ci-meta">Unassigned</span>';
+  
+          let badgeClass = 'pe';
+          if (displayStatus === 'Ongoing') badgeClass = 'go';
+          if (displayStatus === 'Completed') badgeClass = 'ok';
+  
+          // Formatting date nice and clean
+          const startDate = new Date(s.date_time_start).toLocaleDateString('en-GB', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+  
+          const row = `
+              <tr>
+                  <td><div class="zn">${zoneName}</div><div class="zg">${zoneLoc}</div><div style="font-size:11px; color:#7f8c8d; margin-top:4px;">Starts: ${startDate}</div></td>
+                  <td>${operatorName}</td>
+                  <td><span class="b ${badgeClass}">${displayStatus}</span></td>
+                  <td>0</td> </tr>`;
+          tbody.insertAdjacentHTML('beforeend', row);
+      });
+  
+      if (tbody.innerHTML === '') {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#7f8c8d;">No schedules match this status.</td></tr>`;
+      }
+  }
+  
+  function updateCounters() {
+      const counts = { 'Completed': 0, 'Ongoing': 0, 'Pending': 0 };
+      globalSchedules.forEach(s => { counts[getDisplayStatus(s.status)]++; });
+  
+      document.getElementById('scheduleCompletedCount').textContent = counts['Completed'];
+      document.getElementById('scheduleOngoingCount').textContent = counts['Ongoing'];
+      document.getElementById('schedulePendingCount').textContent = counts['Pending'];
+  }
+  
+  // --- TAB FILTERING ---
+  document.querySelectorAll('.zone-operator-status-ribbon .ftab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+          document.querySelectorAll('.zone-operator-status-ribbon .ftab').forEach(t => t.classList.remove('on'));
+          const clickedTab = e.currentTarget;
+          clickedTab.classList.add('on');
+          currentFilter = clickedTab.getAttribute('data-schedule-filter');
+          renderTable();
+      });
+  });
+  
+  // --- MODAL HELPERS ---
+  function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+  }
+  
+  function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+  }
+  
+  // --- CREATE SCHEDULE ---
+  document.getElementById('createSchedBtn').addEventListener('click', () => {
+      let zoneOptions = '<option value="">Select a Zone</option>';
+      globalZones.forEach(z => { 
+          // Only allow scheduling for zones that actually have an operator
+          if(z.zone_operator_id) {
+              zoneOptions += `<option value="${z.id}" data-op="${z.zone_operator_id}">${z.name} (${z.zone_operator_name})</option>`;
+          }
+      });
+  
+      if(zoneOptions === '<option value="">Select a Zone</option>') {
+          return Swal.fire('Action Required', 'You must assign operators to zones before creating schedules.', 'info');
+      }
+  
+      document.getElementById('schedModalForm').innerHTML = `
+          <label class="mf-lbl">Select Zone<select class="mf-in" id="newSchedZone" required>${zoneOptions}</select></label>
+          <label class="mf-lbl">Start Time<input class="mf-in" id="newSchedStart" type="datetime-local" required /></label>
+          <label class="mf-lbl">End Time<input class="mf-in" id="newSchedEnd" type="datetime-local" required /></label>
+          <label class="mf-lbl">Status
+              <select class="mf-in" id="newSchedStatus">
+                  <option value="not_started">Pending</option>
+                  <option value="ongoing">Ongoing</option>
+                  <option value="completed">Completed</option>
+              </select>
+          </label>
+          <div class="mf-actions">
+              <button type="button" class="mf-btn sec" onclick="closeModal('schedModal')">Cancel</button>
+              <button type="submit" class="mf-btn">Create</button>
+          </div>`;
+      openModal('schedModal');
+  });
+  
+  document.getElementById('schedModalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const zoneSelect = document.getElementById('newSchedZone');
+      const selectedOption = zoneSelect.options[zoneSelect.selectedIndex];
+      
+     // Grab the raw HTML5 datetime-local string (e.g. "2026-03-31T11:30")
+    // and append ":00" to explicitly match the backend's ISO 8601 expectation.
+    const startString = document.getElementById('newSchedStart').value;
+    const endString = document.getElementById('newSchedEnd').value;
 
-  updateCounts();
-  applyFilter('Completed');
-})();</script>
+    const payload = {
+        zone_id: parseInt(zoneSelect.value),
+        zone_operator_id: parseInt(selectedOption.getAttribute('data-op')),
+        date_time_start: startString.length === 16 ? startString + ':00' : startString,
+        date_time_end: endString.length === 16 ? endString + ':00' : endString,
+        status: document.getElementById('newSchedStatus').value
+    };
+  
+      try {
+          await API.post('/schedules/', payload);
+          closeModal('schedModal');
+          Swal.fire('Created!', 'Schedule has been established.', 'success');
+          fetchAndRenderSchedules();
+      } catch (error) { Swal.fire('Error', error.message, 'error'); }
+  });
+  
+  // --- MODIFY SCHEDULE ---
+  document.getElementById('modifySchedBtn').addEventListener('click', () => {
+      if (globalSchedules.length === 0) return Swal.fire('Info', 'No schedules to modify', 'info');
+      
+      let options = '<option value="">Choose a schedule...</option>';
+      globalSchedules.forEach(s => {
+          const zoneName = globalZones.find(z => z.id === s.zone_id)?.name || 'Unknown Zone';
+          const displayDate = new Date(s.date_time_start).toLocaleDateString('en-GB', { month:'short', day:'numeric' });
+          options += `<option value="${s.id}">${zoneName} (${displayDate})</option>`;
+      });
+  
+      document.getElementById('modifySchedModalForm').innerHTML = `
+          <label class="mf-lbl">Select Schedule<select class="mf-in" id="modSchedSelect" required>${options}</select></label>
+          <label class="mf-lbl">Status
+              <select class="mf-in" id="modSchedStatus">
+                  <option value="not_started">Pending</option>
+                  <option value="ongoing">Ongoing</option>
+                  <option value="completed">Completed</option>
+              </select>
+          </label>
+          <div class="mf-actions">
+              <button type="button" class="mf-btn sec" onclick="closeModal('modifySchedModal')">Cancel</button>
+              <button type="submit" class="mf-btn" style="background:#1976d2;">Update Status</button>
+          </div>`;
+      openModal('modifySchedModal');
+  });
+  
+  document.getElementById('modifySchedModalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sId = document.getElementById('modSchedSelect').value;
+      if (!sId) return;
+  
+      try {
+          await API.put(`/schedules/${sId}`, { status: document.getElementById('modSchedStatus').value });
+          closeModal('modifySchedModal');
+          Swal.fire('Updated!', 'Schedule status updated.', 'success');
+          fetchAndRenderSchedules();
+      } catch (error) { Swal.fire('Error', error.message, 'error'); }
+  });
+  
+  // --- DELETE SCHEDULE ---
+  document.getElementById('deleteSchedBtn').addEventListener('click', () => {
+      if (globalSchedules.length === 0) return Swal.fire('Info', 'No schedules to delete', 'info');
+      
+      let options = '<option value="">Choose a schedule...</option>';
+      globalSchedules.forEach(s => {
+          const zoneName = globalZones.find(z => z.id === s.zone_id)?.name || 'Unknown Zone';
+          options += `<option value="${s.id}">${zoneName} - ${getDisplayStatus(s.status)}</option>`;
+      });
+  
+      document.getElementById('deleteSchedModalForm').innerHTML = `
+          <label class="mf-lbl">Select Schedule<select class="mf-in" id="delSchedSelect" required>${options}</select></label>
+          <div class="mf-actions">
+              <button type="button" class="mf-btn sec" onclick="closeModal('deleteSchedModal')">Cancel</button>
+              <button type="submit" class="mf-btn" style="background:#d32f2f;">Delete</button>
+          </div>`;
+      openModal('deleteSchedModal');
+  });
+  
+  document.getElementById('deleteSchedModalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sId = document.getElementById('delSchedSelect').value;
+      if (!sId) return;
+  
+      try {
+          await API.delete(`/schedules/${sId}`);
+          closeModal('deleteSchedModal');
+          Swal.fire('Deleted!', 'Schedule removed.', 'success');
+          fetchAndRenderSchedules();
+      } catch (error) { Swal.fire('Error', error.message, 'error'); }
+  });
+  
+  // Boot App
+  fetchAndRenderSchedules();
+  </script>
 </body>
 </html>

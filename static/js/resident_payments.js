@@ -1,298 +1,422 @@
-// resident_payments.js — Enhanced Payment Page Interactivity
+// resident_payments.js — API-driven payment form and data loading
 
+// ── Field Mapping Constants ──
+const methodLabelMap = {
+  'mobile_money': 'Mobile Money',
+  'bank_transfer': 'Bank Transfer',
+  'cash': 'Cash (at office)'
+};
+
+const methodClassMap = {
+  'mobile_money': 'momo',
+  'bank_transfer': 'bank',
+  'cash': 'cash'
+};
+
+// ── Helper Functions ──
+function getPaymentMonthLabel(month, year) {
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${monthNames[month - 1]} ${year}`;
+}
+
+function formatSubmittedDate(isoDate) {
+  const date = new Date(isoDate);
+  const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  return { date: dateStr, time: timeStr };
+}
+
+// ── Data Loading ──
+async function loadPaymentData() {
+  try {
+    const [history, currentPrice] = await Promise.all([
+      API.get('/payments/history'),
+      API.get('/payments/prices/current')
+    ]);
+
+    renderPaymentsTable(history.payments || []);
+    updateSummary(history.summary || {}, currentPrice || {});
+    generateMonthDropdown(currentPrice);
+
+  } catch (error) {
+    console.error('Error loading payment data:', error);
+    showToast('Error loading payment data. Please refresh the page.');
+  }
+}
+
+// ── Render Payment Table ──
+function renderPaymentsTable(payments) {
+  const tbody = document.getElementById('paymentTableBody');
+  if (!tbody) return;
+
+  if (payments.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#999;">No payments found yet</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '';
+
+  payments.forEach(payment => {
+    const { date, time } = formatSubmittedDate(payment.submitted_at);
+    const monthLabel = getPaymentMonthLabel(payment.payment_month, payment.payment_year);
+    const methodLabel = methodLabelMap[payment.payment_method] || payment.payment_method;
+    const methodClass = methodClassMap[payment.payment_method] || 'momo';
+
+    const row = document.createElement('tr');
+    row.setAttribute('data-status', payment.status);
+    row.setAttribute('data-id', payment.id);
+
+    const statusBadge = `
+      <span class="rp-badge ${payment.status}">
+        ${payment.status === 'pending' ? 'Pending' : 
+          payment.status === 'approved' ? 'Approved' : 
+          'Rejected'}
+      </span>
+    `;
+
+    row.innerHTML = `
+      <td><strong>${date}</strong><br><span style="font-size:.85rem;color:#999">${time}</span></td>
+      <td>${monthLabel}</td>
+      <td><span class="rp-pay-method ${methodClass}">${methodLabel}</span></td>
+      <td class="rp-amount-cell">${payment.amount.toLocaleString()} Frw</td>
+      <td>${statusBadge}</td>
+      <td>
+        <button class="rp-btn-link" onclick="viewPaymentDetail(${payment.id})">View</button>
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  });
+
+  // Update pagination info
+  document.getElementById('paymentsPaginationInfo').textContent = `Showing ${Math.min(payments.length, 10)} of ${payments.length} payments`;
+}
+
+// ── Update Summary Cards ──
+function updateSummary(summary, currentPrice) {
+  // Total Paid
+  const totalPaid = summary.total_paid || 0;
+  const approvedCount = summary.approved_count || 0;
+  document.getElementById('totalPaid').textContent = totalPaid.toLocaleString();
+  document.getElementById('totalPaidSub').textContent = `${approvedCount} payment${approvedCount !== 1 ? 's' : ''} approved`;
+
+  // Pending Count
+  const pendingCount = summary.pending_count || 0;
+  document.getElementById('pendingCount').textContent = pendingCount;
+
+  // Monthly Fee
+  const monthlyFee = currentPrice.amount || 0;
+  document.getElementById('monthlyFeeValue').textContent = monthlyFee.toLocaleString();
+  document.getElementById('amount').value = monthlyFee;
+
+  // Payment Status
+  const statusText = pendingCount > 0 ? 'Under Review' : '✓ Up to Date';
+  document.getElementById('paymentStatusText').textContent = statusText;
+  document.getElementById('nextPaymentText').textContent = `Next: ${getNextMonthLabel()}`;
+}
+
+function getNextMonthLabel() {
+  const now = new Date();
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                      'July', 'August', 'September', 'October', 'November', 'December'];
+  return `${monthNames[nextMonth.getMonth()]} ${nextMonth.getFullYear()}`;
+}
+
+// ── Generate Month Dropdown ──
+function generateMonthDropdown(currentPrice) {
+  const select = document.getElementById('paymentMonth');
+  if (!select) return;
+
+  const now = new Date();
+  
+  for (let i = 0; i < 12; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                        'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    const option = document.createElement('option');
+    option.value = `${year}-${month.toString().padStart(2, '0')}`;
+    option.textContent = `${monthNames[month - 1]} ${year}`;
+    select.appendChild(option);
+  }
+}
+
+// ── Filter Payments ──
+function filterResidentPayments(status, btn) {
+  document.querySelectorAll('.rp-ftab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+
+  document.querySelectorAll('#paymentTableBody tr').forEach(row => {
+    if (status === 'all' || row.dataset.status === status) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+}
+
+// ── View Payment Detail Modal ──
+async function viewPaymentDetail(id) {
+  try {
+    const payment = await API.get(`/payments/${id}`);
+    const modal = document.getElementById('paymentDetailModal');
+
+    const { date, time } = formatSubmittedDate(payment.submitted_at);
+    const monthLabel = getPaymentMonthLabel(payment.payment_month, payment.payment_year);
+    const methodLabel = methodLabelMap[payment.payment_method] || payment.payment_method;
+    const statusText = payment.status === 'pending' ? 'Pending' : 
+                       payment.status === 'approved' ? 'Approved' : 'Rejected';
+
+    document.getElementById('detailAmount').textContent = `${payment.amount.toLocaleString()} Frw`;
+    document.getElementById('detailMethod').textContent = methodLabel;
+    document.getElementById('detailTxn').textContent = payment.transaction_reference || 'N/A';
+    document.getElementById('detailDate').textContent = `${date} at ${time}`;
+    document.getElementById('detailMonth').textContent = monthLabel;
+    document.getElementById('detailStatus').textContent = statusText;
+    document.getElementById('detailStatus').className = `rp-badge ${payment.status}`;
+
+    modal.classList.add('show');
+  } catch (error) {
+    console.error('Error loading payment detail:', error);
+    showToast('Error loading payment details');
+  }
+}
+
+// ── Modal Functions ──
+function openAddPaymentModal() {
+  document.getElementById('addPaymentModal').classList.add('show');
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('paymentDate').value = now.toISOString().slice(0, 16);
+}
+
+function closeAddPaymentModal() {
+  document.getElementById('addPaymentModal').classList.remove('show');
+  document.getElementById('paymentForm').reset();
+  document.querySelectorAll('.rp-error-message').forEach(el => el.classList.remove('visible'));
+  document.querySelectorAll('.rp-form-group input, .rp-form-group select').forEach(el => el.classList.remove('error'));
+}
+
+function closePaymentDetailModal() {
+  document.getElementById('paymentDetailModal').classList.remove('show');
+}
+
+// ── Form Validation Helpers ──
+function showError(inputId, errorId) {
+  const input = document.getElementById(inputId);
+  const error = document.getElementById(errorId);
+  if (input) input.classList.add('error');
+  if (error) error.classList.add('visible');
+}
+
+function clearError(inputId, errorId) {
+  const input = document.getElementById(inputId);
+  const error = document.getElementById(errorId);
+  if (input) input.classList.remove('error');
+  if (error) error.classList.remove('visible');
+}
+
+// ── Toast Notification ──
+function showToast(message) {
+  const toast = document.getElementById('successToast');
+  document.getElementById('toastMessage').textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ── Download Statement ──
+function downloadStatement() {
+  showToast('Downloading payment statement...');
+}
+
+// ── Initialize Page ──
 document.addEventListener('DOMContentLoaded', function () {
+  // Load payment data
+  loadPaymentData();
 
   // ── Sidebar toggle ──
   const menuBtn = document.getElementById('menuBtn');
   const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
+  const sidebarOverlay = document.querySelector('.sidebar-overlay');
 
   if (menuBtn) {
     menuBtn.addEventListener('click', () => {
       sidebar.classList.toggle('open');
-      overlay.classList.toggle('open');
+      sidebarOverlay.classList.toggle('open');
     });
   }
 
-  if (overlay) {
-    overlay.addEventListener('click', () => {
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', () => {
       sidebar.classList.remove('open');
-      overlay.classList.remove('open');
+      sidebarOverlay.classList.remove('open');
     });
   }
 
-  // ── Filter tabs ──
-  const tabs = document.querySelectorAll('.tabs .tab[data-filter]');
-  const tableBody = document.getElementById('paymentTableBody');
-
-  tabs.forEach(function (tab) {
-    tab.addEventListener('click', function () {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      const filter = tab.getAttribute('data-filter');
-
-      if (tableBody) {
-        tableBody.querySelectorAll('tr').forEach(function (row) {
-          const status = row.getAttribute('data-status');
-          if (filter === 'all' || status === filter) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
-        });
-      }
-
-      updatePaginationInfo(filter);
-    });
-  });
-
-  // ── Form validation ──
-  const form = document.getElementById('paymentForm');
-
-  function showError(inputId, errorId) {
-    const input = document.getElementById(inputId);
-    const error = document.getElementById(errorId);
-    if (input) input.classList.add('error');
-    if (error) error.classList.add('visible');
-  }
-
-  function clearError(inputId, errorId) {
-    const input = document.getElementById(inputId);
-    const error = document.getElementById(errorId);
-    if (input) input.classList.remove('error');
-    if (error) error.classList.remove('visible');
-  }
-
-  if (form) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      let valid = true;
-
-      // Payer name
-      const payerName = document.getElementById('payerName');
-      if (!payerName.value.trim()) {
-        showError('payerName', 'payerNameError');
-        valid = false;
-      } else {
-        clearError('payerName', 'payerNameError');
-      }
-
-      // Payment method
-      const paymentMethod = document.getElementById('paymentMethod');
-      if (paymentMethod && !paymentMethod.value) {
-        showError('paymentMethod', 'paymentMethodError');
-        valid = false;
-      } else {
-        clearError('paymentMethod', 'paymentMethodError');
-      }
-
-      // Payment time
-      const paymentTime = document.getElementById('paymentTime');
-      if (!paymentTime.value) {
-        showError('paymentTime', 'paymentTimeError');
-        valid = false;
-      } else {
-        clearError('paymentTime', 'paymentTimeError');
-      }
-
-      // Amount
-      const amount = document.getElementById('amount');
-      if (!amount.value || parseFloat(amount.value) <= 0) {
-        showError('amount', 'amountError');
-        valid = false;
-      } else {
-        clearError('amount', 'amountError');
-      }
-
-      if (valid) {
-        // Show success toast
-        showToast('Payment submitted successfully!');
-
-        // Add new row to table (demo)
-        addPaymentToTable({
-          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-          month: document.getElementById('paymentMonth')?.options[document.getElementById('paymentMonth').selectedIndex]?.text || 'March 2026',
-          method: paymentMethod?.options[paymentMethod.selectedIndex]?.text || 'MTN MoMo',
-          amount: formatCurrency(amount.value)
-        });
-
-        // Reset form
-        form.reset();
-
-        // Update summary cards
-        updateSummaryCards(parseFloat(amount.value));
-      }
-    });
-  }
-
-  // ── Add payment to table ──
-  function addPaymentToTable(payment) {
-    const tbody = document.getElementById('paymentTableBody');
-    if (!tbody) return;
-
-    const newRow = document.createElement('tr');
-    newRow.setAttribute('data-status', 'pending');
-    newRow.innerHTML = `
-      <td>
-        <div class="table-date">
-          <span class="date-main">${payment.date}</span>
-          <span class="date-time">${payment.time}</span>
-        </div>
-      </td>
-      <td>${payment.month}</td>
-      <td>
-        <div class="method-badge method-momo">
-          <span class="method-icon">M</span>
-          ${payment.method}
-        </div>
-      </td>
-      <td class="amount-cell">${payment.amount}</td>
-      <td><span class="badge badge--under-review">Pending</span></td>
-      <td>
-        <button class="btn-sm btn-sm-secondary" onclick="viewPaymentDetails(0)">View</button>
-      </td>
-    `;
-
-    // Insert at the beginning
-    tbody.insertBefore(newRow, tbody.firstChild);
-
-    // Highlight briefly
-    newRow.style.background = '#f0fdf4';
-    setTimeout(() => {
-      newRow.style.background = '';
-      newRow.style.transition = 'background 0.5s ease';
-    }, 1500);
-  }
-
-  // ── Format currency ──
-  function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-RW').format(amount) + ' Frw';
-  }
-
-  // ── Update summary cards ──
-  function updateSummaryCards(newAmount) {
-    const pendingEl = document.getElementById('pendingAmount');
-    if (pendingEl) {
-      const currentPending = parseInt(pendingEl.textContent.replace(/[^0-9]/g, '')) || 0;
-      pendingEl.textContent = formatCurrency(currentPending + newAmount);
-    }
-  }
-
-  // ── Update pagination info ──
-  function updatePaginationInfo(filter) {
-    const tbody = document.getElementById('paymentTableBody');
-    const paginationInfo = document.querySelector('.pagination-info');
-
-    if (!tbody || !paginationInfo) return;
-
-    const visibleRows = tbody.querySelectorAll('tr:not([style*="display: none"])').length;
-    const totalRows = tbody.querySelectorAll('tr').length;
-
-    paginationInfo.textContent = `Showing 1-${visibleRows} of ${totalRows} payments`;
-  }
-
-  // ── Show toast notification ──
-  window.showToast = function(message) {
-    const toast = document.getElementById('successToast');
-    if (toast) {
-      toast.querySelector('span').textContent = message;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 3000);
-    }
-  };
-
-  // ── View payment details ──
-  window.viewPaymentDetails = function(id) {
-    const modal = document.getElementById('paymentModal');
-    if (modal) {
-      modal.classList.add('show');
-    }
-  };
-
-  window.closePaymentModal = function() {
-    const modal = document.getElementById('paymentModal');
-    if (modal) {
-      modal.classList.remove('show');
-    }
-  };
-
-  // ── Resubmit payment ──
-  window.resubmitPayment = function(id) {
-    const formSection = document.getElementById('paymentFormSection');
-    if (formSection) {
-      formSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  // ── Toggle section collapse ──
-  window.toggleSection = function(sectionId) {
-    const section = document.getElementById(sectionId);
-    if (section) {
-      section.classList.toggle('collapsed');
-
-      // Rotate collapse button icon
-      const btn = section.previousElementSibling?.querySelector('.collapse-btn');
-      if (btn) {
-        btn.style.transform = section.classList.contains('collapsed') ? 'rotate(-90deg)' : '';
-      }
-    }
-  };
-
-  // ── Filter payments function for inline button clicks ──
-  window.filterPayments = function(status, btn) {
-    document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-
-    const tbody = document.getElementById('paymentTableBody');
-    if (tbody) {
-      tbody.querySelectorAll('tr').forEach(row => {
-        if (status === 'all' || row.dataset.status === status) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
-      });
-    }
-
-    updatePaginationInfo(status);
-  };
-
-  // ── Profile dropdown ──
-  window.toggleProfileDd = function(e) {
+  // ── Profile dropdown toggle ──
+  function toggleProfileDd(e) {
     e.stopPropagation();
     const dd = document.getElementById('profileDd');
-    if (dd) {
-      dd.classList.toggle('show');
-    }
-  };
+    if (dd) dd.classList.toggle('show');
+  }
 
-  document.addEventListener('click', function(e) {
+  document.addEventListener('click', function (e) {
     const dd = document.getElementById('profileDd');
     if (dd && !e.target.closest('.mn-profile-wrap')) {
       dd.classList.remove('show');
     }
   });
 
-  // ── Close modal on overlay click ──
-  const paymentModal = document.getElementById('paymentModal');
-  if (paymentModal) {
-    paymentModal.addEventListener('click', function(e) {
-      if (e.target === this) {
-        closePaymentModal();
+  window.toggleProfileDd = toggleProfileDd;
+
+  // ── Form submission (validation-only for now) ──
+  const form = document.getElementById('paymentForm');
+  if (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      let valid = true;
+
+      // Validate month
+      const month = document.getElementById('paymentMonth').value;
+      if (!month) {
+        showError('paymentMonth', 'paymentMonthError');
+        valid = false;
+      } else {
+        clearError('paymentMonth', 'paymentMonthError');
+      }
+
+      // Validate amount
+      const amount = document.getElementById('amount').value;
+      if (!amount || parseFloat(amount) <= 0) {
+        showError('amount', 'amountError');
+        valid = false;
+      } else {
+        clearError('amount', 'amountError');
+      }
+
+      // Validate payment method
+      const method = document.getElementById('paymentMethod').value;
+      if (!method) {
+        showError('paymentMethod', 'paymentMethodError');
+        valid = false;
+      } else {
+        clearError('paymentMethod', 'paymentMethodError');
+      }
+
+      // Validate payment date
+      const paymentDate = document.getElementById('paymentDate').value;
+      if (!paymentDate) {
+        showError('paymentDate', 'paymentDateError');
+        valid = false;
+      } else {
+        clearError('paymentDate', 'paymentDateError');
+      }
+
+      // Validate file
+      const file = document.getElementById('proofFile').files[0];
+      if (!file) {
+        showError('proofFile', 'proofFileError');
+        valid = false;
+      } else {
+        clearError('proofFile', 'proofFileError');
+      }
+
+      if (valid) {
+        const submitBtn = form.querySelector('[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Uploading...';
+
+        try {
+          // 1. Upload proof file to Appwrite via backend
+          const formData = new FormData();
+          formData.append('photo', file);
+
+          const token = localStorage.getItem('access_token');
+          const uploadRes = await fetch(`${CONFIG.API_BASE_URL}/upload/photo`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+          });
+
+          const uploadData = await uploadRes.json();
+          if (!uploadRes.ok) throw new Error(uploadData.error || 'File upload failed');
+
+          // 2. Parse month/year from "YYYY-MM" format
+          const [yearStr, monthStr] = month.split('-');
+          const paymentYear = parseInt(yearStr);
+          const paymentMonth = parseInt(monthStr);
+
+          // 3. Submit payment
+          submitBtn.textContent = 'Submitting...';
+          await API.post('/payments/', {
+            payment_month: paymentMonth,
+            payment_year: paymentYear,
+            payment_method: method,
+            transaction_reference: (document.getElementById('transactionId').value || '').trim() || null,
+            proof_url: uploadData.photo_url
+          });
+
+          closeAddPaymentModal();
+          showToast('Payment submitted successfully! Awaiting review.');
+          loadPaymentData();
+
+        } catch (err) {
+          showToast(err.message || 'Failed to submit payment. Please try again.');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Payment';
+        }
       }
     });
   }
 
-  // ── Set default datetime to now ──
-  const paymentTimeInput = document.getElementById('paymentTime');
-  if (paymentTimeInput && !paymentTimeInput.value) {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    paymentTimeInput.value = now.toISOString().slice(0, 16);
+  // ── Modal overlay click handlers ──
+  const addPaymentModal = document.getElementById('addPaymentModal');
+  if (addPaymentModal) {
+    addPaymentModal.addEventListener('click', function (e) {
+      if (e.target === this) closeAddPaymentModal();
+    });
   }
 
-  // ── Initialize ──
-  console.log('Resident Payments page initialized');
+  const paymentDetailModal = document.getElementById('paymentDetailModal');
+  if (paymentDetailModal) {
+    paymentDetailModal.addEventListener('click', function (e) {
+      if (e.target === this) closePaymentDetailModal();
+    });
+  }
 
+  // ── Set default datetime ──
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  const defaultDate = now.toISOString().slice(0, 16);
+  const paymentDateInput = document.getElementById('paymentDate');
+  if (paymentDateInput) {
+    paymentDateInput.value = defaultDate;
+  }
+
+  // ── Setup logout handler ──
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function () {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+    });
+  }
+
+  // Export functions to window for onclick handlers
+  window.openAddPaymentModal = openAddPaymentModal;
+  window.closeAddPaymentModal = closeAddPaymentModal;
+  window.closePaymentDetailModal = closePaymentDetailModal;
+  window.viewPaymentDetail = viewPaymentDetail;
+  window.filterResidentPayments = filterResidentPayments;
+  window.downloadStatement = downloadStatement;
+  window.toggleProfileDd = toggleProfileDd;
 });

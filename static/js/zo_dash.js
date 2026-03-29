@@ -313,13 +313,121 @@ document.querySelectorAll('.pay-actions').forEach(wrap => {
   if (rb) rb.addEventListener('click', () => { wrap.innerHTML = '<span class="b op">Rejected</span>'; applyActiveFilter(); });
 });
 
-/* ── Weekly report save ── */
-const saveBtn = document.querySelector('.btn-save');
-if (saveBtn) {
-  saveBtn.addEventListener('click', () => {
-    saveBtn.textContent = 'Saved ✓';
-    saveBtn.style.background = 'var(--g1)';
-    setTimeout(() => { saveBtn.textContent = 'Save Remarks'; saveBtn.style.background = ''; }, 2000);
+/* ── Weekly report send (manual with date range) ── */
+const sendReportBtn = document.getElementById('sendReportBtn');
+if (sendReportBtn) {
+  // Set default dates (last 7 days)
+  const today = new Date();
+  const lastWeek = new Date(today);
+  lastWeek.setDate(today.getDate() - 7);
+
+  const fromDateInput = document.getElementById('fromDate');
+  const toDateInput = document.getElementById('toDate');
+  const remarksInput = document.getElementById('remarksInput');
+  const remarkSuggestion = document.getElementById('remarkSuggestion');
+
+  if (fromDateInput && toDateInput) {
+    fromDateInput.value = lastWeek.toISOString().split('T')[0];
+    toDateInput.value = today.toISOString().split('T')[0];
+  }
+
+  if (remarkSuggestion && remarksInput) {
+    remarkSuggestion.addEventListener('change', () => {
+      const suggestion = remarkSuggestion.value;
+      if (!suggestion) return;
+
+      if (remarksInput.value.trim()) {
+        remarksInput.value = `${remarksInput.value.trim()}\n${suggestion}`;
+      } else {
+        remarksInput.value = suggestion;
+      }
+
+      remarksInput.focus();
+      remarkSuggestion.value = '';
+    });
+  }
+
+  sendReportBtn.addEventListener('click', async () => {
+    const fromDate = fromDateInput ? fromDateInput.value : '';
+    const toDate = toDateInput ? toDateInput.value : '';
+
+    // Validate dates
+    if (!fromDate || !toDate) {
+      alert('Please select both From Date and To Date');
+      return;
+    }
+
+    if (new Date(fromDate) > new Date(toDate)) {
+      alert('From Date cannot be after To Date');
+      return;
+    }
+
+    // Get remarks
+    const remarks = remarksInput ? remarksInput.value.trim() : '';
+
+    // Prepare payload
+    const payload = {
+      from_date: fromDate,
+      to_date: toDate,
+      remarks: remarks
+    };
+
+    // Update button state
+    sendReportBtn.disabled = true;
+    sendReportBtn.textContent = 'Sending...';
+
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/reports', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        sendReportBtn.textContent = 'Report Sent ✓';
+        sendReportBtn.style.background = 'var(--g1)';
+        // Clear textarea
+        if (remarksInput) remarksInput.value = '';
+        setTimeout(() => {
+          sendReportBtn.textContent = 'Send Report';
+          sendReportBtn.style.background = '';
+          sendReportBtn.disabled = false;
+        }, 3000);
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Failed to send report');
+        sendReportBtn.textContent = 'Send Report';
+        sendReportBtn.disabled = false;
+      }
+    } catch (err) {
+      console.error('Error sending report:', err);
+      alert('Error sending report. Please try again.');
+      sendReportBtn.textContent = 'Send Report';
+      sendReportBtn.disabled = false;
+    }
+  });
+}
+
+// Dashboard quick-notes suggestions
+const quickNoteSuggestion = document.getElementById('quickNoteSuggestion');
+const quickNotesInput = document.getElementById('quickNotesInput');
+if (quickNoteSuggestion && quickNotesInput) {
+  quickNoteSuggestion.addEventListener('change', () => {
+    const suggestion = quickNoteSuggestion.value;
+    if (!suggestion) return;
+
+    if (quickNotesInput.value.trim()) {
+      quickNotesInput.value = `${quickNotesInput.value.trim()}\n${suggestion}`;
+    } else {
+      quickNotesInput.value = suggestion;
+    }
+
+    quickNotesInput.focus();
+    quickNoteSuggestion.value = '';
   });
 }
 
@@ -359,9 +467,313 @@ function toggleProfileDd(e) {
   if (dd) dd.classList.toggle('show');
 }
 
+function getProfilePageHref() {
+  const path = window.location.pathname || '';
+  if (path.indexOf('/templates/zone_operator/') !== -1) return 'zo_profile.html';
+  return '/templates/zone_operator/zo_profile.html';
+}
+
+function getClaimsPageHref() {
+  const path = window.location.pathname || '';
+  if (path.indexOf('/templates/zone_operator/') !== -1) return 'zo_claims.html';
+  return '/templates/zone_operator/zo_claims.html';
+}
+
+function getPaymentsPageHref() {
+  const path = window.location.pathname || '';
+  if (path.indexOf('/templates/zone_operator/') !== -1) return 'zo_payments.html';
+  return '/templates/zone_operator/zo_payments.html';
+}
+
+function getSchedulesPageHref() {
+  const path = window.location.pathname || '';
+  if (path.indexOf('/templates/zone_operator/') !== -1) return 'zo_schedules.html';
+  return '/templates/zone_operator/zo_schedules.html';
+}
+
+function getReportPageHref() {
+  const path = window.location.pathname || '';
+  if (path.indexOf('/templates/zone_operator/') !== -1) return 'zo_report.html';
+  return '/templates/zone_operator/zo_report.html';
+}
+
+function formatClaimCategory(value) {
+  if (!value) return 'New claim';
+  const clean = String(value).replace(/_/g, ' ').trim();
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
+}
+
+function toRelativeTime(iso) {
+  if (!iso) return 'just now';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return 'recent';
+
+  const diff = Math.max(0, Date.now() - d.getTime());
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+function toDateTimeLabel(iso) {
+  if (!iso) return 'upcoming';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return 'upcoming';
+  return d.toLocaleString([], {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function removeSettingsOptions() {
+  document.querySelectorAll('.dd-item').forEach(item => {
+    if (textOf(item).toLowerCase() === 'settings') {
+      item.remove();
+    }
+  });
+}
+
+function initProfileMenuNavigation() {
+  const profileHref = getProfilePageHref();
+
+  const mobileProfileDd = document.getElementById('profileDd');
+  if (mobileProfileDd) {
+    const items = Array.from(mobileProfileDd.querySelectorAll('.dd-item'));
+    const myProfileItem = items.find(item => textOf(item).toLowerCase() === 'my profile');
+    if (myProfileItem) {
+      myProfileItem.addEventListener('click', function(e) {
+        e.stopPropagation();
+        window.location.href = profileHref;
+      });
+    }
+  }
+}
+
+function initTopbarProfileDd() {
+  const topbarRight = document.querySelector('.tb-r');
+  if (!topbarRight) return;
+
+  let dd = document.getElementById('topProfileDd');
+  if (!dd) {
+    const userInitials = textOf(document.querySelector('.sb-av')) || 'JP';
+    const userName = textOf(document.querySelector('.sb-un')) || 'Zone Operator';
+    const userRole = textOf(document.querySelector('.sb-ur')) || 'Kimironko Zone A';
+
+    dd = document.createElement('div');
+    dd.id = 'topProfileDd';
+    dd.className = 'tb-profile-dd';
+    dd.innerHTML = `
+      <div class="dd-user">
+        <div class="dd-user-av">${userInitials}</div>
+        <div class="dd-user-name">${userName}</div>
+        <div class="dd-user-role">${userRole}</div>
+      </div>
+      <div class="dd-item" id="topProfileItem">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        My Profile
+      </div>
+      <div class="dd-item dd-logout" id="topLogoutItem">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Logout
+      </div>
+    `;
+    topbarRight.appendChild(dd);
+
+    const logoutBtn = dd.querySelector('#topLogoutItem');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        logout();
+      });
+    }
+
+    const profileBtn = dd.querySelector('#topProfileItem');
+    if (profileBtn) {
+      profileBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dd.classList.remove('show');
+        window.location.href = getProfilePageHref();
+      });
+    }
+  }
+
+  const avatarBtn = topbarRight.querySelector('.av');
+  if (avatarBtn) {
+    avatarBtn.classList.add('tb-profile-trigger');
+    avatarBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const notifDd = document.getElementById('topNotifDd');
+      if (notifDd) notifDd.classList.remove('show');
+      dd.classList.toggle('show');
+    });
+  }
+}
+
+function initTopbarNotifications() {
+  const topbarRight = document.querySelector('.tb-r');
+  if (!topbarRight) return;
+
+  const bellBtn = topbarRight.querySelector('.icon-btn');
+  if (!bellBtn) return;
+
+  let dd = document.getElementById('topNotifDd');
+  if (!dd) {
+    dd = document.createElement('div');
+    dd.id = 'topNotifDd';
+    dd.className = 'tb-notif-dd';
+    dd.innerHTML = `
+      <div class="tb-notif-head">
+        <span>Notifications</span>
+        <span class="tb-notif-count" id="topNotifCount">0</span>
+      </div>
+      <div class="tb-notif-list" id="topNotifList">
+        <div class="tb-notif-empty">Loading notifications...</div>
+      </div>
+    `;
+    topbarRight.appendChild(dd);
+  }
+
+  const dot = bellBtn.querySelector('.notif-dot');
+  const listEl = dd.querySelector('#topNotifList');
+  const countEl = dd.querySelector('#topNotifCount');
+
+  function renderNotifications(items) {
+    if (!listEl || !countEl) return;
+
+    if (!items.length) {
+      listEl.innerHTML = '<div class="tb-notif-empty">No new alerts right now.</div>';
+      countEl.textContent = '0';
+      if (dot) dot.style.display = 'none';
+      return;
+    }
+
+    listEl.innerHTML = items.map(item => `
+      <a class="tb-notif-item" href="${item.href}">
+        <div class="tb-notif-title">${item.title}</div>
+        <div class="tb-notif-meta">${item.meta}</div>
+      </a>
+    `).join('');
+
+    countEl.textContent = String(items.length);
+    if (dot) dot.style.display = '';
+  }
+
+  async function loadNotifications() {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      renderNotifications([]);
+      return;
+    }
+
+    try {
+      const headers = { 'Authorization': `Bearer ${token}` };
+      const currentUserRaw = localStorage.getItem('user');
+      let currentUserId = null;
+      try {
+        const parsedUser = currentUserRaw ? JSON.parse(currentUserRaw) : null;
+        currentUserId = parsedUser && parsedUser.id ? Number(parsedUser.id) : null;
+      } catch (e) {
+        currentUserId = null;
+      }
+
+      const [claimsRes, paymentsRes, schedulesRes] = await Promise.all([
+        fetch('/api/claims?type=claim', { headers }),
+        fetch('/api/payments', { headers }),
+        fetch('/api/schedules', { headers })
+      ]);
+
+      const claims = claimsRes.ok ? await claimsRes.json() : [];
+      const payments = paymentsRes.ok ? await paymentsRes.json() : [];
+      const schedules = schedulesRes.ok ? await schedulesRes.json() : [];
+
+      const claimAlerts = (Array.isArray(claims) ? claims : [])
+        .filter(c => c.type === 'claim')
+        .slice(0, 8)
+        .map(c => ({
+          title: `${formatClaimCategory(c.claim_category)} claim`,
+          meta: `${c.status === 'open' ? 'Pending review' : c.status === 'under_review' ? 'Under review' : c.status} · ${toRelativeTime(c.reported_at)}`,
+          href: getClaimsPageHref(),
+          ts: c.reported_at ? new Date(c.reported_at).getTime() : 0
+        }));
+
+      const paymentAlerts = (Array.isArray(payments) ? payments : [])
+        .slice(0, 8)
+        .map(p => ({
+          title: `Payment ${p.status || 'update'}`,
+          meta: `${p.resident_name || 'Resident'} · ${(p.amount || 0).toLocaleString()} ${p.currency || 'RWF'} · ${toRelativeTime(p.submitted_at || p.updated_at)}`,
+          href: getPaymentsPageHref(),
+          ts: p.submitted_at ? new Date(p.submitted_at).getTime() : (p.updated_at ? new Date(p.updated_at).getTime() : 0)
+        }));
+
+      const scheduleAlerts = (Array.isArray(schedules) ? schedules : [])
+        .filter(s => !currentUserId || Number(s.zone_operator_id) === currentUserId)
+        .slice(0, 8)
+        .map(s => ({
+          title: `Schedule ${s.status || 'update'}`,
+          meta: `${toDateTimeLabel(s.date_time_start)} - ${toDateTimeLabel(s.date_time_end)} · Priority ${Number(s.priority_score || 0).toFixed(1)}`,
+          href: getSchedulesPageHref(),
+          ts: s.date_time_start ? new Date(s.date_time_start).getTime() : 0
+        }));
+
+      const reportReminder = [{
+        title: 'Weekly report reminder',
+        meta: 'Send your latest zone report',
+        href: getReportPageHref(),
+        ts: Date.now() - 30000
+      }];
+
+      const alerts = [...claimAlerts, ...paymentAlerts, ...scheduleAlerts, ...reportReminder]
+        .sort((a, b) => (b.ts || 0) - (a.ts || 0))
+        .slice(0, 12);
+
+      renderNotifications(alerts);
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
+      renderNotifications([]);
+    }
+  }
+
+  bellBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const profileDd = document.getElementById('topProfileDd');
+    if (profileDd) profileDd.classList.remove('show');
+    dd.classList.toggle('show');
+    if (dd.classList.contains('show')) {
+      loadNotifications();
+    }
+  });
+
+  loadNotifications();
+}
+
+removeSettingsOptions();
+initProfileMenuNavigation();
+initTopbarProfileDd();
+initTopbarNotifications();
+
 document.addEventListener('click', function() {
   const dd = document.getElementById('profileDd');
   if (dd) dd.classList.remove('show');
+
+  const topDd = document.getElementById('topProfileDd');
+  if (topDd) topDd.classList.remove('show');
+
+  const topNotifDd = document.getElementById('topNotifDd');
+  if (topNotifDd) topNotifDd.classList.remove('show');
 });
 
 /* ── Logout ── */
@@ -373,10 +785,21 @@ function logout() {
 
 /* ── Rejection Modal ── */
 let currentRejectTarget = null;
+let currentRejectType = null; // 'claim' or 'payment'
 let zoneMapInstance = null; // Store map instance for fullscreen resize
 
-function openRejectModal(btn) {
-  currentRejectTarget = btn;
+function openRejectModal(targetElement, type) {
+  currentRejectTarget = targetElement;
+  // Auto-detect type if not provided
+  if (type) {
+    currentRejectType = type;
+  } else if (targetElement.closest('.ci')) {
+    currentRejectType = 'claim';
+  } else if (targetElement.closest('.pi')) {
+    currentRejectType = 'payment';
+  } else {
+    currentRejectType = 'claim'; // default
+  }
   document.getElementById('rejectModal').classList.add('show');
   document.getElementById('rejectReason').value = '';
   document.getElementById('rejectDetails').value = '';
@@ -385,32 +808,124 @@ function openRejectModal(btn) {
 function closeRejectModal() {
   document.getElementById('rejectModal').classList.remove('show');
   currentRejectTarget = null;
+  currentRejectType = null;
 }
 
-function confirmReject() {
+async function confirmReject() {
   const reason = document.getElementById('rejectReason').value;
-  const details = document.getElementById('rejectDetails').value;
+  const details = document.getElementById('rejectDetails').value.trim();
 
   if (!reason) {
     alert('Please select a rejection reason.');
     return;
   }
 
-  const ci = currentRejectTarget.closest('.ci');
-  const pi = currentRejectTarget.closest('.pi');
+  if (!currentRejectTarget) {
+    closeRejectModal();
+    return;
+  }
 
-  if (ci) {
-    const acts = ci.querySelector('.ci-acts');
-    acts.innerHTML = '<span class="b op">Rejected</span>';
-  } else if (pi) {
-    const payActions = currentRejectTarget.closest('.pay-actions');
-    if (payActions) {
-      payActions.innerHTML = '<span class="b op">Rejected</span>';
+  // Determine if this is a claim or payment rejection
+  const claimElement = currentRejectTarget.closest('.ci');
+  const paymentElement = currentRejectTarget.closest('.pi');
+  
+  let itemElement, itemType;
+
+  if (claimElement && claimElement.dataset.claimId) {
+    itemElement = claimElement;
+    itemType = 'claim';
+  } else if (paymentElement && paymentElement.dataset.paymentId) {
+    itemElement = paymentElement;
+    itemType = 'payment';
+  } else {
+    alert('Unable to identify item to reject.');
+    closeRejectModal();
+    return;
+  }
+
+  const token = localStorage.getItem('access_token');
+  
+  // Show loading state on the button
+  const confirmBtn = document.querySelector('#rejectModal .modal-btn:last-child');
+  const originalText = confirmBtn.textContent;
+  confirmBtn.textContent = 'Rejecting...';
+  confirmBtn.disabled = true;
+
+  // Try API call if token exists
+  if (token) {
+    let apiUrl, requestBody;
+    
+    if (itemType === 'claim') {
+      const claimId = claimElement.dataset.claimId;
+      apiUrl = `/api/claims/${claimId}/reject`;
+      requestBody = {
+        rejection_category: reason,
+        rejection_detail: details || reason
+      };
+    } else {
+      const paymentId = paymentElement.dataset.paymentId;
+      apiUrl = `/api/payments/${paymentId}/reject`;
+      requestBody = {
+        rejection_reason: details || reason
+      };
+    }
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to reject ${itemType}`);
+      }
+    } catch (error) {
+      console.error('Rejection API failed:', error);
+      alert(error.message || `Failed to reject ${itemType}. Please try again.`);
+      confirmBtn.textContent = originalText;
+      confirmBtn.disabled = false;
+      return;
     }
   }
 
+  // Update UI
+  if (itemType === 'claim') {
+    const actsEl = itemElement.querySelector('.ci-acts');
+    if (actsEl) {
+      actsEl.innerHTML = '<span class="b op" style="font-size:.7rem;">Rejected</span>';
+    }
+    
+    if (typeof updateClaimsCounts === 'function') {
+      updateClaimsCounts();
+    }
+  } else {
+    const statusSpan = itemElement.querySelector('.b');
+    if (statusSpan) {
+      statusSpan.className = 'b op';
+      statusSpan.textContent = 'Rejected';
+      statusSpan.style.fontSize = '.7rem';
+    }
+    itemElement.dataset.status = 'rejected';
+  }
+
+  if (typeof applyActiveFilter === 'function') {
+    applyActiveFilter();
+  }
+
   closeRejectModal();
-  applyActiveFilter();
+  
+  if (typeof showToast === 'function') {
+    showToast(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} rejected successfully!`, 0);
+  }
+
+  confirmBtn.textContent = originalText;
+  confirmBtn.disabled = false;
 }
 
 /* ── Map Fullscreen Toggle ── */
@@ -542,29 +1057,6 @@ function initZoneMap() {
     attribution: '© OpenStreetMap'
   }).addTo(map);
 
-  // Route A (blue line)
-  const routeA = [
-    [-1.9380, 30.1100],
-    [-1.9390, 30.1120],
-    [-1.9405, 30.1130],
-    [-1.9420, 30.1125],
-    [-1.9430, 30.1140]
-  ];
-  L.polyline(routeA, { color: '#3b82f6', weight: 4, opacity: 0.8 })
-    .addTo(map)
-    .bindPopup('<b>Route A</b><br>Kibagabaga North<br>KG 11 Ave → KG 15 Ave');
-
-  // Route B (orange line)
-  const routeB = [
-    [-1.9410, 30.1090],
-    [-1.9420, 30.1105],
-    [-1.9435, 30.1115],
-    [-1.9445, 30.1100]
-  ];
-  L.polyline(routeB, { color: '#f59e0b', weight: 4, opacity: 0.8 })
-    .addTo(map)
-    .bindPopup('<b>Route B</b><br>Market Area');
-
   // Resident locations with bin icons
   const residents = [
     { pos: [-1.9385, 30.1110], name: 'Alice Mutoni', paid: true, collected: true, hasClaim: true },
@@ -638,6 +1130,12 @@ function initResidentsMap() {
     { pos: [-1.9432, 30.1098], name: 'John Mutabazi', paid: true, collected: true, hasClaim: false }
   ];
 
+  const residentsWithClaimsEl = document.getElementById('residentsWithClaims');
+  if (residentsWithClaimsEl) {
+    const claimsCount = residents.filter(r => r.hasClaim).length;
+    residentsWithClaimsEl.textContent = String(claimsCount);
+  }
+
   residents.forEach(r => {
     const status = r.paid ? 'active' : 'overdue';
     L.marker(r.pos, { icon: createBinIcon(status) })
@@ -685,29 +1183,6 @@ function initRouteMap() {
     attribution: '© OpenStreetMap'
   }).addTo(map);
 
-  // Route A (blue - today's route)
-  const routeA = [
-    [-1.9380, 30.1100],
-    [-1.9390, 30.1120],
-    [-1.9405, 30.1130],
-    [-1.9420, 30.1125],
-    [-1.9430, 30.1140]
-  ];
-  L.polyline(routeA, { color: '#3b82f6', weight: 5, opacity: 0.9 })
-    .addTo(map)
-    .bindPopup('<b>Route A</b><br>Today 14:00<br>Kibagabaga North');
-
-  // Route B (orange)
-  const routeB = [
-    [-1.9410, 30.1090],
-    [-1.9420, 30.1105],
-    [-1.9435, 30.1115],
-    [-1.9445, 30.1100]
-  ];
-  L.polyline(routeB, { color: '#f59e0b', weight: 4, opacity: 0.8 })
-    .addTo(map)
-    .bindPopup('<b>Route B</b><br>Sat 21 07:30<br>Market Area');
-
   // Residents along routes
   const routeResidents = [
     { pos: [-1.9385, 30.1110], name: 'Alice M.', paid: true, collected: true, hasClaim: false },
@@ -748,14 +1223,4 @@ function initRouteMap() {
         </div>
       `);
   });
-
-  // Start point marker
-  L.circleMarker(routeA[0], {
-    radius: 12, fillColor: '#3b82f6', color: '#fff', weight: 3, fillOpacity: 1
-  }).addTo(map).bindPopup('<b>Start Point</b><br>Route A');
-
-  // End point marker
-  L.circleMarker(routeA[routeA.length - 1], {
-    radius: 12, fillColor: '#ef4444', color: '#fff', weight: 3, fillOpacity: 1
-  }).addTo(map).bindPopup('<b>End Point</b><br>Route A');
 }
