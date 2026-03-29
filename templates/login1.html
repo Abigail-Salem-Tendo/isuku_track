@@ -212,7 +212,6 @@
       <!-- ── Forgot Password pane ── -->
       <div class="auth-pane" id="pane-forgot">
         <form id="forgotPasswordForm" novalidate>
-
           <div class="form-group">
             <label for="forgotEmail">Email address</label>
             <div class="field-icon-wrap">
@@ -222,17 +221,32 @@
             <span class="error-message" id="forgotEmailError">Please enter a valid email address</span>
             <p class="field-note">We'll send you instructions to reset your password</p>
           </div>
-
           <div class="login-btn-wrapper">
             <button type="submit" class="btn btn-primary">Send Reset Link</button>
           </div>
-
         </form>
 
-        <p class="auth-footer">
-          Remember your password?
-          <a href="#" data-switch="login">Back to login</a>
-        </p>
+
+        <div id="emailSentState" style="display:none;">
+          <div class="email-sent">
+            <div class="email-sent__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+            </div>
+            <p class="email-sent__label">Reset link sent to</p>
+            <p class="email-sent__address" id="sentEmailAddress">—</p>
+            <p class="email-sent__expiry">Link expires in <strong>30 minutes</strong></p>
+            <button type="button" class="email-sent__resend" id="resendBtn">
+              Resend email
+            </button>
+          </div>
+          <div class="login-btn-wrapper">
+            <button type="button" class="btn btn-primary" data-switch="login">Back to login</button>
+          </div>
+        </div>
+
       </div>
     </div><!-- /.auth-card -->
   </main>
