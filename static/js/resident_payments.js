@@ -13,6 +13,11 @@ const methodClassMap = {
   'cash': 'cash'
 };
 
+// ── State Management ──
+let allPayments = [];
+let submittedMonths = new Set(); // Track submitted month/years to prevent duplicates
+let editingPaymentId = null; // Track which payment is being edited
+
 // ── Helper Functions ──
 function getPaymentMonthLabel(month, year) {
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
@@ -27,6 +32,18 @@ function formatSubmittedDate(isoDate) {
   return { date: dateStr, time: timeStr };
 }
 
+// ── Duplicate submission prevention ──
+function updateSubmittedMonths(payments) {
+  submittedMonths.clear();
+  payments.forEach(p => {
+    submittedMonths.add(`${p.payment_year}-${String(p.payment_month).padStart(2, '0')}`);
+  });
+}
+
+function isMonthAlreadySubmitted(yearStr, monthStr) {
+  return submittedMonths.has(`${yearStr}-${monthStr}`);
+}
+
 // ── Data Loading ──
 async function loadPaymentData() {
   try {
@@ -35,7 +52,10 @@ async function loadPaymentData() {
       API.get('/payments/prices/current')
     ]);
 
-    renderPaymentsTable(history.payments || []);
+    allPayments = history.payments || [];
+    updateSubmittedMonths(allPayments);
+    
+    renderPaymentsTable(allPayments);
     updateSummary(history.summary || {}, currentPrice || {});
     generateMonthDropdown(currentPrice);
 
@@ -75,15 +95,17 @@ function renderPaymentsTable(payments) {
       </span>
     `;
 
+    const actionButton = payment.status === 'pending' 
+      ? `<button class="rp-btn-link" onclick="editPayment(${payment.id})">Edit</button>`
+      : `<button class="rp-btn-link" onclick="viewPaymentDetail(${payment.id})">View</button>`;
+
     row.innerHTML = `
       <td><strong>${date}</strong><br><span style="font-size:.85rem;color:#999">${time}</span></td>
       <td>${monthLabel}</td>
       <td><span class="rp-pay-method ${methodClass}">${methodLabel}</span></td>
       <td class="rp-amount-cell">${payment.amount.toLocaleString()} Frw</td>
       <td>${statusBadge}</td>
-      <td>
-        <button class="rp-btn-link" onclick="viewPaymentDetail(${payment.id})">View</button>
-      </td>
+      <td>${actionButton}</td>
     `;
 
     tbody.appendChild(row);
@@ -179,6 +201,25 @@ async function viewPaymentDetail(id) {
     document.getElementById('detailStatus').textContent = statusText;
     document.getElementById('detailStatus').className = `rp-badge ${payment.status}`;
 
+    // Add proof image preview if available
+    let proofHtml = '';
+    if (payment.proof_url) {
+      proofHtml = `
+        <div class="rp-detail-item" style="grid-column: 1 / -1; margin-top: 1rem;">
+          <span class="rp-detail-label">Payment Proof</span>
+          <img src="${payment.proof_url}" style="width: 100%; max-width: 400px; border-radius: 8px; margin-top: 0.5rem;" alt="Payment proof">
+        </div>
+      `;
+    }
+
+    const detailGrid = modal.querySelector('.rp-detail-grid');
+    const existingProof = detailGrid.querySelector('[style*="grid-column"]');
+    if (existingProof) existingProof.remove();
+    
+    if (proofHtml) {
+      detailGrid.insertAdjacentHTML('beforeend', proofHtml);
+    }
+
     modal.classList.add('show');
   } catch (error) {
     console.error('Error loading payment detail:', error);
@@ -188,21 +229,56 @@ async function viewPaymentDetail(id) {
 
 // ── Modal Functions ──
 function openAddPaymentModal() {
+  editingPaymentId = null;
   document.getElementById('addPaymentModal').classList.add('show');
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   document.getElementById('paymentDate').value = now.toISOString().slice(0, 16);
+  document.getElementById('proofFile').value = '';
+  document.querySelector('[type="submit"]').textContent = 'Submit Payment';
+  document.querySelector('[type="submit"]').disabled = false;
 }
 
 function closeAddPaymentModal() {
   document.getElementById('addPaymentModal').classList.remove('show');
   document.getElementById('paymentForm').reset();
+  document.getElementById('paymentMonth').disabled = false; // Re-enable month field
   document.querySelectorAll('.rp-error-message').forEach(el => el.classList.remove('visible'));
   document.querySelectorAll('.rp-form-group input, .rp-form-group select').forEach(el => el.classList.remove('error'));
+  editingPaymentId = null;
 }
 
 function closePaymentDetailModal() {
   document.getElementById('paymentDetailModal').classList.remove('show');
+}
+
+// ── Edit pending payment ──
+async function editPayment(id) {
+  try {
+    const payment = await API.get(`/payments/${id}`);
+    
+    if (payment.status !== 'pending') {
+      showToast('Only pending payments can be edited');
+      return;
+    }
+
+    editingPaymentId = id;
+    
+    // Pre-fill the form
+    document.getElementById('paymentMonth').value = `${payment.payment_year}-${String(payment.payment_month).padStart(2, '0')}`;
+    document.getElementById('paymentMonth').disabled = true; // Disable month change
+    document.getElementById('paymentMethod').value = payment.payment_method;
+    document.getElementById('transactionId').value = payment.transaction_reference || '';
+    document.getElementById('paymentDate').value = new Date(payment.submitted_at).toISOString().slice(0, 16);
+    
+    // Update button text
+    document.querySelector('[type="submit"]').textContent = 'Update Payment';
+    
+    openAddPaymentModal();
+  } catch (error) {
+    console.error('Error loading payment for edit:', error);
+    showToast('Error loading payment details');
+  }
 }
 
 // ── Form Validation Helpers ──
@@ -273,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.toggleProfileDd = toggleProfileDd;
 
-  // ── Form submission (validation-only for now) ──
+  // ── Form submission (validation + file upload + API call) ──
   const form = document.getElementById('paymentForm');
   if (form) {
     form.addEventListener('submit', async function (e) {
@@ -316,59 +392,100 @@ document.addEventListener('DOMContentLoaded', function () {
         clearError('paymentDate', 'paymentDateError');
       }
 
-      // Validate file
+      // Validate file (required only for new payments, optional for edits)
       const file = document.getElementById('proofFile').files[0];
-      if (!file) {
+      if (!editingPaymentId && !file) {
         showError('proofFile', 'proofFileError');
         valid = false;
-      } else {
+      } else if (file) {
         clearError('proofFile', 'proofFileError');
       }
 
       if (valid) {
         const submitBtn = form.querySelector('[type="submit"]');
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Uploading...';
+        const originalText = submitBtn.textContent;
 
         try {
-          // 1. Upload proof file to Appwrite via backend
-          const formData = new FormData();
-          formData.append('photo', file);
+          let proofUrl = null;
 
-          const token = localStorage.getItem('access_token');
-          const uploadRes = await fetch(`${CONFIG.API_BASE_URL}/upload/photo`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
-            body: formData
-          });
+          // Upload file if provided
+          if (file) {
+            submitBtn.textContent = 'Uploading proof...';
+            const formData = new FormData();
+            formData.append('photo', file);
 
-          const uploadData = await uploadRes.json();
-          if (!uploadRes.ok) throw new Error(uploadData.error || 'File upload failed');
+            const token = localStorage.getItem('access_token');
+            const uploadRes = await fetch(`${CONFIG.API_BASE_URL}/upload/photo`, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${token}` },
+              body: formData
+            });
 
-          // 2. Parse month/year from "YYYY-MM" format
+            const uploadData = await uploadRes.json();
+            console.log('File upload response:', uploadData);
+            if (!uploadRes.ok) {
+              throw new Error(uploadData.error || `File upload failed (${uploadRes.status})`);
+            }
+            proofUrl = uploadData.photo_url;
+            console.log('Proof URL obtained:', proofUrl);
+          }
+
+          // Parse month/year from "YYYY-MM" format
           const [yearStr, monthStr] = month.split('-');
           const paymentYear = parseInt(yearStr);
           const paymentMonth = parseInt(monthStr);
 
-          // 3. Submit payment
-          submitBtn.textContent = 'Submitting...';
-          await API.post('/payments/', {
+          console.log(`Parsed month: ${paymentMonth}, year: ${paymentYear}`);
+
+          // Check for duplicate submission (only for new payments)
+          if (!editingPaymentId && isMonthAlreadySubmitted(yearStr, monthStr)) {
+            showToast('Payment already submitted for this month');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            return;
+          }
+
+          submitBtn.textContent = editingPaymentId ? 'Updating...' : 'Submitting...';
+
+          const paymentData = {
             payment_month: paymentMonth,
             payment_year: paymentYear,
             payment_method: method,
-            transaction_reference: (document.getElementById('transactionId').value || '').trim() || null,
-            proof_url: uploadData.photo_url
-          });
+            transaction_reference: (document.getElementById('transactionId').value || '').trim() || null
+          };
+
+          // Always include proof_url even if null (optional field)
+          if (proofUrl) {
+            paymentData.proof_url = proofUrl;
+          }
+
+          console.log('Payment data being sent:', paymentData);
+
+          let result;
+          if (editingPaymentId) {
+            // Update existing payment
+            result = await API.put(`/payments/${editingPaymentId}`, paymentData);
+          } else {
+            // Create new payment
+            result = await API.post('/payments/', paymentData);
+          }
+
+          console.log('Payment submission result:', result);
 
           closeAddPaymentModal();
-          showToast('Payment submitted successfully! Awaiting review.');
+          const msg = editingPaymentId 
+            ? 'Payment updated successfully!' 
+            : 'Payment submitted successfully! Awaiting review.';
+          showToast(msg);
           loadPaymentData();
 
         } catch (err) {
-          showToast(err.message || 'Failed to submit payment. Please try again.');
+          console.error('Payment submission error:', err);
+          showToast(err.message || `Failed to ${editingPaymentId ? 'update' : 'submit'} payment. Please try again.`);
         } finally {
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Submit Payment';
+          submitBtn.textContent = originalText;
         }
       }
     });
@@ -414,6 +531,7 @@ document.addEventListener('DOMContentLoaded', function () {
   window.closeAddPaymentModal = closeAddPaymentModal;
   window.closePaymentDetailModal = closePaymentDetailModal;
   window.viewPaymentDetail = viewPaymentDetail;
+  window.editPayment = editPayment;
   window.filterResidentPayments = filterResidentPayments;
   window.downloadStatement = downloadStatement;
   window.toggleProfileDd = toggleProfileDd;

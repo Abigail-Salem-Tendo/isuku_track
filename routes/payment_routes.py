@@ -220,7 +220,8 @@ def submit_payment():
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": "Failed to submit payment"}), 500
+        print(f"Payment submission error for user {user_id}: {str(e)}")
+        return jsonify({"error": "Failed to submit payment. Please try again."}), 500
 
     return jsonify({
         "message": "Payment submitted successfully. Awaiting approval.",
@@ -337,6 +338,55 @@ def get_payment(payment_id):
             return jsonify({"error": "This payment is not in your zone"}), 403
 
     return jsonify(payment.to_dict()), 200
+
+
+# ==================== PAYMENT UPDATE (Resident - Pending Only) ====================
+
+@payment_bp.route("/<int:payment_id>", methods=["PUT"])
+@role_required("resident")
+def update_payment(payment_id):
+    """Update a pending payment (resident only)"""
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request body is required"}), 400
+
+    user_id = get_jwt_identity()
+    payment = Payment.query.get_or_404(payment_id)
+
+    # Access control - only the resident who submitted the payment can update it
+    if payment.resident_id != int(user_id):
+        return jsonify({"error": "You can only update your own payments"}), 403
+
+    # Only pending payments can be updated
+    if payment.status != "pending":
+        return jsonify({"error": f"Only pending payments can be updated. Current status: {payment.status}"}), 400
+
+    # Update allowed fields
+    if "payment_method" in data:
+        payment_method = data.get("payment_method")
+        valid_methods = ["mobile_money", "bank_transfer", "cash"]
+        if payment_method not in valid_methods:
+            return jsonify({"error": f"Invalid payment method. Must be one of: {', '.join(valid_methods)}"}), 400
+        payment.payment_method = payment_method
+
+    if "transaction_reference" in data:
+        payment.transaction_reference = data.get("transaction_reference")
+
+    if "proof_url" in data:
+        proof_url = data.get("proof_url")
+        if proof_url:  # Only update if provided
+            payment.proof_url = proof_url
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update payment"}), 500
+
+    return jsonify({
+        "message": "Payment updated successfully",
+        "payment": payment.to_dict()
+    }), 200
 
 
 # ==================== PAYMENT APPROVAL/REJECTION (Admin & Zone Operator) ====================
