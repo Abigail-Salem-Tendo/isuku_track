@@ -113,7 +113,7 @@
         <polyline points="14 2 14 8 20 8"/>
         <line x1="16" y1="13" x2="8" y2="13"/>
       </svg>
-      Claims <span class="sb-badge">7</span>
+      Claims
     </a>
   </div>
 
@@ -124,33 +124,7 @@
         <rect x="2" y="5" width="20" height="14" rx="2"/>
         <line x1="2" y1="10" x2="22" y2="10"/>
       </svg>
-      Payments <span class="sb-badge am">3</span>
-    </a>
-    <a class="sb-a" href="/zone-operator/residents">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-      </svg>
-      Residents
-    </a>
-    <a class="sb-a" href="/zone-operator/report">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="20" x2="18" y2="10"/>
-        <line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6" y1="20" x2="6" y2="14"/>
-      </svg>
-      Weekly Report
-    </a>
-  </div>
-
-  <div class="sb-sec">
-    <div class="sb-lbl">Management</div>
-    <a class="sb-a" href="/zone-operator/payments">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="5" width="20" height="14" rx="2"/>
-        <line x1="2" y1="10" x2="22" y2="10"/>
-      </svg>
-      Payments <span class="sb-badge am">3</span>
+      Payments
     </a>
     <a class="sb-a" href="/zone-operator/residents">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -171,10 +145,10 @@
 
   <div class="sb-foot">
     <div class="sb-user">
-      <div class="sb-av" id="profileInitials">ZO</div>
+      <div class="sb-av" id="sidebarProfileAvatar">ZO</div>
       <div>
-        <div class="sb-un" id="profileSidebarName">Zone Operator</div>
-        <div class="sb-ur" id="profileSidebarRole">Zone Operator</div>
+        <div class="sb-un" id="sidebarProfileName">Zone Operator</div>
+        <div class="sb-ur" id="sidebarProfileRole">Zone Operator</div>
       </div>
     </div>
     <button class="sb-logout" onclick="logout()">
@@ -214,7 +188,7 @@
           <div id="notifList"></div>
         </div>
       </div>
-      <div class="av" id="profileTopAvatar">ZO</div>
+      <div class="av" id="topbarProfileAvatar">ZO</div>
     </div>
   </div>
 
@@ -363,5 +337,59 @@
 <script src="/static/js/notifications.js"></script>
 <script src="../../static/js/zo_dash.js"></script>
 <script src="../../static/js/zo_profile.js"></script>
+
+<script>
+  // ── Load user profile on page load ────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function () {
+    loadUserProfile();
+  });
+
+  async function loadUserProfile() {
+    try {
+      let user = null;
+      try {
+        user = await API.get('/auth/me');
+      } catch (e1) {
+        try {
+          user = await API.get('/auth/profile');
+        } catch (e2) {
+          console.warn('Profile endpoints not available');
+        }
+      }
+      if (user && (user.username || user.full_name)) {
+        const name = user.full_name || user.username || 'Zone Operator';
+        updateProfileUI(name);
+      } else {
+        const cached = localStorage.getItem('userFullName');
+        if (cached) {
+          updateProfileUI(cached);
+        }
+      }
+    } catch (err) {
+      console.error('Error loading user profile:', err);
+      const cached = localStorage.getItem('userFullName') || 'Zone Operator';
+      updateProfileUI(cached);
+    }
+  }
+
+  function updateProfileUI(fullName) {
+    const initials = (fullName || 'ZO')
+      .split(' ')
+      .map(n => n.charAt(0).toUpperCase())
+      .join('')
+      .slice(0, 2);
+
+    const sidebarName = document.getElementById('sidebarProfileName');
+    const sidebarAvatar = document.getElementById('sidebarProfileAvatar');
+    if (sidebarName) sidebarName.textContent = fullName || 'Zone Operator';
+    if (sidebarAvatar) sidebarAvatar.textContent = initials;
+
+    const topbarAvatar = document.getElementById('topbarProfileAvatar');
+    if (topbarAvatar) topbarAvatar.textContent = initials;
+
+    localStorage.setItem('userFullName', fullName || 'Zone Operator');
+    localStorage.setItem('userInitials', initials);
+  }
+</script>
 </body>
 </html>
