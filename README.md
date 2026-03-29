@@ -9,6 +9,8 @@ Waste Management inventory and reporting project
 - Fabrice MBARUSHIMANA
 - Bonane NIYIGENA
 
+DEMO LINK : https://drive.google.com/file/d/1BrptHYRoRim-69b55_-Ntf3FajUpOna6/view?usp=sharing
+
 
 # 🌍 Isuku Track: Smart Waste Management Infrastructure
 
@@ -145,4 +147,3 @@ ISUKU_TRACK/
 └── requirements.txt    # Project dependencies
 
 
-DEMO LINK : https://drive.google.com/file/d/1BrptHYRoRim-69b55_-Ntf3FajUpOna6/view?usp=sharing
