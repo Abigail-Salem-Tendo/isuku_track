@@ -478,17 +478,42 @@ function confirmReject() {
     return;
   }
 
-  const ci = currentRejectTarget.closest('.ci');
-  const pi = currentRejectTarget.closest('.pi');
+  if (!currentRejectTarget) {
+    closeRejectModal();
+    return;
+  }
+
+  // Handle claim items - check if currentRejectTarget is the .ci element itself or a button inside
+  const ci = currentRejectTarget.classList && currentRejectTarget.classList.contains('ci')
+    ? currentRejectTarget
+    : currentRejectTarget.closest('.ci');
+
+  // Handle payment items - check if currentRejectTarget is the .pi element itself or a button inside
+  const pi = currentRejectTarget.classList && currentRejectTarget.classList.contains('pi')
+    ? currentRejectTarget
+    : currentRejectTarget.closest('.pi');
 
   if (ci) {
     const acts = ci.querySelector('.ci-acts');
-    acts.innerHTML = '<span class="b op">Rejected</span>';
-  } else if (pi) {
-    const payActions = currentRejectTarget.closest('.pay-actions');
-    if (payActions) {
-      payActions.innerHTML = '<span class="b op">Rejected</span>';
+    if (acts) {
+      acts.innerHTML = '<span class="b op">Rejected</span>';
     }
+    ci.classList.add('resolved');
+
+    // Update counts if the function exists
+    if (typeof updateClaimsCounts === 'function') {
+      updateClaimsCounts();
+    }
+  } else if (pi) {
+    // Update payment item badge
+    const badge = pi.querySelector('.b');
+    if (badge) {
+      badge.className = 'b op';
+      badge.textContent = 'Rejected';
+      badge.style.fontSize = '';
+    }
+    // Update data status
+    pi.dataset.status = 'rejected';
   }
 
   closeRejectModal();

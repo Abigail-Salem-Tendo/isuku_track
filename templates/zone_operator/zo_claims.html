@@ -9,6 +9,45 @@
 </head>
 <body>
 
+<!-- Claim Details Modal -->
+<div class="modal-overlay" id="claimDetailsModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-title" style="border-bottom:1px solid #eee;padding-bottom:12px;margin-bottom:16px;">Claim Details</div>
+    <div id="claimDetailsContent">
+      <div class="claim-detail-row">
+        <label>Type:</label>
+        <span id="detailType">-</span>
+      </div>
+      <div class="claim-detail-row">
+        <label>Location:</label>
+        <span id="detailLocation">-</span>
+      </div>
+      <div class="claim-detail-row">
+        <label>Submitted by:</label>
+        <span id="detailSubmitter">-</span>
+      </div>
+      <div class="claim-detail-row">
+        <label>Date:</label>
+        <span id="detailDate">-</span>
+      </div>
+      <div class="claim-detail-row">
+        <label>Description:</label>
+        <p id="detailDescription" style="margin:4px 0 0 0;color:var(--txt);"></p>
+      </div>
+      <div class="claim-detail-row" id="detailPhotoRow">
+        <label>Photo Evidence:</label>
+        <img id="detailPhoto" src="" alt="Claim photo" style="max-width:100%;border-radius:8px;margin-top:8px;display:none;">
+        <span id="noPhotoText" style="color:var(--txt-l);">No photo provided</span>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:20px;display:flex;gap:10px;">
+      <button class="modal-btn cancel" onclick="closeClaimDetailsModal()" style="flex:1;">Close</button>
+      <button class="modal-btn" id="detailRejectBtn" style="flex:1;background:#dc2626;color:#fff;" onclick="openRejectFromDetails()">Reject</button>
+      <button class="modal-btn" id="detailApproveBtn" style="flex:1;background:#16a34a;color:#fff;" onclick="approveFromDetails()">Approve</button>
+    </div>
+  </div>
+</div>
+
 <!-- Rejection Reason Modal -->
 <div class="modal-overlay" id="rejectModal">
   <div class="modal">
@@ -26,9 +65,9 @@
     </select>
     <label class="modal-label">Additional details (optional)</label>
     <textarea class="modal-textarea" id="rejectDetails" placeholder="Provide more context if needed..."></textarea>
-    <div class="modal-actions">
-      <button class="modal-btn cancel" onclick="closeRejectModal()">Cancel</button>
-      <button class="modal-btn confirm" onclick="confirmReject()">Confirm Rejection</button>
+    <div class="modal-actions" style="display:flex;gap:10px;">
+      <button class="modal-btn cancel" onclick="closeRejectModal()" style="flex:1;">Cancel</button>
+      <button class="modal-btn" onclick="confirmReject()" style="flex:1;background:#dc2626;color:#fff;">Confirm Rejection</button>
     </div>
   </div>
 </div>
@@ -142,16 +181,11 @@
 
   <div class="page">
 
-    <div class="sg">
+    <div class="claims-stats-grid">
       <div class="sc">
         <div class="sc-lbl">Pending</div>
         <div class="sc-val" style="color:var(--red)" id="pendingCount">7</div>
-        <div class="sc-sub"><span class="dn">2 urgent</span></div>
-      </div>
-      <div class="sc">
-        <div class="sc-lbl">In Progress</div>
-        <div class="sc-val" style="color:#a06010" id="inProgressCount">3</div>
-        <div class="sc-sub">being reviewed</div>
+        <div class="sc-sub">awaiting review</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Resolved</div>
@@ -159,8 +193,13 @@
         <div class="sc-sub">this month</div>
       </div>
       <div class="sc">
-        <div class="sc-lbl">Points Awarded</div>
-        <div class="sc-val" style="color:#f59e0b" id="totalPointsAwarded">0</div>
+        <div class="sc-lbl">Approved</div>
+        <div class="sc-val" style="color:var(--g1)" id="approvedCount">12</div>
+        <div class="sc-sub">this month</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Rejected</div>
+        <div class="sc-val" style="color:var(--red)" id="rejectedCount">6</div>
         <div class="sc-sub">this month</div>
       </div>
     </div>
@@ -168,7 +207,6 @@
     <div class="ftabs">
       <button class="ftab on" onclick="filterTab(this)">All</button>
       <button class="ftab" onclick="filterTab(this)">Pending</button>
-      <button class="ftab" onclick="filterTab(this)">In Progress</button>
       <button class="ftab" onclick="filterTab(this)">Resolved</button>
     </div>
 
@@ -179,7 +217,7 @@
       </div>
       <div class="cb" id="claimsListContainer">
 
-        <div class="ci" data-category="overflow" data-claim-id="1">
+        <div class="ci" data-category="overflow" data-claim-id="1" onclick="viewClaimDetails(this)" style="cursor:pointer;">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3 6 5 6 21 6"/>
@@ -187,34 +225,36 @@
               <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
             </svg>
           </div>
-          <div>
-            <div class="ci-ttl">Overflow — KG 11 Ave &nbsp;<span class="b op" style="font-size:.62rem;">Urgent</span> <span class="points-badge">+15 pts</span></div>
+          <div class="ci-content">
+            <div class="ci-ttl">Overflow</div>
+            <div class="ci-loc">KG 11 Ave, Kimironko</div>
             <div class="ci-meta">Alice M. · 2h ago</div>
           </div>
+          <span class="ci-cat overflow">Overflow</span>
           <div class="ci-acts">
-            <button class="btn-ok" onclick="approveClaim(this, 15, 'Alice M.')">Approve</button>
-            <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
+            <span class="b pe">Tap to review</span>
           </div>
         </div>
 
-        <div class="ci" data-category="illegal_dumping" data-claim-id="2">
+        <div class="ci" data-category="illegal_dumping" data-claim-id="2" onclick="viewClaimDetails(this)" style="cursor:pointer;">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
             </svg>
           </div>
-          <div>
-            <div class="ci-ttl">Illegal dumping — KN 5 Rd &nbsp;<span class="b op" style="font-size:.62rem;">Urgent</span> <span class="points-badge">+20 pts</span></div>
+          <div class="ci-content">
+            <div class="ci-ttl">Illegal dumping</div>
+            <div class="ci-loc">KN 5 Rd, Kimironko</div>
             <div class="ci-meta">Bob N. · 4h ago</div>
           </div>
+          <span class="ci-cat illegal">Illegal</span>
           <div class="ci-acts">
-            <button class="btn-ok" onclick="approveClaim(this, 20, 'Bob N.')">Approve</button>
-            <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
+            <span class="b pe">Tap to review</span>
           </div>
         </div>
 
-        <div class="ci" data-category="overflow" data-claim-id="3">
+        <div class="ci" data-category="overflow" data-claim-id="3" onclick="viewClaimDetails(this)" style="cursor:pointer;">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3 6 5 6 21 6"/>
@@ -222,17 +262,18 @@
               <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
             </svg>
           </div>
-          <div>
-            <div class="ci-ttl">Overflow — KG 9 Ave <span class="points-badge">+15 pts</span></div>
+          <div class="ci-content">
+            <div class="ci-ttl">Overflow</div>
+            <div class="ci-loc">KG 9 Ave, Kimironko</div>
             <div class="ci-meta">Marie J. · 6h ago</div>
           </div>
+          <span class="ci-cat overflow">Overflow</span>
           <div class="ci-acts">
-            <button class="btn-ok" onclick="approveClaim(this, 15, 'Marie J.')">Approve</button>
-            <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
+            <span class="b pe">Tap to review</span>
           </div>
         </div>
 
-        <div class="ci" data-category="missed_collection" data-claim-id="4">
+        <div class="ci" data-category="missed_collection" data-claim-id="4" onclick="viewClaimDetails(this)" style="cursor:pointer;">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -240,16 +281,18 @@
               <line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
           </div>
-          <div>
-            <div class="ci-ttl">Missed collection — Kamatamu <span class="points-badge">+10 pts</span></div>
+          <div class="ci-content">
+            <div class="ci-ttl">Missed collection</div>
+            <div class="ci-loc">Kamatamu, Kimironko</div>
             <div class="ci-meta">Grace K. · Yesterday</div>
           </div>
+          <span class="ci-cat missed">Missed</span>
           <div class="ci-acts">
-            <span class="b go">In Progress</span>
+            <span class="b pe">Tap to review</span>
           </div>
         </div>
 
-        <div class="ci" data-category="damaged_infrastructure" data-claim-id="5">
+        <div class="ci" data-category="damaged_infrastructure" data-claim-id="5" onclick="viewClaimDetails(this)" style="cursor:pointer;">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
@@ -257,17 +300,18 @@
               <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
           </div>
-          <div>
-            <div class="ci-ttl">Damaged bin — Street 4 <span class="points-badge">+25 pts</span></div>
+          <div class="ci-content">
+            <div class="ci-ttl">Damaged bin</div>
+            <div class="ci-loc">Street 4, Kimironko</div>
             <div class="ci-meta">David U. · 2 days ago</div>
           </div>
+          <span class="ci-cat damaged">Damaged</span>
           <div class="ci-acts">
-            <button class="btn-ok" onclick="approveClaim(this, 25, 'David U.')">Approve</button>
-            <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
+            <span class="b pe">Tap to review</span>
           </div>
         </div>
 
-        <div class="ci" data-category="other" data-claim-id="6">
+        <div class="ci" data-category="other" data-claim-id="6" onclick="viewClaimDetails(this)" style="cursor:pointer;">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="1" y="3" width="15" height="13"/>
@@ -275,33 +319,36 @@
               <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
             </svg>
           </div>
-          <div>
-            <div class="ci-ttl">Vehicle blocking access — KN 3 <span class="points-badge">+5 pts</span></div>
+          <div class="ci-content">
+            <div class="ci-ttl">Vehicle blocking access</div>
+            <div class="ci-loc">KN 3, Kimironko</div>
             <div class="ci-meta">Paul R. · 1 day ago</div>
           </div>
+          <span class="ci-cat other">Other</span>
           <div class="ci-acts">
-            <span class="b go">In Progress</span>
+            <span class="b pe">Tap to review</span>
           </div>
         </div>
 
-        <div class="ci" data-category="other" data-claim-id="7">
+        <div class="ci" data-category="other" data-claim-id="7" onclick="viewClaimDetails(this)" style="cursor:pointer;">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
           </div>
-          <div>
-            <div class="ci-ttl">Noise during collection — KG 15 <span class="points-badge">+5 pts</span></div>
+          <div class="ci-content">
+            <div class="ci-ttl">Noise during collection</div>
+            <div class="ci-loc">KG 15, Kimironko</div>
             <div class="ci-meta">Sara O. · 2 days ago</div>
           </div>
+          <span class="ci-cat other">Other</span>
           <div class="ci-acts">
-            <button class="btn-ok" onclick="approveClaim(this, 5, 'Sara O.')">Approve</button>
-            <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
+            <span class="b pe">Tap to review</span>
           </div>
         </div>
 
-        <div class="ci" data-category="missed_collection" data-claim-id="8">
+        <div class="ci" data-category="missed_collection" data-claim-id="8" onclick="viewClaimDetails(this)" style="cursor:pointer;">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3 6 5 6 21 6"/>
@@ -309,27 +356,30 @@
               <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
             </svg>
           </div>
-          <div>
-            <div class="ci-ttl">Missed collection — KG 15 Ave <span class="points-badge">+10 pts</span></div>
+          <div class="ci-content">
+            <div class="ci-ttl">Missed collection</div>
+            <div class="ci-loc">KG 15 Ave, Kimironko</div>
             <div class="ci-meta">John M. · 3 days ago</div>
           </div>
+          <span class="ci-cat missed">Missed</span>
           <div class="ci-acts">
-            <button class="btn-ok" onclick="approveClaim(this, 10, 'John M.')">Approve</button>
-            <button class="btn-no" onclick="openRejectModal(this)">Reject</button>
+            <span class="b pe">Tap to review</span>
           </div>
         </div>
 
-        <div class="ci resolved" data-category="damaged_infrastructure" data-claim-id="9">
+        <div class="ci resolved" data-category="damaged_infrastructure" data-claim-id="9" onclick="viewClaimDetails(this)" style="cursor:pointer;">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
               <polyline points="22 4 12 14.01 9 11.01"/>
             </svg>
           </div>
-          <div>
-            <div class="ci-ttl">Bin replacement — KG 7 Ave <span class="points-awarded">+25 pts awarded</span></div>
+          <div class="ci-content">
+            <div class="ci-ttl">Bin replacement</div>
+            <div class="ci-loc">KG 7 Ave, Kimironko</div>
             <div class="ci-meta">Eve K. · 5 days ago</div>
           </div>
+          <span class="ci-cat damaged">Damaged</span>
           <div class="ci-acts">
             <span class="b ok">Resolved</span>
           </div>
@@ -414,6 +464,216 @@
     </div>
   </div>
 </nav>
+
+<style>
+  /* Modal detail rows with separators */
+  .claim-detail-row {
+    margin-bottom: 0;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .claim-detail-row:last-child {
+    border-bottom: none;
+  }
+  .claim-detail-row label { display: block; font-size: .8rem; color: var(--txt-l); margin-bottom: 4px; font-weight: 500; }
+  .claim-detail-row span, .claim-detail-row p { font-size: .95rem; color: var(--txt); font-weight: 600; }
+
+  /* Claims Stats Grid - 4 columns on desktop */
+  .claims-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (min-width: 768px) {
+    .claims-stats-grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+  }
+
+  /* Claim item layout - fill space */
+  .ci-content {
+    flex: 1;
+    min-width: 0;
+  }
+  .ci-loc {
+    font-size: .75rem;
+    color: var(--txt-m);
+    margin-top: 2px;
+  }
+
+  /* Category tags */
+  .ci-cat {
+    font-size: .7rem;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .ci-cat.overflow {
+    background: rgba(72, 168, 112, 0.1);
+    color: #48a870;
+  }
+  .ci-cat.illegal {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+  }
+  .ci-cat.missed {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+  }
+  .ci-cat.damaged {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+  }
+  .ci-cat.other {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+  }
+
+  /* Increase badge sizes */
+  .ci-acts .b {
+    font-size: .8rem !important;
+    padding: 6px 14px !important;
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  let currentClaimElement = null;
+
+  function viewClaimDetails(el) {
+    currentClaimElement = el;
+    const claimId = el.dataset.claimId;
+    const category = el.dataset.category;
+    const titleEl = el.querySelector('.ci-ttl');
+    const locEl = el.querySelector('.ci-loc');
+    const meta = el.querySelector('.ci-meta').textContent.trim();
+    const isResolved = el.classList.contains('resolved');
+    const badgeEl = el.querySelector('.ci-acts .b');
+    const badgeText = badgeEl ? badgeEl.textContent.trim().toLowerCase() : '';
+    const isApproved = badgeText.includes('approved');
+    const isRejected = badgeText.includes('rejected');
+
+    // Get type and location
+    const type = titleEl ? titleEl.textContent.trim() : category;
+    const location = locEl ? locEl.textContent.trim() : '-';
+    const [submitter, timeAgo] = meta.split('·').map(s => s.trim());
+
+    // Set details in modal
+    document.getElementById('detailType').textContent = type;
+    document.getElementById('detailLocation').textContent = location;
+    document.getElementById('detailSubmitter').textContent = submitter || '-';
+    document.getElementById('detailDate').textContent = timeAgo || '-';
+    document.getElementById('detailDescription').textContent = 'Claim reported by resident for review. Review the evidence and approve or reject accordingly.';
+
+    // Hide photo for now (placeholder)
+    document.getElementById('detailPhoto').style.display = 'none';
+    document.getElementById('noPhotoText').style.display = 'block';
+
+    // Show/hide approve/reject buttons based on status
+    const approveBtn = document.getElementById('detailApproveBtn');
+    const rejectBtn = document.getElementById('detailRejectBtn');
+
+    if (isResolved || isApproved || isRejected) {
+      approveBtn.style.display = 'none';
+      rejectBtn.style.display = 'none';
+    } else {
+      approveBtn.style.display = 'inline-block';
+      rejectBtn.style.display = 'inline-block';
+    }
+
+    // Show modal
+    document.getElementById('claimDetailsModal').classList.add('show');
+  }
+
+  function closeClaimDetailsModal() {
+    document.getElementById('claimDetailsModal').classList.remove('show');
+    currentClaimElement = null;
+  }
+
+  function approveFromDetails() {
+    if (currentClaimElement) {
+      const category = currentClaimElement.dataset.category || 'other';
+      const submitter = currentClaimElement.querySelector('.ci-meta').textContent.split('·')[0].trim();
+
+      // Update the badge to show "Approved"
+      const actsEl = currentClaimElement.querySelector('.ci-acts');
+      if (actsEl) {
+        actsEl.innerHTML = '<span class="b ok" style="font-size:.7rem;">Approved</span>';
+      }
+
+      // Add resolved class
+      currentClaimElement.classList.add('resolved');
+
+      // Show toast notification
+      const POINTS_PER_CATEGORY = {
+        missed_collection: 10,
+        overflow: 15,
+        illegal_dumping: 20,
+        damaged_infrastructure: 25,
+        environmental_hazard: 30,
+        other: 5
+      };
+      const points = POINTS_PER_CATEGORY[category] || 5;
+      if (typeof showToast === 'function') {
+        showToast(`Claim approved! ${submitter} earned`, points);
+      }
+
+      // Update counts
+      updateClaimsCounts();
+
+      closeClaimDetailsModal();
+      applyActiveFilter();
+    }
+  }
+
+  function openRejectFromDetails() {
+    if (currentClaimElement) {
+      closeClaimDetailsModal();
+      openRejectModal(currentClaimElement);
+    }
+  }
+
+  // Update claims counts
+  function updateClaimsCounts() {
+    const allClaims = document.querySelectorAll('.ci');
+    let pending = 0, approved = 0, rejected = 0;
+
+    allClaims.forEach(ci => {
+      const badge = ci.querySelector('.ci-acts .b');
+      if (badge) {
+        const text = badge.textContent.trim().toLowerCase();
+        if (text.includes('approved')) approved++;
+        else if (text.includes('rejected')) rejected++;
+        else if (text.includes('resolved')) approved++;
+        else pending++;
+      } else {
+        pending++;
+      }
+    });
+
+    const pendingEl = document.getElementById('pendingCount');
+    const approvedEl = document.getElementById('approvedCount');
+    const rejectedEl = document.getElementById('rejectedCount');
+    const resolvedEl = document.getElementById('resolvedCount');
+    const pendingBadgeEl = document.getElementById('pendingBadge');
+
+    if (pendingEl) pendingEl.textContent = pending;
+    if (approvedEl) approvedEl.textContent = approved;
+    if (rejectedEl) rejectedEl.textContent = rejected;
+    if (resolvedEl) resolvedEl.textContent = approved + rejected;
+    if (pendingBadgeEl) pendingBadgeEl.textContent = pending + ' pending';
+
+    // Update header text
+    const headerP = document.querySelector('.tb-l p');
+    if (headerP) {
+      headerP.textContent = `Kimironko Zone A · ${pending} pending claims`;
+    }
+  }
+</script>
 
 <script src="../../static/js/zo_dash.js"></script>
 </body>
