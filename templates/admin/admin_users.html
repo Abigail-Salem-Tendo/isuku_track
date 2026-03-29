@@ -96,11 +96,6 @@
         <div class="sc-val" id="usersTotalResidents">0</div>
         <div class="sc-sub">from users directory</div>
       </div>
-      <div class="sc" data-user-filter-card="active" role="button" tabindex="0" style="cursor:pointer;">
-        <div class="sc-lbl">Active</div>
-        <div class="sc-val" id="usersActiveResidents" style="color:var(--g1)">0</div>
-        <div class="sc-sub">currently active</div>
-      </div>
       <div class="sc bl">
         <div class="sc-lbl">Zone Operators</div>
         <div class="sc-val" id="usersZoneOperators">0</div>
@@ -112,7 +107,6 @@
       <button class="ftab on" data-user-filter="all">All</button>
       <button class="ftab" data-user-filter="resident">Residents</button>
       <button class="ftab" data-user-filter="zone operator">Zone Operator</button>
-      <button class="ftab" data-user-filter="active">Active</button>
     </div>
 
     <section class="card" aria-labelledby="usersTableTitle">
@@ -194,18 +188,14 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
     var cells = row.querySelectorAll('td');
     if (cells.length < 5) return;
     var role = cells[2].textContent.trim().toLowerCase();
-    var status = cells[4].textContent.trim().toLowerCase();
     if (role === 'zone operator') zoneOperators += 1;
     if (role !== 'resident') return;
     total += 1;
-    if (status === 'active') active += 1;
   });
 
   var totalEl = document.getElementById('usersTotalResidents');
-  var activeEl = document.getElementById('usersActiveResidents');
   var zoneOpsEl = document.getElementById('usersZoneOperators');
   if (totalEl) totalEl.textContent = String(total);
-  if (activeEl) activeEl.textContent = String(active);
   if (zoneOpsEl) zoneOpsEl.textContent = String(zoneOperators);
 })();
 
