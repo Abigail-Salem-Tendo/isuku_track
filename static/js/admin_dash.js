@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var formHtml = '';
 
     if (action === 'new-zone') {
-      window.location.href = '/templates/interactive-map.html';
+      window.location.href = '/admin/zones'; 
     }
 
     if (action === 'create-schedule') {
@@ -370,48 +370,44 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (action === 'add-vehicle') {
-      if (!goToSidebarLink('vehicles', 'admin_vehicles.html')) {
+      if (!goToSidebarLink('vehicles', '/admin/vehicles')) {
         showToast('Vehicles page is not available yet', true);
       }
       return;
     }
 
     if (action === 'view-reports' || action === 'all-reports') {
-      if (!goToSidebarLink('reports', 'admin_reports.html')) {
+      if (!goToSidebarLink('reports', '/admin/reports')) {
         showToast('Reports page is not available yet', true);
       }
       return;
     }
 
-    if (action === 'manage-zones') {
-      var zones = document.getElementById('zoneTableBody');
-      if (zones) zones.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
+    // ... down to ...
 
     if (action === 'stat-zones') {
-      if (!goToSidebarLink('zones', 'admin_zones.html')) {
+      if (!goToSidebarLink('zones', '/admin/zones')) {
         showToast('Zones page is not available yet', true);
       }
       return;
     }
 
     if (action === 'stat-claims') {
-      if (!goToSidebarLink('claims', 'admin_claims.html')) {
+      if (!goToSidebarLink('claims', '/admin/claims')) {
         showToast('Claims page is not available yet', true);
       }
       return;
     }
 
     if (action === 'stat-payments') {
-      if (!goToSidebarLink('payments', 'admin_payments.html')) {
+      if (!goToSidebarLink('payments', '/admin/payments')) {
         showToast('Payments page is not available yet', true);
       }
       return;
     }
 
     if (action === 'stat-users') {
-      if (!goToSidebarLink('users', 'admin_users.html')) {
+      if (!goToSidebarLink('users', '/admin/users')) {
         showToast('Users page is not available yet', true);
       }
       return;
@@ -471,13 +467,7 @@ document.addEventListener('DOMContentLoaded', function () {
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('userRole');
       localStorage.removeItem('adminName');
-
-      var isStaticPreview = window.location.protocol === 'file:' || window.location.port === '5500' || window.location.port === '5501';
-      if (isStaticPreview) {
-        showToast('Logged out');
-        return;
-      }
-
+      
       window.location.href = '/logout';
     }
   }
