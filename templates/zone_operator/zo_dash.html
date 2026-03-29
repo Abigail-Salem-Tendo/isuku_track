@@ -110,12 +110,23 @@
     </a>
   </div>
 
+  <div class="sb-sec">
+    <div class="sb-lbl">Account</div>
+    <a class="sb-a" href="/zone-operator/profile">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      My Profile
+    </a>
+  </div>
+
   <div class="sb-foot">
     <div class="sb-user">
-      <div class="sb-av">JP</div>
+      <div class="sb-av" id="sidebarProfileAvatar">JP</div>
       <div>
-        <div class="sb-un">Jean-Pierre K.</div>
-        <div class="sb-ur">Zone A Operator</div>
+        <div class="sb-un" id="sidebarProfileName">Zone Operator</div>
+        <div class="sb-ur" id="sidebarProfileRole">Zone Operator</div>
       </div>
     </div>
     <button class="sb-logout" onclick="logout()">
@@ -158,7 +169,7 @@
           <div id="notifList"></div>
         </div>
       </div>
-      <div class="av">JP</div>
+      <div class="av" id="topbarProfileAvatar">JP</div>
     </div>
   </div>
 
@@ -514,17 +525,17 @@
     </div>
     <div class="mn-profile-dd" id="profileDd">
       <div class="dd-user">
-        <div class="dd-user-av">JP</div>
-        <div class="dd-user-name">Jean-Pierre K.</div>
-        <div class="dd-user-role">Zone A Operator · Kimironko</div>
+        <div class="dd-user-av" id="mobileProfileAvatar">JP</div>
+        <div class="dd-user-name" id="mobileProfileName">Jean-Pierre K.</div>
+        <div class="dd-user-role" id="mobileProfileRole">Zone A Operator · Kimironko</div>
       </div>
-      <div class="dd-item">
+      <a href="/zone-operator/profile" class="dd-item">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
         My Profile
-      </div>
+      </a>
       <div class="dd-item">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>

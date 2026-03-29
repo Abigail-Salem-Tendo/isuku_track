@@ -39,7 +39,7 @@
   }
 
   function updateIdentityUI(user) {
-    const initials = (user.username || 'ZO')
+    const initials = (user.name || user.username || 'ZO')
       .split(' ')
       .filter(Boolean)
       .map(part => part[0])
@@ -49,22 +49,31 @@
 
     const zoneLabel = user.zone && user.zone.name ? `${user.zone.name} Operator` : 'Zone Operator';
 
-    document.querySelectorAll('.sb-av, #profileTopAvatar, #ddUserAv').forEach(node => {
-      if (node) node.textContent = initials;
-    });
-
-    const sidebarName = el('profileSidebarName');
-    if (sidebarName) sidebarName.textContent = user.username || 'Zone Operator';
-
-    const sidebarRole = el('profileSidebarRole');
+    // Update sidebar profile
+    const sidebarAvatar = document.getElementById('sidebarProfileAvatar');
+    if (sidebarAvatar) sidebarAvatar.textContent = initials;
+    
+    const sidebarName = document.getElementById('sidebarProfileName');
+    if (sidebarName) sidebarName.textContent = user.name || user.username || 'Zone Operator';
+    
+    const sidebarRole = document.getElementById('sidebarProfileRole');
     if (sidebarRole) sidebarRole.textContent = zoneLabel;
 
-    const ddName = el('ddUserName');
-    if (ddName) ddName.textContent = user.username || 'Zone Operator';
+    // Update topbar avatar
+    const topbarAvatar = document.getElementById('topbarProfileAvatar');
+    if (topbarAvatar) topbarAvatar.textContent = initials;
 
-    const ddRole = el('ddUserRole');
-    if (ddRole) ddRole.textContent = zoneLabel;
+    // Update mobile profile dropdown
+    const mobileAvatar = document.getElementById('mobileProfileAvatar');
+    if (mobileAvatar) mobileAvatar.textContent = initials;
+    
+    const mobileName = document.getElementById('mobileProfileName');
+    if (mobileName) mobileName.textContent = user.name || user.username || 'Zone Operator';
+    
+    const mobileRole = document.getElementById('mobileProfileRole');
+    if (mobileRole) mobileRole.textContent = zoneLabel;
 
+    // Update topbar subtitle
     const topSub = el('profileTopbarSub');
     if (topSub) {
       if (user.zone) {
@@ -131,7 +140,7 @@
       const phone = el('phone');
       const zoneInfo = el('zoneInfo');
 
-      if (fullName) fullName.value = user.username || '';
+      if (fullName) fullName.value = user.name || user.username || '';
       if (email) email.value = user.email || '';
       if (phone) phone.value = user.phone_number || '';
       if (zoneInfo) {
@@ -193,7 +202,7 @@
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            username: fullName,
+            name: fullName,
             phone_number: phone
           })
         });
