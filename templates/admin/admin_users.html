@@ -140,6 +140,13 @@
               <td>0722 987 123</td>
               <td><span class="b ok">Active</span></td>
             </tr>
+            <tr data-role="resident" data-status="inactive">
+              <td>Patrick N.</td>
+              <td>patrick@example.com</td>
+              <td>Resident</td>
+              <td>0788 333 999</td>
+              <td><span class="b op">Inactive</span></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -147,6 +154,7 @@
 </main></div>
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
 
+<script src="/static/js/api_helper.js"></script>
 <script>
 function toggleSb() {
   var sb = document.querySelector('.sb');
@@ -188,14 +196,21 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
     var cells = row.querySelectorAll('td');
     if (cells.length < 5) return;
     var role = cells[2].textContent.trim().toLowerCase();
+    var status = cells[4].textContent.trim().toLowerCase();
     if (role === 'zone operator') zoneOperators += 1;
     if (role !== 'resident') return;
     total += 1;
+    if (status === 'active') active += 1;
+    if (status === 'inactive') inactive += 1;
   });
 
   var totalEl = document.getElementById('usersTotalResidents');
+  var activeEl = document.getElementById('usersActiveResidents');
+  var inactiveEl = document.getElementById('usersInactiveResidents');
   var zoneOpsEl = document.getElementById('usersZoneOperators');
   if (totalEl) totalEl.textContent = String(total);
+  if (activeEl) activeEl.textContent = String(active);
+  if (inactiveEl) inactiveEl.textContent = String(inactive);
   if (zoneOpsEl) zoneOpsEl.textContent = String(zoneOperators);
 })();
 
@@ -238,3 +253,4 @@ document.querySelectorAll('[data-user-filter-card]').forEach(function (card) {
 </script>
 </body>
 </html>
+
