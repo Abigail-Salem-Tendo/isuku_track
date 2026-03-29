@@ -1,535 +1,638 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Payments — Isuku Track</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/zo_dash.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/base1.css') }}">
+  <link rel="stylesheet" href="/static/css/base1.css" />
+  <link rel="stylesheet" href="/static/css/dashboard.css" />
+  <link rel="stylesheet" href="/static/css/resident.css" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/resident_payments.css') }}">
 </head>
+
 <body>
+  <div class="resident-layout">
 
-<!-- Add Payment Popup Modal with Blur Effect -->
-<div class="rp-modal-overlay" id="addPaymentModal">
-  <div class="rp-modal">
-    <div class="rp-modal-header">
-      <h3 class="rp-modal-title">Submit New Payment</h3>
-      <button class="rp-modal-close" onclick="closeAddPaymentModal()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/>
-          <line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-    </div>
-    <div class="rp-modal-content">
-      <form id="paymentForm" novalidate>
-        <div class="rp-form-group">
-          <label>Payment For Month *</label>
-          <select id="paymentMonth" name="paymentMonth" required>
-            <option value="">-- Select Month --</option>
-            <option value="2026-03">March 2026</option>
-            <option value="2026-04">April 2026</option>
-            <option value="2026-05">May 2026</option>
-            <option value="2026-06">June 2026</option>
-            <option value="2026-07">July 2026</option>
-          </select>
-          <div class="rp-error-message" id="paymentMonthError">Please select a month</div>
-        </div>
+    <!-- ── Sidebar Overlay (mobile) ── -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <div class="rp-form-group">
-          <label>Amount (Frw) *</label>
-          <input type="number" id="amount" name="amount" placeholder="2,000" min="1" required />
-          <div class="rp-error-message" id="amountError">Please enter a valid amount</div>
-        </div>
-
-        <div class="rp-form-group">
-          <label>Payment Method *</label>
-          <select id="paymentMethod" name="paymentMethod" required>
-            <option value="">-- Select Method --</option>
-            <option value="momo">MTN Mobile Money</option>
-            <option value="airtel">Airtel Money</option>
-            <option value="bank">Bank Transfer</option>
-            <option value="cash">Cash (at office)</option>
-          </select>
-          <div class="rp-error-message" id="paymentMethodError">Please select a payment method</div>
-        </div>
-
-        <div class="rp-form-group">
-          <label>Date of Payment *</label>
-          <input type="datetime-local" id="paymentDate" name="paymentDate" required />
-          <div class="rp-error-message" id="paymentDateError">Please select payment date</div>
-        </div>
-
-        <div class="rp-form-group">
-          <label>Transaction ID (if applicable)</label>
-          <input type="text" id="transactionId" name="transactionId" placeholder="e.g., TXN123456789" />
-        </div>
-
-        <div class="rp-form-group">
-          <label>Payment Proof/Receipt *</label>
-          <div class="rp-file-input-wrapper">
-            <input type="file" id="proofFile" name="proofFile" accept="image/*,application/pdf" required />
-            <span class="rp-file-label">📎 Click to upload or drag file</span>
-            <span class="rp-file-hint">Accepted: JPG, PNG, PDF (Max 5MB)</span>
-          </div>
-          <div class="rp-error-message" id="proofFileError">Please upload payment proof</div>
-        </div>
-
-        <div class="rp-modal-actions">
-          <button type="button" class="rp-btn-secondary" onclick="closeAddPaymentModal()">Cancel</button>
-          <button type="submit" class="rp-btn-primary">Submit Payment</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- Payment Details Modal -->
-<div class="rp-modal-overlay" id="paymentDetailModal">
-  <div class="rp-modal">
-    <div class="rp-modal-header">
-      <h3 class="rp-modal-title">Payment Details</h3>
-      <button class="rp-modal-close" onclick="closePaymentDetailModal()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/>
-          <line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-    </div>
-    <div class="rp-modal-content">
-      <div class="rp-detail-grid">
-        <div class="rp-detail-item">
-          <span class="rp-detail-label">Amount</span>
-          <span class="rp-detail-value rp-detail-amount" id="detailAmount">2,000 Frw</span>
-        </div>
-        <div class="rp-detail-item">
-          <span class="rp-detail-label">Payment Method</span>
-          <span class="rp-detail-value" id="detailMethod">MTN Mobile Money</span>
-        </div>
-        <div class="rp-detail-item">
-          <span class="rp-detail-label">Transaction ID</span>
-          <span class="rp-detail-value" id="detailTxn">TXN-2026-03-001</span>
-        </div>
-        <div class="rp-detail-item">
-          <span class="rp-detail-label">Date Submitted</span>
-          <span class="rp-detail-value" id="detailDate">Mar 20, 2026 at 10:45 AM</span>
-        </div>
-        <div class="rp-detail-item">
-          <span class="rp-detail-label">For Month</span>
-          <span class="rp-detail-value" id="detailMonth">March 2026</span>
-        </div>
-        <div class="rp-detail-item">
-          <span class="rp-detail-label">Status</span>
-          <span class="rp-badge pending" id="detailStatus">Pending</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Sidebar -->
-<aside class="sb">
-  <div class="sb-top">
-    <div class="sb-logo">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M12 3C12 3 5 9 5 15a7 7 0 0014 0C19 9 12 3 12 3Z" fill="white" opacity=".9"/>
-        <path d="M12 10v6M9.5 14l2.5 2 2.5-2" stroke="#2e7d52" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    <div>
-      <div class="sb-name">Isuku Track</div>
-      <div class="sb-role">Resident</div>
-    </div>
-  </div>
-
-  <div class="sb-sec">
-    <div class="sb-lbl">My Home</div>
-    <a class="sb-a" href="/resident/dashboard">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-      Dashboard
-    </a>
-    <a class="sb-a" href="/resident/resident_schedule">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2"/>
-        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-        <line x1="3" y1="10" x2="21" y2="10"/>
-      </svg>
-      Collection Schedule
-    </a>
-    <a class="sb-a" href="/resident/resident_claims">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-      </svg>
-      My Claims
-    </a>
-  </div>
-
-  <div class="sb-sec">
-    <div class="sb-lbl">Account</div>
-    <a class="sb-a on" href="/resident/resident_payments">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="5" width="20" height="14" rx="2"/>
-        <line x1="2" y1="10" x2="22" y2="10"/>
-      </svg>
-      My Payments
-    </a>
-    <a class="sb-a" href="/resident/resident_profile">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg>
-      Profile
-    </a>
-  </div>
-
-  <div class="sb-foot">
-    <div class="sb-user">
-      <div class="sb-av">JM</div>
-      <div>
-        <div class="sb-un">Jean Mutoni</div>
-        <div class="sb-ur">Resident</div>
-      </div>
-    </div>
-    <button class="sb-logout" onclick="logout()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-      Logout
-    </button>
-  </div>
-</aside>
-
-<div class="main">
-  <div class="topbar">
-    <div class="tb-l">
-      <h1>My Payments</h1>
-      <p>Kimironko Zone A · Track and manage your payment history</p>
-    </div>
-    <div class="tb-r">
-      <div class="icon-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-        </svg>
-        <div class="notif-dot"></div>
-      </div>
-      <div class="av">JM</div>
-      <div class="ham" onclick="toggleSb()">
-        <span></span><span></span><span></span>
-      </div>
-    </div>
-  </div>
-
-  <div class="page">
-
-    <!-- Summary Cards -->
-    <div class="rp-payment-summary">
-      <div class="rp-summary-card rp-summary-card--collected">
-        <div class="rp-summary-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar" id="sidebar">
+      <a href="/resident/dashboard" class="sidebar__brand">
+        <div class="sidebar__brand-icon">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16 4h2a2 2 0 0 1 2 2v1H4V6a2 2 0 0 1 2-2h2m0 0V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1M9 4h6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2L19 7" />
           </svg>
         </div>
-        <div class="rp-summary-content">
-          <span class="rp-summary-label">Total Paid (This Year)</span>
-          <span class="rp-summary-value" id="totalPaid">24,000</span>
-          <span class="rp-summary-sub">12 payments approved</span>
+        <div class="sidebar__brand-text">
+          <span class="sidebar__brand-name">Isuku Track</span>
+          <span class="sidebar__brand-role">Resident</span>
         </div>
-      </div>
-      <div class="rp-summary-card rp-summary-card--pending">
-        <div class="rp-summary-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 6v6l4 2"/>
-          </svg>
-        </div>
-        <div class="rp-summary-content">
-          <span class="rp-summary-label">Pending Review</span>
-          <span class="rp-summary-value" id="pendingCount">1</span>
-          <span class="rp-summary-sub">Awaiting verification</span>
-        </div>
-      </div>
-      <div class="rp-summary-card rp-summary-card--target">
-        <div class="rp-summary-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <circle cx="12" cy="12" r="6"/>
-            <circle cx="12" cy="12" r="2"/>
-          </svg>
-        </div>
-        <div class="rp-summary-content">
-          <span class="rp-summary-label">Monthly Fee</span>
-          <span class="rp-summary-value">2,000</span>
-          <span class="rp-summary-sub">Frw · Due by 5th</span>
-        </div>
-      </div>
-      <div class="rp-summary-card rp-summary-card--rate">
-        <div class="rp-summary-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-            <polyline points="17 6 23 6 23 12"/>
-          </svg>
-        </div>
-        <div class="rp-summary-content">
-          <span class="rp-summary-label">Payment Status</span>
-          <span class="rp-summary-value" style="font-size:1.1rem;color:var(--rp-primary);">✓ Up to Date</span>
-          <span class="rp-summary-sub">Next: April 2026</span>
-        </div>
-      </div>
-    </div>
+      </a>
 
-    <!-- Quick Actions -->
-    <div class="rp-quick-actions">
-      <button class="rp-quick-action-btn" onclick="downloadStatement()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-        </svg>
-        Download Statement
-      </button>
-      <button class="rp-quick-action-btn" onclick="openAddPaymentModal()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 5v14M5 12h14"/>
-        </svg>
-        Submit New Payment
-      </button>
-    </div>
+      <div class="sidebar__section">
+        <div class="sidebar__section-label">My Home</div>
+        <a href="/resident/dashboard" class="sidebar__nav-item">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="/resident/resident_schedule" class="sidebar__nav-item">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          Collection Schedule
+        </a>
+        <a href="/resident/resident_claims" class="sidebar__nav-item">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          My Claims
+        </a>
+      </div>
 
-    <!-- Filter Tabs -->
-    <div class="rp-ftabs">
-      <button class="rp-ftab on" onclick="filterResidentPayments('all', this)">All Payments</button>
-      <button class="rp-ftab" onclick="filterResidentPayments('pending', this)">Pending Review</button>
-      <button class="rp-ftab" onclick="filterResidentPayments('approved', this)">Approved</button>
-      <button class="rp-ftab" onclick="filterResidentPayments('rejected', this)">Rejected</button>
-    </div>
+      <div class="sidebar__section">
+        <div class="sidebar__section-label">Account</div>
+        <a href="/resident/resident_payments" class="sidebar__nav-item active">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+          Submit Payment
+        </a>
+        <a href="/resident/resident_profile" class="sidebar__nav-item">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          Profile
+        </a>
+        <button class="sidebar__nav-item logout-btn" id="logoutBtn"
+          style="width:100%;background:none;border:none;cursor:pointer;font-family:inherit;">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Log Out
+        </button>
+      </div>
 
-    <!-- Payment History Card -->
-    <div class="rp-card">
-      <div class="rp-card-header">
+      <div class="sidebar__user">
+        <div class="sidebar__user-avatar" id="sidebarAvatar">R</div>
         <div>
-          <div class="rp-card-title">Payment History</div>
-          <div class="rp-card-subtitle">Your payment transactions and status</div>
+          <div class="sidebar__user-name" id="sidebarName">Resident</div>
+          <div class="sidebar__user-role" id="sidebarRole">Resident</div>
         </div>
       </div>
-      <div class="rp-card-body rp-table-scroll">
-        <table class="rp-table">
-          <thead>
-            <tr>
-              <th>Date Submitted</th>
-              <th>For Month</th>
-              <th>Method</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="paymentTableBody">
-            <tr data-status="pending">
-              <td><strong>Mar 20, 2026</strong><br><span style="font-size:.85rem;color:#999">10:45 AM</span></td>
-              <td>March 2026</td>
-              <td><span class="rp-pay-method momo">MTN MoMo</span></td>
-              <td class="rp-amount-cell">2,000 Frw</td>
-              <td><span class="rp-badge pending">Pending</span></td>
-              <td>
-                <button class="rp-btn-link" onclick="viewPaymentDetail(1)">View</button>
-              </td>
-            </tr>
-            <tr data-status="approved">
-              <td><strong>Feb 18, 2026</strong><br><span style="font-size:.85rem;color:#999">2:30 PM</span></td>
-              <td>February 2026</td>
-              <td><span class="rp-pay-method momo">MTN MoMo</span></td>
-              <td class="rp-amount-cell">2,000 Frw</td>
-              <td><span class="rp-badge approved">Approved</span></td>
-              <td>
-                <button class="rp-btn-link" onclick="viewPaymentDetail(2)">View</button>
-              </td>
-            </tr>
-            <tr data-status="approved">
-              <td><strong>Jan 15, 2026</strong><br><span style="font-size:.85rem;color:#999">9:15 AM</span></td>
-              <td>January 2026</td>
-              <td><span class="rp-pay-method bank">Bank Transfer</span></td>
-              <td class="rp-amount-cell">2,000 Frw</td>
-              <td><span class="rp-badge approved">Approved</span></td>
-              <td>
-                <button class="rp-btn-link" onclick="viewPaymentDetail(3)">View</button>
-              </td>
-            </tr>
-            <tr data-status="rejected">
-              <td><strong>Dec 28, 2025</strong><br><span style="font-size:.85rem;color:#999">4:00 PM</span></td>
-              <td>December 2025</td>
-              <td><span class="rp-pay-method momo">MTN MoMo</span></td>
-              <td class="rp-amount-cell">2,000 Frw</td>
-              <td><span class="rp-badge rejected">Rejected</span></td>
-              <td>
-                <button class="rp-btn-link" onclick="openAddPaymentModal()" style="color:#dc2626;">Resubmit</button>
-              </td>
-            </tr>
-            <tr data-status="approved">
-              <td><strong>Dec 10, 2025</strong><br><span style="font-size:.85rem;color:#999">11:20 AM</span></td>
-              <td>December 2025</td>
-              <td><span class="rp-pay-method airtel">Airtel Money</span></td>
-              <td class="rp-amount-cell">2,000 Frw</td>
-              <td><span class="rp-badge approved">Approved</span></td>
-              <td>
-                <button class="rp-btn-link" onclick="viewPaymentDetail(5)">View</button>
-              </td>
-            </tr>
-            <tr data-status="approved">
-              <td><strong>Nov 12, 2025</strong><br><span style="font-size:.85rem;color:#999">3:45 PM</span></td>
-              <td>November 2025</td>
-              <td><span class="rp-pay-method momo">MTN MoMo</span></td>
-              <td class="rp-amount-cell">2,000 Frw</td>
-              <td><span class="rp-badge approved">Approved</span></td>
-              <td>
-                <button class="rp-btn-link" onclick="viewPaymentDetail(6)">View</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    </aside>
+
+    <!-- ── Page Content ── -->
+    <div class="resident-content">
+
+      <!-- Mobile Topbar -->
+      <div class="topbar">
+        <button class="topbar__menu-btn" id="menuBtn">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <span class="topbar__title">My Payments</span>
+        <button class="topbar__bell">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 0 1-6 0v-1m6 0H9" />
+          </svg>
+          <span class="topbar__bell-badge"></span>
+        </button>
       </div>
 
-      <!-- Pagination -->
-      <div class="rp-table-pagination">
-        <span class="rp-pag-info">Showing 1-6 of 12 payments</span>
-        <div class="rp-pag-controls">
-          <button class="rp-pag-btn" disabled>
+      <main class="resident-main">
+
+        <!-- Add Payment Popup Modal with Blur Effect -->
+        <div class="rp-modal-overlay" id="addPaymentModal">
+          <div class="rp-modal">
+            <div class="rp-modal-header">
+              <h3 class="rp-modal-title">Submit New Payment</h3>
+              <button class="rp-modal-close" onclick="closeAddPaymentModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            <div class="rp-modal-content">
+              <form id="paymentForm" novalidate>
+                <div class="rp-form-group">
+                  <label>Payment For Month *</label>
+                  <select id="paymentMonth" name="paymentMonth" required>
+                    <option value="">-- Select Month --</option>
+                    <option value="2026-03">March 2026</option>
+                    <option value="2026-04">April 2026</option>
+                    <option value="2026-05">May 2026</option>
+                    <option value="2026-06">June 2026</option>
+                    <option value="2026-07">July 2026</option>
+                  </select>
+                  <div class="rp-error-message" id="paymentMonthError">Please select a month</div>
+                </div>
+
+                <div class="rp-form-group">
+                  <label>Amount (Frw) *</label>
+                  <input type="number" id="amount" name="amount" placeholder="2,000" min="1" required />
+                  <div class="rp-error-message" id="amountError">Please enter a valid amount</div>
+                </div>
+
+                <div class="rp-form-group">
+                  <label>Payment Method *</label>
+                  <select id="paymentMethod" name="paymentMethod" required>
+                    <option value="">-- Select Method --</option>
+                    <option value="momo">MTN Mobile Money</option>
+                    <option value="airtel">Airtel Money</option>
+                    <option value="bank">Bank Transfer</option>
+                    <option value="cash">Cash (at office)</option>
+                  </select>
+                  <div class="rp-error-message" id="paymentMethodError">Please select a payment method</div>
+                </div>
+
+                <div class="rp-form-group">
+                  <label>Date of Payment *</label>
+                  <input type="datetime-local" id="paymentDate" name="paymentDate" required />
+                  <div class="rp-error-message" id="paymentDateError">Please select payment date</div>
+                </div>
+
+                <div class="rp-form-group">
+                  <label>Transaction ID (if applicable)</label>
+                  <input type="text" id="transactionId" name="transactionId" placeholder="e.g., TXN123456789" />
+                </div>
+
+                <div class="rp-form-group">
+                  <label>Payment Proof/Receipt *</label>
+                  <div class="rp-file-input-wrapper">
+                    <input type="file" id="proofFile" name="proofFile" accept="image/*,application/pdf" required />
+                    <span class="rp-file-label">📎 Click to upload or drag file</span>
+                    <span class="rp-file-hint">Accepted: JPG, PNG, PDF (Max 5MB)</span>
+                  </div>
+                  <div class="rp-error-message" id="proofFileError">Please upload payment proof</div>
+                </div>
+
+                <div class="rp-modal-actions">
+                  <button type="button" class="rp-btn-secondary" onclick="closeAddPaymentModal()">Cancel</button>
+                  <button type="submit" class="rp-btn-primary">Submit Payment</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Details Modal -->
+        <div class="rp-modal-overlay" id="paymentDetailModal">
+          <div class="rp-modal">
+            <div class="rp-modal-header">
+              <h3 class="rp-modal-title">Payment Details</h3>
+              <button class="rp-modal-close" onclick="closePaymentDetailModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            <div class="rp-modal-content">
+              <div class="rp-detail-grid">
+                <div class="rp-detail-item">
+                  <span class="rp-detail-label">Amount</span>
+                  <span class="rp-detail-value rp-detail-amount" id="detailAmount">2,000 Frw</span>
+                </div>
+                <div class="rp-detail-item">
+                  <span class="rp-detail-label">Payment Method</span>
+                  <span class="rp-detail-value" id="detailMethod">MTN Mobile Money</span>
+                </div>
+                <div class="rp-detail-item">
+                  <span class="rp-detail-label">Transaction ID</span>
+                  <span class="rp-detail-value" id="detailTxn">TXN-2026-03-001</span>
+                </div>
+                <div class="rp-detail-item">
+                  <span class="rp-detail-label">Date Submitted</span>
+                  <span class="rp-detail-value" id="detailDate">Mar 20, 2026 at 10:45 AM</span>
+                </div>
+                <div class="rp-detail-item">
+                  <span class="rp-detail-label">For Month</span>
+                  <span class="rp-detail-value" id="detailMonth">March 2026</span>
+                </div>
+                <div class="rp-detail-item">
+                  <span class="rp-detail-label">Status</span>
+                  <span class="rp-badge pending" id="detailStatus">Pending</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Summary Cards -->
+        <div class="rp-payment-summary">
+          <div class="rp-summary-card rp-summary-card--collected">
+            <div class="rp-summary-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </div>
+            <div class="rp-summary-content">
+              <span class="rp-summary-label">Total Paid (This Year)</span>
+              <span class="rp-summary-value" id="totalPaid">24,000</span>
+              <span class="rp-summary-sub">12 payments approved</span>
+            </div>
+          </div>
+          <div class="rp-summary-card rp-summary-card--pending">
+            <div class="rp-summary-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            </div>
+            <div class="rp-summary-content">
+              <span class="rp-summary-label">Pending Review</span>
+              <span class="rp-summary-value" id="pendingCount">1</span>
+              <span class="rp-summary-sub">Awaiting verification</span>
+            </div>
+          </div>
+          <div class="rp-summary-card rp-summary-card--target">
+            <div class="rp-summary-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="6" />
+                <circle cx="12" cy="12" r="2" />
+              </svg>
+            </div>
+            <div class="rp-summary-content">
+              <span class="rp-summary-label">Monthly Fee</span>
+              <span class="rp-summary-value">2,000</span>
+              <span class="rp-summary-sub">Frw · Due by 5th</span>
+            </div>
+          </div>
+          <div class="rp-summary-card rp-summary-card--rate">
+            <div class="rp-summary-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                <polyline points="17 6 23 6 23 12" />
+              </svg>
+            </div>
+            <div class="rp-summary-content">
+              <span class="rp-summary-label">Payment Status</span>
+              <span class="rp-summary-value" style="font-size:1.1rem;color:var(--rp-primary);">✓ Up to Date</span>
+              <span class="rp-summary-sub">Next: April 2026</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="rp-quick-actions">
+          <button class="rp-quick-action-btn" onclick="downloadStatement()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="15 18 9 12 15 6"/>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
             </svg>
+            Download Statement
           </button>
-          <button class="rp-pag-btn active">1</button>
-          <button class="rp-pag-btn">2</button>
-          <button class="rp-pag-btn">
+          <button class="rp-quick-action-btn" onclick="openAddPaymentModal()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="9 18 15 12 9 6"/>
+              <path d="M12 5v14M5 12h14" />
             </svg>
+            Submit New Payment
           </button>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="rp-ftabs">
+          <button class="rp-ftab on" onclick="filterResidentPayments('all', this)">All Payments</button>
+          <button class="rp-ftab" onclick="filterResidentPayments('pending', this)">Pending Review</button>
+          <button class="rp-ftab" onclick="filterResidentPayments('approved', this)">Approved</button>
+          <button class="rp-ftab" onclick="filterResidentPayments('rejected', this)">Rejected</button>
+        </div>
+
+        <!-- Payment History Card -->
+        <div class="rp-card">
+          <div class="rp-card-header">
+            <div>
+              <div class="rp-card-title">Payment History</div>
+              <div class="rp-card-subtitle">Your payment transactions and status</div>
+            </div>
+          </div>
+          <div class="rp-card-body rp-table-scroll">
+            <table class="rp-table">
+              <thead>
+                <tr>
+                  <th>Date Submitted</th>
+                  <th>For Month</th>
+                  <th>Method</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="paymentTableBody">
+                <tr data-status="pending">
+                  <td><strong>Mar 20, 2026</strong><br><span style="font-size:.85rem;color:#999">10:45 AM</span></td>
+                  <td>March 2026</td>
+                  <td><span class="rp-pay-method momo">MTN MoMo</span></td>
+                  <td class="rp-amount-cell">2,000 Frw</td>
+                  <td><span class="rp-badge pending">Pending</span></td>
+                  <td>
+                    <button class="rp-btn-link" onclick="viewPaymentDetail(1)">View</button>
+                  </td>
+                </tr>
+                <tr data-status="approved">
+                  <td><strong>Feb 18, 2026</strong><br><span style="font-size:.85rem;color:#999">2:30 PM</span></td>
+                  <td>February 2026</td>
+                  <td><span class="rp-pay-method momo">MTN MoMo</span></td>
+                  <td class="rp-amount-cell">2,000 Frw</td>
+                  <td><span class="rp-badge approved">Approved</span></td>
+                  <td>
+                    <button class="rp-btn-link" onclick="viewPaymentDetail(2)">View</button>
+                  </td>
+                </tr>
+                <tr data-status="approved">
+                  <td><strong>Jan 15, 2026</strong><br><span style="font-size:.85rem;color:#999">9:15 AM</span></td>
+                  <td>January 2026</td>
+                  <td><span class="rp-pay-method bank">Bank Transfer</span></td>
+                  <td class="rp-amount-cell">2,000 Frw</td>
+                  <td><span class="rp-badge approved">Approved</span></td>
+                  <td>
+                    <button class="rp-btn-link" onclick="viewPaymentDetail(3)">View</button>
+                  </td>
+                </tr>
+                <tr data-status="rejected">
+                  <td><strong>Dec 28, 2025</strong><br><span style="font-size:.85rem;color:#999">4:00 PM</span></td>
+                  <td>December 2025</td>
+                  <td><span class="rp-pay-method momo">MTN MoMo</span></td>
+                  <td class="rp-amount-cell">2,000 Frw</td>
+                  <td><span class="rp-badge rejected">Rejected</span></td>
+                  <td>
+                    <button class="rp-btn-link" onclick="openAddPaymentModal()" style="color:#dc2626;">Resubmit</button>
+                  </td>
+                </tr>
+                <tr data-status="approved">
+                  <td><strong>Dec 10, 2025</strong><br><span style="font-size:.85rem;color:#999">11:20 AM</span></td>
+                  <td>December 2025</td>
+                  <td><span class="rp-pay-method airtel">Airtel Money</span></td>
+                  <td class="rp-amount-cell">2,000 Frw</td>
+                  <td><span class="rp-badge approved">Approved</span></td>
+                  <td>
+                    <button class="rp-btn-link" onclick="viewPaymentDetail(5)">View</button>
+                  </td>
+                </tr>
+                <tr data-status="approved">
+                  <td><strong>Nov 12, 2025</strong><br><span style="font-size:.85rem;color:#999">3:45 PM</span></td>
+                  <td>November 2025</td>
+                  <td><span class="rp-pay-method momo">MTN MoMo</span></td>
+                  <td class="rp-amount-cell">2,000 Frw</td>
+                  <td><span class="rp-badge approved">Approved</span></td>
+                  <td>
+                    <button class="rp-btn-link" onclick="viewPaymentDetail(6)">View</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="rp-table-pagination">
+            <span class="rp-pag-info">Showing 1-6 of 12 payments</span>
+            <div class="rp-pag-controls">
+              <button class="rp-pag-btn" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <button class="rp-pag-btn active">1</button>
+              <button class="rp-pag-btn">2</button>
+              <button class="rp-pag-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Mobile bottom nav -->
+  <nav class="mob-nav">
+    <a class="mn-item" href="/resident/resident_schedule">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+      </svg>
+      <span>Schedule</span>
+    </a>
+    <a class="mn-item" href="/resident/resident_claims">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+      </svg>
+      <span>Claims</span>
+    </a>
+    <a class="mn-item mn-home" href="/resident/dashboard">
+      <div class="mn-home-inner">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      </div>
+      <span>Home</span>
+    </a>
+    <a class="mn-item active" href="/resident/resident_payments">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="5" width="20" height="14" rx="2" />
+        <line x1="2" y1="10" x2="22" y2="10" />
+      </svg>
+      <span>Payments</span>
+    </a>
+    <div class="mn-profile-wrap">
+      <div class="mn-item" onclick="toggleProfileDd(event)" style="flex:none;width:100%;justify-content:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        <span>Profile</span>
+      </div>
+      <div class="mn-profile-dd" id="profileDd">
+        <div class="dd-user">
+          <div class="dd-user-av" id="ddAvatar">R</div>
+          <div class="dd-user-name" id="ddName">Resident</div>
+          <div class="dd-user-role" id="ddRole">Zone A Resident</div>
+        </div>
+        <a href="/resident/resident_profile" class="dd-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          My Profile
+        </a>
+        <div class="dd-item dd-logout"
+          onclick="if(confirm('Are you sure you want to logout?')){localStorage.removeItem('access_token');localStorage.removeItem('refresh_token');localStorage.removeItem('user');window.location.href='/login'}">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Logout
         </div>
       </div>
     </div>
+  </nav>
 
+  <!-- Success Toast -->
+  <div class="rp-toast rp-toast-success" id="successToast">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+    <span id="toastMessage">Payment submitted successfully!</span>
   </div>
-</div>
 
-<div class="overlay" id="overlay" onclick="toggleSb()"></div>
+  <script src="/static/js/auth.js"></script>
+  <script>
+    // Toggle sidebar mobile menu
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.querySelector('.sidebar-overlay');
 
-<!-- Success Toast -->
-<div class="rp-toast rp-toast-success" id="successToast">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-    <polyline points="22 4 12 14.01 9 11.01"/>
-  </svg>
-  <span id="toastMessage">Payment submitted successfully!</span>
-</div>
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('open');
+    });
 
-<script>
-  // Toggle sidebar
-  function toggleSb() {
-    document.querySelector('.sb').classList.toggle('open');
-    document.getElementById('overlay').classList.toggle('open');
-  }
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('open');
+    });
 
-  // Filter payments
-  function filterResidentPayments(status, btn) {
-    document.querySelectorAll('.rp-ftab').forEach(t => t.classList.remove('on'));
-    btn.classList.add('on');
+    // Profile dropdown toggle
+    function toggleProfileDd(e) {
+      e.stopPropagation();
+      const dd = document.getElementById('profileDd');
+      dd.classList.toggle('show');
+    }
 
-    document.querySelectorAll('#paymentTableBody tr').forEach(row => {
-      if (status === 'all' || row.dataset.status === status) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
+    // Close dropdown when clicking elsewhere
+    document.addEventListener('click', function (e) {
+      const dd = document.getElementById('profileDd');
+      if (dd && !e.target.closest('.mn-profile-wrap')) {
+        dd.classList.remove('show');
       }
     });
-  }
 
-  // Open add payment modal
-  function openAddPaymentModal() {
-    document.getElementById('addPaymentModal').classList.add('show');
-    // Set default date to now
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById('paymentDate').value = now.toISOString().slice(0, 16);
-  }
+    // Filter payments
+    function filterResidentPayments(status, btn) {
+      document.querySelectorAll('.rp-ftab').forEach(t => t.classList.remove('on'));
+      btn.classList.add('on');
 
-  function closeAddPaymentModal() {
-    document.getElementById('addPaymentModal').classList.remove('show');
-    // Reset form
-    document.getElementById('paymentForm').reset();
-    // Clear errors
-    document.querySelectorAll('.rp-error-message').forEach(el => el.classList.remove('visible'));
-    document.querySelectorAll('.rp-form-group input, .rp-form-group select').forEach(el => el.classList.remove('error'));
-  }
+      document.querySelectorAll('#paymentTableBody tr').forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
 
-  // View payment detail modal
-  function viewPaymentDetail(id) {
-    const modal = document.getElementById('paymentDetailModal');
-    modal.classList.add('show');
-    // Populate with sample data based on id
-    const details = {
-      1: { amount: '2,000 Frw', method: 'MTN Mobile Money', txn: 'TXN-2026-03-001', date: 'Mar 20, 2026 at 10:45 AM', month: 'March 2026', status: 'pending' },
-      2: { amount: '2,000 Frw', method: 'MTN Mobile Money', txn: 'TXN-2026-02-015', date: 'Feb 18, 2026 at 2:30 PM', month: 'February 2026', status: 'approved' },
-      3: { amount: '2,000 Frw', method: 'Bank Transfer', txn: 'BANK-2026-01-089', date: 'Jan 15, 2026 at 9:15 AM', month: 'January 2026', status: 'approved' },
-      5: { amount: '2,000 Frw', method: 'Airtel Money', txn: 'AIR-2025-12-042', date: 'Dec 10, 2025 at 11:20 AM', month: 'December 2025', status: 'approved' },
-      6: { amount: '2,000 Frw', method: 'MTN Mobile Money', txn: 'MTN-2025-11-078', date: 'Nov 12, 2025 at 3:45 PM', month: 'November 2025', status: 'approved' }
-    };
-    const data = details[id] || details[1];
-    document.getElementById('detailAmount').textContent = data.amount;
-    document.getElementById('detailMethod').textContent = data.method;
-    document.getElementById('detailTxn').textContent = data.txn;
-    document.getElementById('detailDate').textContent = data.date;
-    document.getElementById('detailMonth').textContent = data.month;
-    document.getElementById('detailStatus').textContent = data.status === 'pending' ? 'Pending' : data.status === 'approved' ? 'Approved' : 'Rejected';
-    document.getElementById('detailStatus').className = 'rp-badge ' + data.status;
-  }
+    // Open add payment modal
+    function openAddPaymentModal() {
+      document.getElementById('addPaymentModal').classList.add('show');
+      // Set default date to now
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('paymentDate').value = now.toISOString().slice(0, 16);
+    }
 
-  function closePaymentDetailModal() {
-    document.getElementById('paymentDetailModal').classList.remove('show');
-  }
+    function closeAddPaymentModal() {
+      document.getElementById('addPaymentModal').classList.remove('show');
+      // Reset form
+      document.getElementById('paymentForm').reset();
+      // Clear errors
+      document.querySelectorAll('.rp-error-message').forEach(el => el.classList.remove('visible'));
+      document.querySelectorAll('.rp-form-group input, .rp-form-group select').forEach(el => el.classList.remove('error'));
+    }
 
-  // Download statement
-  function downloadStatement() {
-    showToast('Downloading payment statement...');
-  }
+    // View payment detail modal
+    function viewPaymentDetail(id) {
+      const modal = document.getElementById('paymentDetailModal');
+      modal.classList.add('show');
+      // Populate with sample data based on id
+      const details = {
+        1: { amount: '2,000 Frw', method: 'MTN Mobile Money', txn: 'TXN-2026-03-001', date: 'Mar 20, 2026 at 10:45 AM', month: 'March 2026', status: 'pending' },
+        2: { amount: '2,000 Frw', method: 'MTN Mobile Money', txn: 'TXN-2026-02-015', date: 'Feb 18, 2026 at 2:30 PM', month: 'February 2026', status: 'approved' },
+        3: { amount: '2,000 Frw', method: 'Bank Transfer', txn: 'BANK-2026-01-089', date: 'Jan 15, 2026 at 9:15 AM', month: 'January 2026', status: 'approved' },
+        5: { amount: '2,000 Frw', method: 'Airtel Money', txn: 'AIR-2025-12-042', date: 'Dec 10, 2025 at 11:20 AM', month: 'December 2025', status: 'approved' },
+        6: { amount: '2,000 Frw', method: 'MTN Mobile Money', txn: 'MTN-2025-11-078', date: 'Nov 12, 2025 at 3:45 PM', month: 'November 2025', status: 'approved' }
+      };
+      const data = details[id] || details[1];
+      document.getElementById('detailAmount').textContent = data.amount;
+      document.getElementById('detailMethod').textContent = data.method;
+      document.getElementById('detailTxn').textContent = data.txn;
+      document.getElementById('detailDate').textContent = data.date;
+      document.getElementById('detailMonth').textContent = data.month;
+      document.getElementById('detailStatus').textContent = data.status === 'pending' ? 'Pending' : data.status === 'approved' ? 'Approved' : 'Rejected';
+      document.getElementById('detailStatus').className = 'rp-badge ' + data.status;
+    }
 
-  // Show toast
-  function showToast(message) {
-    const toast = document.getElementById('successToast');
-    document.getElementById('toastMessage').textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
-  }
+    function closePaymentDetailModal() {
+      document.getElementById('paymentDetailModal').classList.remove('show');
+    }
 
-  // Form validation helper
-  function showError(inputId, errorId) {
-    const input = document.getElementById(inputId);
-    const error = document.getElementById(errorId);
-    if (input) input.classList.add('error');
-    if (error) error.classList.add('visible');
-  }
+    // Download statement
+    function downloadStatement() {
+      showToast('Downloading payment statement...');
+    }
 
-  function clearError(inputId, errorId) {
-    const input = document.getElementById(inputId);
-    const error = document.getElementById(errorId);
-    if (input) input.classList.remove('error');
-    if (error) error.classList.remove('visible');
-  }
+    // Show toast
+    function showToast(message) {
+      const toast = document.getElementById('successToast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
 
-  // Add payment to table
-  function addPaymentToTable(payment) {
-    const tbody = document.getElementById('paymentTableBody');
-    if (!tbody) return;
+    // Form validation helper
+    function showError(inputId, errorId) {
+      const input = document.getElementById(inputId);
+      const error = document.getElementById(errorId);
+      if (input) input.classList.add('error');
+      if (error) error.classList.add('visible');
+    }
 
-    const newRow = document.createElement('tr');
-    newRow.setAttribute('data-status', 'pending');
-    newRow.innerHTML = `
+    function clearError(inputId, errorId) {
+      const input = document.getElementById(inputId);
+      const error = document.getElementById(errorId);
+      if (input) input.classList.remove('error');
+      if (error) error.classList.remove('visible');
+    }
+
+    // Add payment to table
+    function addPaymentToTable(payment) {
+      const tbody = document.getElementById('paymentTableBody');
+      if (!tbody) return;
+
+      const newRow = document.createElement('tr');
+      newRow.setAttribute('data-status', 'pending');
+      newRow.innerHTML = `
       <td>
         <strong>${payment.date}</strong><br>
         <span style="font-size:.85rem;color:#999">${payment.time}</span>
@@ -543,123 +646,117 @@
       </td>
     `;
 
-    tbody.insertBefore(newRow, tbody.firstChild);
-    
-    // Update pending count
-    const pendingCount = document.querySelectorAll('#paymentTableBody tr[data-status="pending"]').length;
-    document.getElementById('pendingCount').textContent = pendingCount;
-    
-    // Update total paid
-    const totalPaidEl = document.getElementById('totalPaid');
-    const currentTotal = parseInt(totalPaidEl.textContent.replace(/[^0-9]/g, '')) || 0;
-    totalPaidEl.textContent = (currentTotal + parseInt(payment.amount)).toLocaleString();
-    
-    // Highlight new row
-    newRow.style.background = '#f0fdf4';
-    setTimeout(() => {
-      newRow.style.background = '';
-      newRow.style.transition = 'background 0.5s ease';
-    }, 1500);
-  }
+      tbody.insertBefore(newRow, tbody.firstChild);
 
-  // Form submission
-  document.getElementById('paymentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    let valid = true;
+      // Update pending count
+      const pendingCount = document.querySelectorAll('#paymentTableBody tr[data-status="pending"]').length;
+      document.getElementById('pendingCount').textContent = pendingCount;
 
-    // Validate month
-    const month = document.getElementById('paymentMonth').value;
-    if (!month) {
-      showError('paymentMonth', 'paymentMonthError');
-      valid = false;
-    } else {
-      clearError('paymentMonth', 'paymentMonthError');
+      // Update total paid
+      const totalPaidEl = document.getElementById('totalPaid');
+      const currentTotal = parseInt(totalPaidEl.textContent.replace(/[^0-9]/g, '')) || 0;
+      totalPaidEl.textContent = (currentTotal + parseInt(payment.amount)).toLocaleString();
+
+      // Highlight new row
+      newRow.style.background = '#f0fdf4';
+      setTimeout(() => {
+        newRow.style.background = '';
+        newRow.style.transition = 'background 0.5s ease';
+      }, 1500);
     }
 
-    // Validate amount
-    const amount = document.getElementById('amount').value;
-    if (!amount || parseFloat(amount) <= 0) {
-      showError('amount', 'amountError');
-      valid = false;
-    } else {
-      clearError('amount', 'amountError');
-    }
+    // Form submission
+    document.getElementById('paymentForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      let valid = true;
 
-    // Validate payment method
-    const method = document.getElementById('paymentMethod').value;
-    if (!method) {
-      showError('paymentMethod', 'paymentMethodError');
-      valid = false;
-    } else {
-      clearError('paymentMethod', 'paymentMethodError');
-    }
+      // Validate month
+      const month = document.getElementById('paymentMonth').value;
+      if (!month) {
+        showError('paymentMonth', 'paymentMonthError');
+        valid = false;
+      } else {
+        clearError('paymentMonth', 'paymentMonthError');
+      }
 
-    // Validate payment date
-    const paymentDate = document.getElementById('paymentDate').value;
-    if (!paymentDate) {
-      showError('paymentDate', 'paymentDateError');
-      valid = false;
-    } else {
-      clearError('paymentDate', 'paymentDateError');
-    }
+      // Validate amount
+      const amount = document.getElementById('amount').value;
+      if (!amount || parseFloat(amount) <= 0) {
+        showError('amount', 'amountError');
+        valid = false;
+      } else {
+        clearError('amount', 'amountError');
+      }
 
-    // Validate file
-    const file = document.getElementById('proofFile').files[0];
-    if (!file) {
-      showError('proofFile', 'proofFileError');
-      valid = false;
-    } else {
-      clearError('proofFile', 'proofFileError');
-    }
+      // Validate payment method
+      const method = document.getElementById('paymentMethod').value;
+      if (!method) {
+        showError('paymentMethod', 'paymentMethodError');
+        valid = false;
+      } else {
+        clearError('paymentMethod', 'paymentMethodError');
+      }
 
-    if (valid) {
-      // Get method class for styling
-      const methodMap = {
-        momo: 'momo',
-        airtel: 'airtel',
-        bank: 'bank',
-        cash: 'cash'
-      };
-      
-      const payment = {
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-        month: document.getElementById('paymentMonth').options[document.getElementById('paymentMonth').selectedIndex]?.text || 'March 2026',
-        method: document.getElementById('paymentMethod').options[document.getElementById('paymentMethod').selectedIndex]?.text || 'MTN MoMo',
-        methodClass: methodMap[method] || 'momo',
-        amount: parseInt(amount)
-      };
-      
-      addPaymentToTable(payment);
-      showToast('Payment submitted successfully!');
-      closeAddPaymentModal();
-    }
-  });
+      // Validate payment date
+      const paymentDate = document.getElementById('paymentDate').value;
+      if (!paymentDate) {
+        showError('paymentDate', 'paymentDateError');
+        valid = false;
+      } else {
+        clearError('paymentDate', 'paymentDateError');
+      }
 
-  // Close modals on overlay click
-  document.getElementById('addPaymentModal').addEventListener('click', function(e) {
-    if (e.target === this) closeAddPaymentModal();
-  });
-  
-  document.getElementById('paymentDetailModal').addEventListener('click', function(e) {
-    if (e.target === this) closePaymentDetailModal();
-  });
+      // Validate file
+      const file = document.getElementById('proofFile').files[0];
+      if (!file) {
+        showError('proofFile', 'proofFileError');
+        valid = false;
+      } else {
+        clearError('proofFile', 'proofFileError');
+      }
 
-  // Logout
-  function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-      localStorage.removeItem('access_token');localStorage.removeItem('refresh_token');localStorage.removeItem('user');window.location.href = '/login';
-    }
-  }
+      if (valid) {
+        // Get method class for styling
+        const methodMap = {
+          momo: 'momo',
+          airtel: 'airtel',
+          bank: 'bank',
+          cash: 'cash'
+        };
 
-  // Initialize default date in modal when opened
-  document.addEventListener('DOMContentLoaded', function() {
-    // Set default datetime-local value to now
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    const defaultDate = now.toISOString().slice(0, 16);
-    document.getElementById('paymentDate').value = defaultDate;
-  });
-</script>
+        const payment = {
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+          month: document.getElementById('paymentMonth').options[document.getElementById('paymentMonth').selectedIndex]?.text || 'March 2026',
+          method: document.getElementById('paymentMethod').options[document.getElementById('paymentMethod').selectedIndex]?.text || 'MTN MoMo',
+          methodClass: methodMap[method] || 'momo',
+          amount: parseInt(amount)
+        };
+
+        addPaymentToTable(payment);
+        showToast('Payment submitted successfully!');
+        closeAddPaymentModal();
+      }
+    });
+
+    // Close modals on overlay click
+    document.getElementById('addPaymentModal').addEventListener('click', function (e) {
+      if (e.target === this) closeAddPaymentModal();
+    });
+
+    document.getElementById('paymentDetailModal').addEventListener('click', function (e) {
+      if (e.target === this) closePaymentDetailModal();
+    });
+
+    // Initialize default date in modal when opened
+    document.addEventListener('DOMContentLoaded', function () {
+      // Set default datetime-local value to now
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      const defaultDate = now.toISOString().slice(0, 16);
+      document.getElementById('paymentDate').value = defaultDate;
+    });
+  </script>
 </body>
+
 </html>
