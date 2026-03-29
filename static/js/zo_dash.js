@@ -795,10 +795,21 @@ function logout() {
 
 /* ── Rejection Modal ── */
 let currentRejectTarget = null;
+let currentRejectType = null; // 'claim' or 'payment'
 let zoneMapInstance = null; // Store map instance for fullscreen resize
 
-function openRejectModal(btn) {
-  currentRejectTarget = btn;
+function openRejectModal(targetElement, type) {
+  currentRejectTarget = targetElement;
+  // Auto-detect type if not provided
+  if (type) {
+    currentRejectType = type;
+  } else if (targetElement.closest('.ci')) {
+    currentRejectType = 'claim';
+  } else if (targetElement.closest('.pi')) {
+    currentRejectType = 'payment';
+  } else {
+    currentRejectType = 'claim'; // default
+  }
   document.getElementById('rejectModal').classList.add('show');
   document.getElementById('rejectReason').value = '';
   document.getElementById('rejectDetails').value = '';
@@ -807,11 +818,12 @@ function openRejectModal(btn) {
 function closeRejectModal() {
   document.getElementById('rejectModal').classList.remove('show');
   currentRejectTarget = null;
+  currentRejectType = null;
 }
 
-function confirmReject() {
+async function confirmReject() {
   const reason = document.getElementById('rejectReason').value;
-  const details = document.getElementById('rejectDetails').value;
+  const details = document.getElementById('rejectDetails').value.trim();
 
   if (!reason) {
     alert('Please select a rejection reason.');
@@ -823,41 +835,108 @@ function confirmReject() {
     return;
   }
 
-  // Handle claim items - check if currentRejectTarget is the .ci element itself or a button inside
-  const ci = currentRejectTarget.classList && currentRejectTarget.classList.contains('ci')
-    ? currentRejectTarget
-    : currentRejectTarget.closest('.ci');
+  // Determine if this is a claim or payment rejection
+  const claimElement = currentRejectTarget.closest('.ci');
+  const paymentElement = currentRejectTarget.closest('.pi');
+  
+  let itemElement, itemType;
 
-  // Handle payment items - check if currentRejectTarget is the .pi element itself or a button inside
-  const pi = currentRejectTarget.classList && currentRejectTarget.classList.contains('pi')
-    ? currentRejectTarget
-    : currentRejectTarget.closest('.pi');
+  if (claimElement && claimElement.dataset.claimId) {
+    itemElement = claimElement;
+    itemType = 'claim';
+  } else if (paymentElement && paymentElement.dataset.paymentId) {
+    itemElement = paymentElement;
+    itemType = 'payment';
+  } else {
+    alert('Unable to identify item to reject.');
+    closeRejectModal();
+    return;
+  }
 
-  if (ci) {
-    const acts = ci.querySelector('.ci-acts');
-    if (acts) {
-      acts.innerHTML = '<span class="b op">Rejected</span>';
+  const token = localStorage.getItem('access_token');
+  
+  // Show loading state on the button
+  const confirmBtn = document.querySelector('#rejectModal .modal-btn:last-child');
+  const originalText = confirmBtn.textContent;
+  confirmBtn.textContent = 'Rejecting...';
+  confirmBtn.disabled = true;
+
+  // Try API call if token exists
+  if (token) {
+    let apiUrl, requestBody;
+    
+    if (itemType === 'claim') {
+      const claimId = claimElement.dataset.claimId;
+      apiUrl = `/api/claims/${claimId}/reject`;
+      requestBody = {
+        rejection_category: reason,
+        rejection_detail: details || reason
+      };
+    } else {
+      const paymentId = paymentElement.dataset.paymentId;
+      apiUrl = `/api/payments/${paymentId}/reject`;
+      requestBody = {
+        rejection_reason: details || reason
+      };
     }
-    ci.classList.add('resolved');
 
-    // Update counts if the function exists
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to reject ${itemType}`);
+      }
+    } catch (error) {
+      console.error('Rejection API failed:', error);
+      alert(error.message || `Failed to reject ${itemType}. Please try again.`);
+      confirmBtn.textContent = originalText;
+      confirmBtn.disabled = false;
+      return;
+    }
+  }
+
+  // Update UI
+  if (itemType === 'claim') {
+    const actsEl = itemElement.querySelector('.ci-acts');
+    if (actsEl) {
+      actsEl.innerHTML = '<span class="b op" style="font-size:.7rem;">Rejected</span>';
+    }
+    itemElement.classList.add('resolved');
+    
     if (typeof updateClaimsCounts === 'function') {
       updateClaimsCounts();
     }
-  } else if (pi) {
-    // Update payment item badge
-    const badge = pi.querySelector('.b');
-    if (badge) {
-      badge.className = 'b op';
-      badge.textContent = 'Rejected';
-      badge.style.fontSize = '';
+  } else {
+    const statusSpan = itemElement.querySelector('.b');
+    if (statusSpan) {
+      statusSpan.className = 'b op';
+      statusSpan.textContent = 'Rejected';
+      statusSpan.style.fontSize = '.7rem';
     }
-    // Update data status
-    pi.dataset.status = 'rejected';
+    itemElement.dataset.status = 'rejected';
+  }
+
+  if (typeof applyActiveFilter === 'function') {
+    applyActiveFilter();
   }
 
   closeRejectModal();
-  applyActiveFilter();
+  
+  if (typeof showToast === 'function') {
+    showToast(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} rejected successfully!`, 0);
+  }
+
+  confirmBtn.textContent = originalText;
+  confirmBtn.disabled = false;
 }
 
 /* ── Map Fullscreen Toggle ── */

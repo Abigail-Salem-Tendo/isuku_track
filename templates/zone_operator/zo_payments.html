@@ -265,7 +265,7 @@
       </div>
       <div class="cb">
 
-        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Alice Mutoni" data-amount="1,000 RWF" data-date="1h ago" data-status="pending">
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Alice Mutoni" data-amount="1,000 RWF" data-date="1h ago" data-status="pending" data-payment-id="1">
           <div class="pi-av">AM</div>
           <div>
             <div class="pi-name">Alice Mutoni</div>
@@ -275,7 +275,7 @@
           <span class="b pe" style="font-size:.7rem;">Tap to review</span>
         </div>
 
-        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Bob Ntwari" data-amount="2,000 RWF" data-date="3h ago" data-status="pending">
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Bob Ntwari" data-amount="2,000 RWF" data-date="3h ago" data-status="pending" data-payment-id="2">
           <div class="pi-av">BN</div>
           <div>
             <div class="pi-name">Bob Ntwari</div>
@@ -285,7 +285,7 @@
           <span class="b pe" style="font-size:.7rem;">Tap to review</span>
         </div>
 
-        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Marie Jeannette" data-amount="1,000 RWF" data-date="5h ago" data-status="pending">
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Marie Jeannette" data-amount="1,000 RWF" data-date="5h ago" data-status="pending" data-payment-id="3">
           <div class="pi-av">MJ</div>
           <div>
             <div class="pi-name">Marie Jeannette</div>
@@ -295,7 +295,7 @@
           <span class="b pe" style="font-size:.7rem;">Tap to review</span>
         </div>
 
-        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Grace Keza" data-amount="1,000 RWF" data-date="yesterday" data-status="approved">
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Grace Keza" data-amount="1,000 RWF" data-date="yesterday" data-status="approved" data-payment-id="4">
           <div class="pi-av">GK</div>
           <div>
             <div class="pi-name">Grace Keza</div>
@@ -305,7 +305,7 @@
           <span class="b ok">Approved</span>
         </div>
 
-        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Paul Rugamba" data-amount="1,000 RWF" data-date="2 days ago" data-status="approved">
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Paul Rugamba" data-amount="1,000 RWF" data-date="2 days ago" data-status="approved" data-payment-id="5">
           <div class="pi-av">PR</div>
           <div>
             <div class="pi-name">Paul Rugamba</div>
@@ -315,7 +315,7 @@
           <span class="b ok">Approved</span>
         </div>
 
-        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="David Uwimana" data-amount="500 RWF" data-date="3 days ago" data-status="rejected">
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="David Uwimana" data-amount="500 RWF" data-date="3 days ago" data-status="rejected" data-payment-id="6">
           <div class="pi-av">DU</div>
           <div>
             <div class="pi-name">David Uwimana</div>
@@ -475,32 +475,74 @@
     currentPaymentElement = null;
   }
 
-  function approveFromPayDetails() {
-    if (currentPaymentElement) {
-      const name = currentPaymentElement.dataset.name || 'Resident';
+  async function approveFromPayDetails() {
+    if (!currentPaymentElement) return;
 
-      // Update UI - badge
-      const statusSpan = currentPaymentElement.querySelector('.b');
-      if (statusSpan) {
-        statusSpan.className = 'b ok';
-        statusSpan.textContent = 'Approved';
-      }
-      currentPaymentElement.dataset.status = 'approved';
-
-      // Show toast notification
-      if (typeof showToast === 'function') {
-        showToast(`Payment from ${name} approved!`, 0);
-      }
-
-      closePaymentDetailsModal();
-      applyActiveFilter();
+    const paymentId = currentPaymentElement.dataset.paymentId;
+    if (!paymentId) {
+      alert('Unable to identify payment to approve.');
+      return;
     }
+
+    const name = currentPaymentElement.dataset.name || 'Resident';
+
+    // Disable approve button during request
+    const approveBtn = document.getElementById('payDetailApproveBtn');
+    const originalText = approveBtn.textContent;
+    approveBtn.textContent = 'Approving...';
+    approveBtn.disabled = true;
+
+    const token = localStorage.getItem('access_token');
+
+    // Try API call if token exists
+    if (token) {
+      try {
+        const response = await fetch(`/api/payments/${paymentId}/approve`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to approve payment');
+        }
+      } catch (error) {
+        console.error('Approval API failed:', error);
+        alert(error.message || 'Failed to approve payment. Please try again.');
+        approveBtn.textContent = originalText;
+        approveBtn.disabled = false;
+        return;
+      }
+    }
+
+    // Update UI
+    const statusSpan = currentPaymentElement.querySelector('.b');
+    if (statusSpan) {
+      statusSpan.className = 'b ok';
+      statusSpan.textContent = 'Approved';
+    }
+    currentPaymentElement.dataset.status = 'approved';
+
+    if (typeof showToast === 'function') {
+      showToast(`Payment from ${name} approved!`, 0);
+    }
+
+    closePaymentDetailsModal();
+    applyActiveFilter();
+
+    approveBtn.textContent = originalText;
+    approveBtn.disabled = false;
   }
 
   function openRejectFromPayDetails() {
     if (currentPaymentElement) {
+      const elementToReject = currentPaymentElement;
       closePaymentDetailsModal();
-      openRejectModal(currentPaymentElement);
+      openRejectModal(elementToReject);
     }
   }
 </script>

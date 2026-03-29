@@ -55,12 +55,11 @@
     <label class="modal-label">Select a reason</label>
     <select class="modal-select" id="rejectReason">
       <option value="">-- Select reason --</option>
-      <option value="invalid_proof">Invalid or unclear proof/photo</option>
-      <option value="duplicate">Duplicate submission</option>
-      <option value="out_of_zone">Location outside assigned zone</option>
-      <option value="insufficient_info">Insufficient information provided</option>
-      <option value="already_resolved">Issue already resolved</option>
-      <option value="not_applicable">Not applicable to waste collection</option>
+      <option value="insufficient_evidence">Insufficient or unclear proof/photo</option>
+      <option value="duplicate_claim">Duplicate submission</option>
+      <option value="not_in_zone">Location outside assigned zone</option>
+      <option value="false_claim">False claim</option>
+      <option value="resolved_already">Issue already resolved</option>
       <option value="other">Other (specify below)</option>
     </select>
     <label class="modal-label">Additional details (optional)</label>
@@ -585,46 +584,85 @@
     currentClaimElement = null;
   }
 
-  function approveFromDetails() {
-    if (currentClaimElement) {
-      const category = currentClaimElement.dataset.category || 'other';
-      const submitter = currentClaimElement.querySelector('.ci-meta').textContent.split('·')[0].trim();
+  async function approveFromDetails() {
+    if (!currentClaimElement) return;
 
-      // Update the badge to show "Approved"
-      const actsEl = currentClaimElement.querySelector('.ci-acts');
-      if (actsEl) {
-        actsEl.innerHTML = '<span class="b ok" style="font-size:.7rem;">Approved</span>';
-      }
-
-      // Add resolved class
-      currentClaimElement.classList.add('resolved');
-
-      // Show toast notification
-      const POINTS_PER_CATEGORY = {
-        missed_collection: 10,
-        overflow: 15,
-        illegal_dumping: 20,
-        damaged_infrastructure: 25,
-        environmental_hazard: 30,
-        other: 5
-      };
-      const points = POINTS_PER_CATEGORY[category] || 5;
-      if (typeof showToast === 'function') {
-        showToast(`Claim approved! ${submitter} earned`, points);
-      }
-
-      // Update counts
-      updateClaimsCounts();
-
-      closeClaimDetailsModal();
-      applyActiveFilter();
+    const claimId = currentClaimElement.dataset.claimId;
+    if (!claimId) {
+      alert('Unable to identify claim to approve.');
+      return;
     }
+
+    const category = currentClaimElement.dataset.category || 'other';
+    const submitter = currentClaimElement.querySelector('.ci-meta').textContent.split('·')[0].trim();
+
+    // Disable approve button during request
+    const approveBtn = document.getElementById('detailApproveBtn');
+    const originalText = approveBtn.textContent;
+    approveBtn.textContent = 'Approving...';
+    approveBtn.disabled = true;
+
+    const token = localStorage.getItem('access_token');
+
+    // Try API call if token exists
+    if (token) {
+      try {
+        const response = await fetch(`/api/claims/${claimId}/approve`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to approve claim');
+        }
+      } catch (error) {
+        console.error('Approval API failed:', error);
+        alert(error.message || 'Failed to approve claim. Please try again.');
+        approveBtn.textContent = originalText;
+        approveBtn.disabled = false;
+        return;
+      }
+    }
+
+    // Update UI
+    const actsEl = currentClaimElement.querySelector('.ci-acts');
+    if (actsEl) {
+      actsEl.innerHTML = '<span class="b ok" style="font-size:.7rem;">Approved</span>';
+    }
+    currentClaimElement.classList.add('resolved');
+
+    // Show toast notification with points
+    const POINTS_PER_CATEGORY = {
+      missed_collection: 10,
+      overflow: 15,
+      illegal_dumping: 20,
+      damaged_infrastructure: 25,
+      environmental_hazard: 30,
+      other: 5
+    };
+    const points = POINTS_PER_CATEGORY[category] || 5;
+    if (typeof showToast === 'function') {
+      showToast(`Claim approved! ${submitter} earned`, points);
+    }
+
+    updateClaimsCounts();
+    closeClaimDetailsModal();
+    applyActiveFilter();
+
+    approveBtn.textContent = originalText;
+    approveBtn.disabled = false;
   }
 
   function openRejectFromDetails() {
     if (currentClaimElement) {
+      const elementToReject = currentClaimElement;
       closeClaimDetailsModal();
-      openRejectModal(currentClaimElement);
+      openRejectModal(elementToReject);
     }
   }
 
