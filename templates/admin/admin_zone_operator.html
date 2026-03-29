@@ -18,40 +18,40 @@
   <div class="sb-foot"><div class="sb-user"><div class="sb-av">AD</div><div><div class="sb-un">Administrator</div><div class="sb-ur">System Admin</div></div></div><button type="button" class="sb-logout" id="logoutBtn">Logout</button></div>
 </aside>
 <div class="main"><header class="topbar"><div class="tb-l"><h1>Zone Operator Management</h1><p id="dashboardDate" data-subtitle="Assign and monitor zone operators">Assign and monitor zone operators</p></div><div class="tb-r"><button type="button" id="createZoBtn" style="background:var(--g1);color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Create new zone operator">+ Create Operator</button><button type="button" id="modifyZoBtn" style="background:#1976d2;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px;" aria-label="Modify zone operator">✎ Modify Operator</button><button type="button" id="deleteZoBtn" style="background:#d32f2f;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-size:.78rem;font-weight:700;cursor:pointer;" aria-label="Delete zone operator">🗑 Delete Operator</button><div class="ham" onclick="toggleSb()"><span></span><span></span><span></span></div></div></header><main class="page">
-  <div class="sg status-ribbon zone-operator-status-ribbon" aria-label="Zone schedule status filters">
-    <button class="sc ftab on" type="button" data-zo-filter="Completed">
-      <div class="sc-lbl">Completed</div>
-      <div class="sc-val" id="zoCompletedCount">0</div>
-      <div class="sc-sub">finished schedules</div>
+  <div class="sg status-ribbon zone-operator-status-ribbon" aria-label="Operator status filters">
+    <button class="sc ftab on" type="button" data-zo-filter="All">
+      <div class="sc-lbl">Total Operators</div>
+      <div class="sc-val" id="zoTotalCount">0</div>
+      <div class="sc-sub">all registered</div>
     </button>
-    <button class="sc ftab" type="button" data-zo-filter="Ongoing">
-      <div class="sc-lbl">Ongoing</div>
-      <div class="sc-val" id="zoOngoingCount">0</div>
-      <div class="sc-sub">active schedules</div>
+    <button class="sc ftab" type="button" data-zo-filter="Assigned">
+      <div class="sc-lbl">Assigned</div>
+      <div class="sc-val" id="zoAssignedCount">0</div>
+      <div class="sc-sub">managing a zone</div>
     </button>
-    <button class="sc ftab" type="button" data-zo-filter="Pending">
-      <div class="sc-lbl">Pending</div>
-      <div class="sc-val" id="zoPendingCount">0</div>
-      <div class="sc-sub">not started</div>
+    <button class="sc ftab" type="button" data-zo-filter="Unassigned">
+      <div class="sc-lbl">Unassigned</div>
+      <div class="sc-val" id="zoUnassignedCount">0</div>
+      <div class="sc-sub">needs placement</div>
     </button>
   </div>
 
   <section class="card">
     <div class="ch">
-      <div class="ct">Zone Overview</div>
+      <div class="ct">Operator Directory</div>
     </div>
     <div class="cb cb--pt">
       <table class="zt">
         <thead>
           <tr>
-            <th>Zone</th>
-            <th>Operator</th>
-            <th>Schedule</th>
-            <th>Claims</th>
+            <th>Operator Name</th>
+            <th>Contact Info</th>
+            <th>Assigned Zone</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody id="zoneOperatorTableBody">
-        </tbody>
+          </tbody>
       </table>
     </div>
   </section>
@@ -112,21 +112,18 @@
   // --- GLOBAL STATE ---
   let globalZones = [];
   let globalOperators = [];
-  let globalSchedules = [];
-  let currentFilter = 'Completed';
+  let currentFilter = 'All';
   
   // --- API FETCH & RENDER ---
   async function fetchAndRenderData() {
       try {
-          const [zonesData, usersData, schedData] = await Promise.all([
+          const [zonesData, usersData] = await Promise.all([
               API.get('/zones/'),
-              API.get('/auth/users?role=zone_operator'),
-              API.get('/schedules/')
+              API.get('/auth/users?role=zone_operator')
           ]);
           
           globalZones = zonesData;
           globalOperators = usersData;
-          globalSchedules = schedData;
   
           renderTable();
           updateCounters();
@@ -135,57 +132,49 @@
       }
   }
   
-  function getScheduleStatus(zoneId) {
-      // Find the most recent schedule for this zone
-      const zoneSchedules = globalSchedules.filter(s => s.zone_id === zoneId);
-      if (zoneSchedules.length === 0) return 'Pending';
-      
-      // Sort descending by date
-      zoneSchedules.sort((a, b) => new Date(b.date_time_start) - new Date(a.date_time_start));
-      const latest = zoneSchedules[0].status;
-      
-      if (latest === 'completed') return 'Completed';
-      if (latest === 'ongoing') return 'Ongoing';
-      return 'Pending';
-  }
-  
   function renderTable() {
       const tbody = document.getElementById('zoneOperatorTableBody');
       tbody.innerHTML = '';
   
-      globalZones.forEach(z => {
-          const statusDisplay = getScheduleStatus(z.id);
+      globalOperators.forEach(op => {
+          // Find if this operator is assigned to any zone
+          const assignedZone = globalZones.find(z => z.zone_operator_id === op.id);
+          const zoneName = assignedZone ? assignedZone.name : '<span style="color:#e74c3c;">None</span>';
+          const zoneLoc = assignedZone && assignedZone.district ? `${assignedZone.district} · ${assignedZone.sector}` : '';
           
-          if (statusDisplay !== currentFilter) return;
-  
-          const zoneLoc = z.district ? `${z.district} · ${z.sector}` : '';
-          const operatorName = z.zone_operator_name || '<span class="ci-meta">Unassigned</span>';
-  
-          let badgeClass = 'pe';
-          if (statusDisplay === 'Ongoing') badgeClass = 'go';
-          if (statusDisplay === 'Completed') badgeClass = 'ok';
+          const statusDisplay = assignedZone ? 'Assigned' : 'Unassigned';
+          const badgeClass = assignedZone ? 'go' : 'pe';
+          
+          // Filter Logic
+          if (currentFilter !== 'All' && statusDisplay !== currentFilter) return;
   
           const row = `
               <tr>
-                  <td><div class="zn">${z.name}</div><div class="zg">${zoneLoc}</div></td>
-                  <td>${operatorName}</td>
+                  <td><div class="zn">${op.username}</div></td>
+                  <td><div style="font-size:13px;">${op.email}</div><div class="ci-meta" style="margin-top:2px;">${op.phone_number || 'No phone'}</div></td>
+                  <td><div class="zn" style="font-size:13px;">${zoneName}</div><div class="zg">${zoneLoc}</div></td>
                   <td><span class="b ${badgeClass}">${statusDisplay}</span></td>
-                  <td>0</td> </tr>`;
+              </tr>`;
           tbody.insertAdjacentHTML('beforeend', row);
       });
   
       if (tbody.innerHTML === '') {
-          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#7f8c8d;">No zones match this schedule status.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#7f8c8d;">No operators match this filter.</td></tr>`;
       }
   }
   
   function updateCounters() {
-      const counts = { 'Completed': 0, 'Ongoing': 0, 'Pending': 0 };
-      globalZones.forEach(z => { counts[getScheduleStatus(z.id)]++; });
+      const counts = { 'All': globalOperators.length, 'Assigned': 0, 'Unassigned': 0 };
+      
+      globalOperators.forEach(op => { 
+          const isAssigned = globalZones.some(z => z.zone_operator_id === op.id);
+          if (isAssigned) counts['Assigned']++;
+          else counts['Unassigned']++;
+      });
   
-      document.getElementById('zoCompletedCount').textContent = counts['Completed'];
-      document.getElementById('zoOngoingCount').textContent = counts['Ongoing'];
-      document.getElementById('zoPendingCount').textContent = counts['Pending'];
+      document.getElementById('zoTotalCount').textContent = counts['All'];
+      document.getElementById('zoAssignedCount').textContent = counts['Assigned'];
+      document.getElementById('zoUnassignedCount').textContent = counts['Unassigned'];
   }
   
   // --- TAB FILTERING ---
@@ -235,7 +224,7 @@
           username: document.getElementById('newZoName').value.trim(),
           email: document.getElementById('newZoEmail').value.trim(),
           phone_number: document.getElementById('newZoPhone').value.trim(),
-          password: "TempPassword123!", // Dummy password, they will use reset link
+          password: "TempPassword123!", 
           role: "zone_operator"
       };
   
@@ -245,11 +234,10 @@
           fetchAndRenderData(); 
           
           if (data.reset_token) {
-              // Pointing directly to reset-password page
               const setupLink = `${window.location.origin}/templates/reset-password.html?token=${data.reset_token}`;
               Swal.fire({
                   title: 'Operator Created!',
-                  html: `Copy this secure setup link and send it to the operator so they can set their password:<br><br><input type="text" value="${setupLink}" style="width:100%; padding:8px; text-align:center; border: 1px solid #ccc; border-radius: 4px;" readonly onclick="this.select()">`,
+                  html: `Copy this secure setup link and send it to the operator:<br><br><input type="text" value="${setupLink}" style="width:100%; padding:8px; text-align:center; border: 1px solid #ccc; border-radius: 4px;" readonly onclick="this.select()">`,
                   icon: 'success',
                   confirmButtonText: 'Done'
               });
@@ -259,9 +247,52 @@
       } catch (error) { Swal.fire('Error', error.message, 'error'); }
   });
   
+  // --- MODIFY OPERATOR ---
+  document.getElementById('modifyZoBtn').addEventListener('click', () => {
+      if (globalOperators.length === 0) return Swal.fire('Info', 'No operators available', 'info');
+      
+      let options = '<option value="">Choose an operator...</option>';
+      globalOperators.forEach(op => { options += `<option value="${op.id}">${op.username}</option>`; });
+  
+      document.getElementById('modifyZoModalForm').innerHTML = `
+          <label class="mf-lbl">Select Operator<select class="mf-in" id="modZoSelect" required>${options}</select></label>
+          <label class="mf-lbl">Full Name<input class="mf-in" id="modZoName" required /></label>
+          <label class="mf-lbl">Phone Number<input class="mf-in" id="modZoPhone" required /></label>
+          <div class="mf-actions">
+              <button type="button" class="mf-btn sec" onclick="closeModal('modifyZoModal')">Cancel</button>
+              <button type="submit" class="mf-btn" style="background:#1976d2;">Update</button>
+          </div>`;
+          
+      document.getElementById('modZoSelect').addEventListener('change', (e) => {
+          const op = globalOperators.find(o => o.id == e.target.value);
+          if (op) {
+              document.getElementById('modZoName').value = op.username;
+              document.getElementById('modZoPhone').value = op.phone_number || '';
+          }
+      });
+  
+      openModal('modifyZoModal');
+  });
+  
+  document.getElementById('modifyZoModalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const opId = document.getElementById('modZoSelect').value;
+      if (!opId) return;
+  
+      try {
+          await API.put(`/auth/users/${opId}`, {
+              username: document.getElementById('modZoName').value.trim(),
+              phone_number: document.getElementById('modZoPhone').value.trim()
+          });
+          closeModal('modifyZoModal');
+          Swal.fire('Updated!', 'Operator details updated.', 'success');
+          fetchAndRenderData();
+      } catch (error) { Swal.fire('Error', error.message, 'error'); }
+  });
+  
   // --- DELETE OPERATOR ---
   document.getElementById('deleteZoBtn').addEventListener('click', () => {
-      if (globalOperators.length === 0) return Swal.fire('Info', 'No operators available to delete', 'info');
+      if (globalOperators.length === 0) return Swal.fire('Info', 'No operators to delete', 'info');
       
       let options = '<option value="">Choose an operator...</option>';
       globalOperators.forEach(op => { options += `<option value="${op.id}">${op.username} (${op.email})</option>`; });
@@ -269,7 +300,7 @@
       document.getElementById('zoDeleteModalForm').innerHTML = `
           <label class="mf-lbl">Select Operator to Delete<select class="mf-in" id="delZoSelect" required>${options}</select></label>
           <div style="background:#fff3cd;padding:10px;border-radius:6px;margin:12px 0;font-size:.74rem;color:#856404;border:1px solid #ffc107;">
-              <strong>⚠ Warning:</strong> Deleting an operator removes their system access completely.
+              <strong>⚠ Warning:</strong> Deleting an operator removes their system access.
           </div>
           <div class="mf-actions">
               <button type="button" class="mf-btn sec" onclick="closeModal('zoDeleteModal')">Cancel</button>
@@ -284,15 +315,11 @@
       if (!opId) return;
   
       try {
-          
           await API.delete(`/auth/users/${opId}`);
           closeModal('zoDeleteModal');
-          Swal.fire('Deleted!', 'Operator account has been removed.', 'success');
+          Swal.fire('Deleted!', 'Operator account removed.', 'success');
           fetchAndRenderData();
-      } catch (error) { 
-          // Fallback gracefully if endpoint isn't perfectly matched yet
-          Swal.fire('Notice', 'Delete request sent. (Ensure DELETE /auth/users/:id is active on backend). ' + error.message, 'info'); 
-      }
+      } catch (error) { Swal.fire('Error', error.message, 'error'); }
   });
   
   // Boot App
