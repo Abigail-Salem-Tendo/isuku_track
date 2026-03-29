@@ -488,29 +488,32 @@
       <!-- Weekly Report card -->
       <div class="card">
         <div class="ch">
-          <div class="ct">Weekly Report Remarks</div>
-          <a class="ca" href="zo_report.html">Full Report →</a>
+          <div class="ct">Weekly Report</div>
+          <a class="ca" href="zo_report.html">Send Report →</a>
         </div>
         <div class="cb">
-          <div class="deadline">
+          <div class="deadline" style="background:#e8f5e9;color:#2e7d52;">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
             </svg>
-            Report auto-sends in <strong style="color:var(--g1);margin:0 3px;">3 days</strong> · Add remarks before then
+            Select date range and send report manually
           </div>
 
           <div class="rsec">
             <label>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
               </svg>
-              Operator's Remarks & Suggestions
+              Quick Notes
             </label>
-            <textarea class="rta" style="min-height:120px;" placeholder="Add your weekly remarks, observations, route suggestions, issues encountered, or any other feedback..."></textarea>
+            <textarea class="rta" style="min-height:120px;" placeholder="Draft your remarks here before sending the full report..."></textarea>
           </div>
 
-          <button class="btn-save">Save Remarks</button>
+          <a href="zo_report.html" class="btn-save" style="display:block;text-align:center;text-decoration:none;">Go to Report Page</a>
         </div>
       </div>
 

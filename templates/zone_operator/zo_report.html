@@ -102,7 +102,7 @@
         <span></span><span></span><span></span>
       </div>
       <h1>Weekly Report</h1>
-      <p>Kimironko Zone A · Auto-sends Sunday 20:00</p>
+      <p>Kimironko Zone A · Manual Submission</p>
     </div>
     <div class="tb-r">
       <div class="icon-btn">
@@ -120,19 +120,9 @@
 
     <div class="sg">
       <div class="sc">
-        <div class="sc-lbl">Auto-sends In</div>
-        <div class="sc-val" style="color:var(--g1);font-size:1.2rem">4 days</div>
-        <div class="sc-sub">Sunday 20:00</div>
-      </div>
-      <div class="sc">
         <div class="sc-lbl">Last Report</div>
         <div class="sc-val" style="font-size:1.1rem">Mar 9</div>
-        <div class="sc-sub">sent on time</div>
-      </div>
-      <div class="sc">
-        <div class="sc-lbl">Week Payments</div>
-        <div class="sc-val">28</div>
-        <div class="sc-sub">28,000 RWF</div>
+        <div class="sc-sub">sent manually</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Zone Rate</div>
@@ -143,63 +133,22 @@
 
     <div class="row2">
 
-      <!-- Current week report form -->
+      <!-- Report form -->
       <div class="card">
         <div class="ch">
-          <div class="ct">Current Week Remarks</div>
-          <a class="ca">Week of Mar 16–22</a>
+          <div class="ct">Send Report</div>
         </div>
         <div class="cb">
 
-          <div class="deadline">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-            Report auto-sends in <strong style="color:var(--g1);margin:0 3px;">4 days</strong> · Add remarks before then
-          </div>
-
-          <div class="rsec">
-            <label>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-              </svg>
-              Route Optimization
-            </label>
-            <textarea class="rta" placeholder="Suggest route improvements for next week…"></textarea>
-          </div>
-
-          <div class="rsec">
-            <label>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="1" y="3" width="15" height="13"/>
-                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-              </svg>
-              Vehicle Issues
-            </label>
-            <textarea class="rta" placeholder="Note any vehicle problems or maintenance needs…"></textarea>
-          </div>
-
-          <div class="rsec">
-            <label>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-              </svg>
-              Resident Disputes
-            </label>
-            <textarea class="rta" placeholder="Log resident complaints or conflicts…"></textarea>
-          </div>
-
-          <div class="rsec">
-            <label>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6l-1 14H6L5 6"/>
-              </svg>
-              Collection Issues
-            </label>
-            <textarea class="rta" placeholder="Describe any overflow or missed collection issues…"></textarea>
+          <div class="date-range-row" style="display:flex;gap:16px;margin-bottom:20px;">
+            <div style="flex:1;">
+              <label style="font-size:.85rem;color:#5a7866;font-weight:500;display:block;margin-bottom:6px;">From Date</label>
+              <input type="date" id="fromDate" class="date-input" style="font-size:1rem;padding:10px 12px;border:1px solid #ddd;border-radius:8px;width:100%;box-sizing:border-box;">
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:.85rem;color:#5a7866;font-weight:500;display:block;margin-bottom:6px;">To Date</label>
+              <input type="date" id="toDate" class="date-input" style="font-size:1rem;padding:10px 12px;border:1px solid #ddd;border-radius:8px;width:100%;box-sizing:border-box;">
+            </div>
           </div>
 
           <div class="rsec">
@@ -207,13 +156,15 @@
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
               </svg>
-              General Notes
+              Your Remarks
             </label>
-            <textarea class="rta" placeholder="Any other observations or recommendations…"></textarea>
+            <textarea id="remarksInput" class="rta" placeholder="Enter your report remarks here..." style="min-height:150px;"></textarea>
           </div>
 
-          <button class="btn-save" id="saveBtn">Save Remarks</button>
+          <button class="btn-save" id="sendReportBtn">Send Report</button>
         </div>
       </div>
 

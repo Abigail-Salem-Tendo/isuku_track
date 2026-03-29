@@ -120,19 +120,9 @@
               <div class="form-group">
                 <label for="claimType">Claim Type</label>
                 <select id="claimType">
-                  <option value="">Select claim type</option>
-                  <option value="overflow">Overflow</option>
-                  <option value="damaged">Damaged Bin</option>
-                  <option value="illegal_dumping">Illegal Dumping</option>
-                  <option value="missed_collection">Missed Collection</option>
-                  <option value="other">Other</option>
+                  <option value="">Loading categories...</option>
                 </select>
                 <span class="error-message" id="claimTypeError">Please select a claim type</span>
-              </div>
-              <div class="form-group">
-                <label for="claimLocation">Location</label>
-                <input type="text" id="claimLocation" placeholder="e.g. KG 11 Ave, near the market" />
-                <span class="error-message" id="claimLocationError">Location is required</span>
               </div>
               <div class="form-group">
                 <label for="claimDescription">Description</label>
@@ -140,8 +130,9 @@
                 <span class="error-message" id="claimDescriptionError">Description is required</span>
               </div>
               <div class="form-group">
-                <label for="claimPhoto">Photo (optional)</label>
-                <input type="file" id="claimPhoto" accept="image/*" />
+                <label for="claimPhoto">Photo (required)</label>
+                <input type="file" id="claimPhoto" accept="image/jpeg,image/png,image/webp" />
+                <span class="error-message" id="claimPhotoError">Photo is required</span>
               </div>
               <div style="margin-top: 8px;">
                 <button type="submit" class="btn btn-primary">Submit Claim</button>
@@ -158,52 +149,12 @@
           <div class="tabs">
             <button class="tab active" data-filter="all">All</button>
             <button class="tab" data-filter="open">Open</button>
-            <button class="tab" data-filter="in-progress">In Progress</button>
+            <button class="tab" data-filter="under_review">Under Review</button>
             <button class="tab" data-filter="approved">Approved</button>
             <button class="tab" data-filter="rejected">Rejected</button>
           </div>
           <div id="claimsList">
-            <div class="card" data-status="approved">
-              <div class="card__row">
-                <div>
-                  <div class="card__title">Overflow</div>
-                  <div class="card__sub">KG 11 Ave, near the market</div>
-                  <div class="card__sub">Submitted March 5</div>
-                </div>
-                <span class="badge badge--approved">Approved</span>
-              </div>
-              <div class="card__points">+5 pts awarded</div>
-            </div>
-            <div class="card" data-status="open">
-              <div class="card__row">
-                <div>
-                  <div class="card__title">Missed Collection</div>
-                  <div class="card__sub">Kimironko Zone A</div>
-                  <div class="card__sub">Submitted March 1</div>
-                </div>
-                <span class="badge badge--open">Open</span>
-              </div>
-            </div>
-            <div class="card" data-status="in-progress">
-              <div class="card__row">
-                <div>
-                  <div class="card__title">Illegal Dumping</div>
-                  <div class="card__sub">Near KG 15 Ave</div>
-                  <div class="card__sub">Submitted Feb 20</div>
-                </div>
-                <span class="badge badge--in-progress">In Progress</span>
-              </div>
-            </div>
-            <div class="card" data-status="rejected">
-              <div class="card__row">
-                <div>
-                  <div class="card__title">Damaged Bin</div>
-                  <div class="card__sub">Outside Zone A</div>
-                  <div class="card__sub">Submitted Feb 10</div>
-                </div>
-                <span class="badge badge--rejected">Rejected</span>
-              </div>
-            </div>
+            <p class="card__sub" style="padding:12px;">Loading claims...</p>
           </div>
         </div>
       </main>
@@ -271,15 +222,6 @@
             <circle cx="12" cy="7" r="4" />
           </svg>
           My Profile
-        </a>
-        <a href="/resident/resident_profile" class="dd-item">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3" />
-            <path
-              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-          </svg>
-          Settings
         </a>
         <div class="dd-item dd-logout" onclick="if(confirm('Logout?'))localStorage.removeItem('access_token');localStorage.removeItem('refresh_token');localStorage.removeItem('user');window.location.href='/login'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

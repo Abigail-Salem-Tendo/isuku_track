@@ -184,6 +184,11 @@ def update_profile():
     if not user:
         return jsonify({"error": "User not found"}), 404
 
+    # Capture originals for no-changes detection
+    original_username = user.username
+    original_phone = user.phone_number
+    original_zone_id = user.zone_id
+
     errors = []
 
     # Editable profile username
@@ -229,6 +234,8 @@ def update_profile():
             errors.append("Current password is required to set a new password")
         elif not bcrypt.check_password_hash(user.password_hash, current_password):
             errors.append("Current password is incorrect")
+        elif bcrypt.check_password_hash(user.password_hash, data["new_password"]):
+            errors.append("New password must be different from current password")
         else:
             error = validate_password(data["new_password"])
             if error:
@@ -250,6 +257,14 @@ def update_profile():
     if errors:
         return jsonify({"error": errors[0]}), 400
 
+    # Backend: no-changes check for profile fields
+    profile_fields = {"username", "phone_number", "zone_id"}
+    if profile_fields.intersection(data.keys()) and "new_password" not in data:
+        if (user.username == original_username and
+                user.phone_number == original_phone and
+                user.zone_id == original_zone_id):
+            return jsonify({"error": "No changes detected"}), 400
+
     try:
         db.session.commit()
     except Exception:
@@ -264,23 +279,22 @@ def update_profile():
 
 @auth_bp.route("/forgot-password", methods=["POST"])
 def forgot_password():
-    # Verify identity with email + phone number, then return reset token
+    # Verify identity with email, then send reset link
     data = request.get_json()
     if not data:
         return jsonify({"error": "Request body is required"}), 400
 
     email = data.get("email", "").strip().lower()
-    phone_number = data.get("phone_number", "").strip()
 
-    if not email or not phone_number:
-        return jsonify({"error": "Email and phone number are required"}), 400
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
 
     # Find user by email
     user = User.query.filter_by(email=email).first()
-    if not user or user.phone_number != phone_number:
-        return jsonify({"error": "No account matches that email and phone number"}), 404
+    if not user:
+        return jsonify({"error": "No account found with that email address"}), 404
 
-    # Both match — generate reset token
+    # Generate reset token
     token = generate_reset_token(email)
     reset_link = f"{request.host_url}reset-password?token={token}"
 
