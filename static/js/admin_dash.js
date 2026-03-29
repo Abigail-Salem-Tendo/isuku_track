@@ -71,10 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
       vehicles: [],
       claims: [],
       payments: [], 
-      reports: [
-        // Keeping dummy data (for now) since backend reports require a specific zone_id
-        { id: 1, zone: 'Zone A', operator: 'Jean P.', submitted: 'Sun 8 Mar', note: 'Auto-generated', claims: 12, resolved: 10, payments: 28, revenue: 28000, status: 'Reviewed' }
-      ]
+      reports: []
     };
   }
 
@@ -266,7 +263,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderStats() {
     var activeZones = state.zones.length;
-    var openClaims = state.claims.filter(function (c) { return c.status === 'Open'; }).length;
+    
+    // Change this line to include 'In Progress'
+    var openClaims = state.claims.filter(function (c) { 
+        return c.status === 'Open' || c.status === 'In Progress'; 
+    }).length;
+
+    // ... rest of the function
     var paymentsWeek = state.reports.reduce(function (sum, r) { return sum + r.revenue; }, 0);
 
     var statActiveZones = document.getElementById('statActiveZones');

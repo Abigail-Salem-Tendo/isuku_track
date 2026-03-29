@@ -42,19 +42,19 @@
 
   <div class="sb-sec">
     <div class="sb-lbl">Overview</div>
-    <a class="sb-a" href="admin_dash.html" aria-label="Go to dashboard">
+    <a class="sb-a" href="/admin/dashboard" aria-label="Go to dashboard">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Dashboard
     </a>
-    <a class="sb-a on" href="admin_zones.html" aria-label="Go to zones page" aria-current="page">
+    <a class="sb-a on" href="/admin/zones" aria-label="Go to zones page" aria-current="page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
       Zones <span class="sb-badge am" id="sbZonesCount">8</span>
     </a>
-    <a class="sb-a" href="admin_users.html" aria-label="Go to users page">
+    <a class="sb-a" href="/admin/users" aria-label="Go to users page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Users
     </a>
-    <a class="sb-a" href="admin_zone_operator.html" aria-label="Go to zone operator page">
+    <a class="sb-a" href="/admin/operators" aria-label="Go to zone operator page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M17 11h6"/></svg>
       Zone Operator
     </a>
@@ -62,19 +62,19 @@
 
   <div class="sb-sec">
     <div class="sb-lbl">Operations</div>
-    <a class="sb-a" href="admin_schedules.html" aria-label="Go to schedules page">
+    <a class="sb-a" href="/admin/schedules" aria-label="Go to schedules page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       Schedules
     </a>
-    <a class="sb-a" href="admin_vehicles.html" aria-label="Go to vehicles page">
+    <a class="sb-a" href="/admin/vehicles" aria-label="Go to vehicles page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
       Vehicles
     </a>
-    <a class="sb-a" href="admin_claims.html" aria-label="Go to claims page">
+    <a class="sb-a" href="/admin/claims" aria-label="Go to claims page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Claims <span class="sb-badge" id="sbClaimsCount">5</span>
     </a>
-    <a class="sb-a" href="admin_payments.html" aria-label="Go to payments page">
+    <a class="sb-a" href="/admin/payments" aria-label="Go to payments page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
       Payments
     </a>
@@ -82,7 +82,7 @@
 
   <div class="sb-sec">
     <div class="sb-lbl">Reports</div>
-    <a class="sb-a" href="admin_reports.html" aria-label="Go to reports page">
+    <a class="sb-a" href="/admin/reports" aria-label="Go to reports page">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Reports
     </a>
@@ -249,178 +249,6 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="/static/js/api_helper.js"></script>
 <script src="/static/js/notifications.js"></script>
-<script>
-function toggleSb() {
-  var sb = document.querySelector('.sb');
-  var overlay = document.getElementById('overlay');
-  if (sb) sb.classList.toggle('open');
-  if (overlay) overlay.classList.toggle('open');
-}
-
-document.getElementById('logoutBtn')?.addEventListener('click', function () {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('userRole');
-  localStorage.removeItem('adminName');
-  window.location.href = '/login';
-});
-
-(function () {
-  var d = document.getElementById('dashboardDate');
-  if (!d) return;
-  var s = d.getAttribute('data-subtitle') || d.textContent.trim();
-  var n = new Date();
-  var l = n.toLocaleDateString('en-GB', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  });
-  d.textContent = l + ' — ' + s;
-})();
-
-(function(){
-  var zoneTableBody=document.getElementById('zoneTableBody');
-  var zoneToast=document.getElementById('zoneToast');
-
-  var createZoneBtn=document.getElementById('createZoneBtn');
-  var modifyZoneBtn=document.getElementById('modifyZoneBtn');
-  var deleteZoneBtn=document.getElementById('deleteZoneBtn');
-
-  var createZoneModal=document.getElementById('createZoneModal');
-  var modifyZoneModal=document.getElementById('modifyZoneModal');
-  var deleteZoneModal=document.getElementById('deleteZoneModal');
-
-  var createZoneForm=document.getElementById('createZoneForm');
-  var modifyZoneForm=document.getElementById('modifyZoneForm');
-  var deleteZoneForm=document.getElementById('deleteZoneForm');
-
-  var modifyZoneSelect=document.getElementById('modifyZoneSelect');
-  var deleteZoneSelect=document.getElementById('deleteZoneSelect');
-
-  function openModal(modal){
-    if(!modal)return;
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden','false');
-    document.body.classList.add('is-modal-open');
-  }
-
-  function closeModal(modal){
-    if(!modal)return;
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden','true');
-    var hasOpenModal=!!document.querySelector('.modal.open');
-    if(!hasOpenModal)document.body.classList.remove('is-modal-open');
-  }
-
-  function showToast(message,isError){
-    if(!zoneToast)return;
-    zoneToast.textContent=message;
-    zoneToast.classList.remove('show','err');
-    if(isError)zoneToast.classList.add('err');
-    requestAnimationFrame(function(){zoneToast.classList.add('show');});
-    window.setTimeout(function(){zoneToast.classList.remove('show');},2600);
-  }
-
-  function getRowData(row){
-    var zoneName=(row.querySelector('.zn')||{}).textContent||'';
-    var cell=(row.querySelector('.zg')||{}).textContent||'';
-    var district=(row.cells[1]||{}).textContent||'';
-    var sector=(row.cells[2]||{}).textContent||'';
-    var operator=(row.cells[3]||{}).textContent||'';
-    var status=(row.cells[4]||{}).textContent||'';
-    return {
-      zoneName:zoneName.trim(),
-      cell:cell.trim(),
-      district:district.trim(),
-      sector:sector.trim(),
-      operator:operator.trim()==='Unassigned'?'':operator.trim(),
-      status:status.trim()
-    };
-  }
-
-  
-
-// --- TOAST NOTIFICATION HELPER ---
-function showToast(message, isError) {
-    const toast = document.getElementById('zoneToast');
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.remove('show', 'err');
-    if (isError) toast.classList.add('err');
-    requestAnimationFrame(() => toast.classList.add('show'));
-    setTimeout(() => toast.classList.remove('show'), 2600);
-}
-
-// --- REDIRECT ACTIONS TO COMMAND CENTRE ---
-// Zones require map coordinates to exist, so we send the Admin to the spatial tool!
-document.getElementById('createZoneBtn').addEventListener('click', () => window.location.href = '/templates/interactive-map.html');
-document.getElementById('modifyZoneBtn').addEventListener('click', () => window.location.href = '/templates/interactive-map.html');
-document.getElementById('deleteZoneBtn').addEventListener('click', () => window.location.href = '/templates/interactive-map.html');
-
-// --- FETCH & RENDER LIVE DATA ---
-async function loadAdminZones() {
-    try {
-        // Fetch real data using our global helper!
-        const zones = await API.get('/zones/');
-        const tbody = document.getElementById('zoneTableBody');
-        tbody.innerHTML = ''; 
-
-        // 1. Populate the Table
-        zones.forEach(zone => {
-            const isAssigned = zone.zone_operator_name ? true : false;
-            const opText = isAssigned ? zone.zone_operator_name : '<span class="ci-meta">Unassigned</span>';
-            const statusClass = isAssigned ? 'ok' : 'pe';
-            const statusText = isAssigned ? 'Assigned' : 'Pending';
-
-            const row = `<tr>
-              <td><div class="zn">${zone.name}</div><div class="zg">${zone.cell || 'N/A'}</div></td>
-              <td>${zone.district}</td>
-              <td>${zone.sector}</td>
-              <td>${opText}</td>
-              <td><span class="b ${statusClass}">${statusText}</span></td>
-            </tr>`;
-            tbody.insertAdjacentHTML('beforeend', row);
-        });
-
-        // 2. Populate the Map (Using the tactical Voyager style)
-        const mapContainer = document.getElementById('zonesMap');
-        if (mapContainer) {
-            const zonesMap = L.map('zonesMap').setView([-1.95, 30.08], 13);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 18
-            }).addTo(zonesMap);
-
-            zones.forEach(zone => {
-                if (zone.latitude && zone.longitude) {
-                    const circle = L.circle([zone.latitude, zone.longitude], {
-                        color: '#2e7d52', fillColor: '#48a870', fillOpacity: 0.35, weight: 2, radius: 800
-                    }).addTo(zonesMap);
-
-                    const isAssigned = zone.zone_operator_name ? true : false;
-                    const badgeBg = isAssigned ? '#e8f8f5' : '#fdf2e9';
-                    const badgeCol = isAssigned ? '#117a65' : '#d35400';
-                    const badgeText = isAssigned ? 'Operator Assigned' : 'Pending Assignment';
-
-                    const popupContent = `
-                        <div style="font-size:.85rem; text-align:center;">
-                            <h3 style="margin:0 0 6px 0; color:#2c3e50; border-bottom:1px solid #eee; padding-bottom:4px;">${zone.name}</h3>
-                            <p style="margin:4px 0; color:#34495e;">${zone.district} · ${zone.sector}</p>
-                            <p style="margin:4px 0; color:#34495e;"><strong>Operator:</strong> ${zone.zone_operator_name || '<i>Unassigned</i>'}</p>
-                            <span style="display:inline-block; margin-top:6px; padding:2px 8px; background-color:${badgeBg}; color:${badgeCol}; border-radius:12px; font-size:11px; font-weight:bold;">${badgeText}</span>
-                        </div>`;
-                    circle.bindPopup(popupContent);
-                }
-            });
-        }
-    } catch (error) {
-        console.error('Error fetching zones:', error.message);
-        showToast('Failed to load zones from server', true);
-    }
-}
-
-// Boot the live data
-loadAdminZones();
-</script>
+<script src="/static/js/admin_zones.js"></script>
 </body>
 </html>
