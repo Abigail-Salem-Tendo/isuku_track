@@ -270,70 +270,10 @@
     <div class="card">
       <div class="ch">
         <div class="ct">Payment Verifications</div>
-        <span class="b op" style="font-size:.73rem;">3 pending</span>
+        <span class="b op" style="font-size:.73rem;" id="pendingBadge">Loading...</span>
       </div>
-      <div class="cb">
-
-        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Alice Mutoni" data-amount="1,000 RWF" data-date="1h ago" data-status="pending" data-payment-id="1">
-          <div class="pi-av">AM</div>
-          <div>
-            <div class="pi-name">Alice Mutoni</div>
-            <div class="pi-meta">Submitted 1h ago · 1,000 RWF claimed</div>
-          </div>
-          <div class="pi-amt">1,000 RWF</div>
-          <span class="b pe" style="font-size:.7rem;">Tap to review</span>
-        </div>
-
-        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Bob Ntwari" data-amount="2,000 RWF" data-date="3h ago" data-status="pending" data-payment-id="2">
-          <div class="pi-av">BN</div>
-          <div>
-            <div class="pi-name">Bob Ntwari</div>
-            <div class="pi-meta">Submitted 3h ago · 2,000 RWF claimed</div>
-          </div>
-          <div class="pi-amt">2,000 RWF</div>
-          <span class="b pe" style="font-size:.7rem;">Tap to review</span>
-        </div>
-
-        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Marie Jeannette" data-amount="1,000 RWF" data-date="5h ago" data-status="pending" data-payment-id="3">
-          <div class="pi-av">MJ</div>
-          <div>
-            <div class="pi-name">Marie Jeannette</div>
-            <div class="pi-meta">Submitted 5h ago · 1,000 RWF claimed</div>
-          </div>
-          <div class="pi-amt">1,000 RWF</div>
-          <span class="b pe" style="font-size:.7rem;">Tap to review</span>
-        </div>
-
-        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Grace Keza" data-amount="1,000 RWF" data-date="yesterday" data-status="approved" data-payment-id="4">
-          <div class="pi-av">GK</div>
-          <div>
-            <div class="pi-name">Grace Keza</div>
-            <div class="pi-meta">Submitted yesterday · 1,000 RWF</div>
-          </div>
-          <div class="pi-amt">1,000 RWF</div>
-          <span class="b ok">Approved</span>
-        </div>
-
-        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Paul Rugamba" data-amount="1,000 RWF" data-date="2 days ago" data-status="approved" data-payment-id="5">
-          <div class="pi-av">PR</div>
-          <div>
-            <div class="pi-name">Paul Rugamba</div>
-            <div class="pi-meta">Submitted 2 days ago · 1,000 RWF</div>
-          </div>
-          <div class="pi-amt">1,000 RWF</div>
-          <span class="b ok">Approved</span>
-        </div>
-
-        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="David Uwimana" data-amount="500 RWF" data-date="3 days ago" data-status="rejected" data-payment-id="6">
-          <div class="pi-av">DU</div>
-          <div>
-            <div class="pi-name">David Uwimana</div>
-            <div class="pi-meta">Submitted 3 days ago · 500 RWF</div>
-          </div>
-          <div class="pi-amt">500 RWF</div>
-          <span class="b op">Rejected</span>
-        </div>
-
+      <div class="cb" id="paymentsList">
+        <div style="padding:20px;text-align:center;color:var(--txt-l);">Loading payments...</div>
       </div>
     </div>
   </div>
@@ -448,36 +388,118 @@
 <script>
   let currentPaymentElement = null;
 
-  function viewPaymentDetails(el) {
-    currentPaymentElement = el;
-    const name = el.dataset.name;
-    const amount = el.dataset.amount;
-    const date = el.dataset.date;
-    const status = el.dataset.status;
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+  function timeAgo(iso) {
+    const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  }
 
-    // Set details in modal
-    document.getElementById('payDetailName').textContent = name;
-    document.getElementById('payDetailAmount').textContent = amount;
-    document.getElementById('payDetailDate').textContent = date;
-    document.getElementById('payDetailTxn').textContent = 'TXN' + Math.random().toString(36).substr(2, 9).toUpperCase();
+  function initials(name) {
+    return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  }
 
-    // Hide proof for now (placeholder)
-    document.getElementById('payDetailProof').style.display = 'none';
-    document.getElementById('noProofText').style.display = 'block';
+  function statusBadge(status) {
+    if (status === 'approved') return '<span class="b ok">Approved</span>';
+    if (status === 'rejected') return '<span class="b op">Rejected</span>';
+    return '<span class="b pe" style="font-size:.7rem;">Tap to review</span>';
+  }
 
-    // Show/hide approve/reject buttons based on status
-    const approveBtn = document.getElementById('payDetailApproveBtn');
-    const rejectBtn = document.getElementById('payDetailRejectBtn');
+  // ── Load payments from API ───────────────────────────────────────────────────
+  async function loadPayments() {
+    try {
+      const payments = await API.get('/payments/');
+      renderPayments(payments);
+    } catch (err) {
+      document.getElementById('paymentsList').innerHTML =
+        '<div style="padding:20px;text-align:center;color:var(--txt-l);">Failed to load payments.</div>';
+    }
+  }
 
-    if (status === 'approved' || status === 'rejected') {
-      approveBtn.style.display = 'none';
-      rejectBtn.style.display = 'none';
-    } else {
-      approveBtn.style.display = 'inline-block';
-      rejectBtn.style.display = 'inline-block';
+  function renderPayments(payments) {
+    const list = document.getElementById('paymentsList');
+    const badge = document.getElementById('pendingBadge');
+
+    if (!payments || payments.length === 0) {
+      list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--txt-l);">No payments found.</div>';
+      if (badge) { badge.textContent = '0 pending'; badge.className = 'b ok'; }
+      return;
     }
 
-    // Show modal
+    const pending = payments.filter(p => p.status === 'pending').length;
+    if (badge) {
+      badge.textContent = pending + ' pending';
+      badge.className = pending > 0 ? 'b pe' : 'b ok';
+      badge.style.fontSize = '.73rem';
+    }
+
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    list.innerHTML = payments.map(p => {
+      const name = p.resident_name || 'Resident';
+      const monthLabel = monthNames[(p.payment_month || 1) - 1] + ' ' + p.payment_year;
+      const submittedAgo = p.submitted_at ? timeAgo(p.submitted_at) : '';
+      const amt = `${parseInt(p.amount || 0).toLocaleString()} ${p.currency || 'RWF'}`;
+
+      return `
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;"
+          data-name="${name}"
+          data-amount="${amt}"
+          data-month="${monthLabel}"
+          data-date="${submittedAgo}"
+          data-status="${p.status}"
+          data-payment-id="${p.id}"
+          data-method="${p.payment_method || ''}"
+          data-txn="${p.transaction_reference || ''}"
+          data-proof="${p.proof_url || ''}"
+          data-rejection="${p.rejection_reason || ''}">
+          <div class="pi-av">${initials(name)}</div>
+          <div>
+            <div class="pi-name">${name}</div>
+            <div class="pi-meta">Submitted ${submittedAgo} · ${monthLabel} · ${amt}</div>
+          </div>
+          <div class="pi-amt">${amt}</div>
+          ${statusBadge(p.status)}
+        </div>`;
+    }).join('');
+
+    applyActiveFilter();
+  }
+
+  // ── View payment details modal ───────────────────────────────────────────────
+  function viewPaymentDetails(el) {
+    currentPaymentElement = el;
+
+    document.getElementById('payDetailName').textContent = el.dataset.name || '-';
+    document.getElementById('payDetailAmount').textContent = el.dataset.amount || '-';
+    document.getElementById('payDetailDate').textContent =
+      el.dataset.month ? el.dataset.month + ' · ' + el.dataset.date : el.dataset.date || '-';
+
+    const methodMap = { mobile_money: 'Mobile Money', bank_transfer: 'Bank Transfer', cash: 'Cash' };
+    document.getElementById('payDetailMethod').textContent = methodMap[el.dataset.method] || el.dataset.method || '-';
+    document.getElementById('payDetailTxn').textContent = el.dataset.txn || 'N/A';
+
+    const proof = el.dataset.proof;
+    const proofImg = document.getElementById('payDetailProof');
+    const noProof = document.getElementById('noProofText');
+    if (proof) {
+      proofImg.src = proof;
+      proofImg.style.display = 'block';
+      noProof.style.display = 'none';
+    } else {
+      proofImg.style.display = 'none';
+      noProof.style.display = 'block';
+    }
+
+    const status = el.dataset.status;
+    const approveBtn = document.getElementById('payDetailApproveBtn');
+    const rejectBtn = document.getElementById('payDetailRejectBtn');
+    const isPending = status === 'pending';
+    approveBtn.style.display = isPending ? 'inline-block' : 'none';
+    rejectBtn.style.display = isPending ? 'inline-block' : 'none';
+
     document.getElementById('paymentDetailsModal').classList.add('show');
   }
 
@@ -486,76 +508,43 @@
     currentPaymentElement = null;
   }
 
+  // ── Approve ──────────────────────────────────────────────────────────────────
   async function approveFromPayDetails() {
     if (!currentPaymentElement) return;
-
     const paymentId = currentPaymentElement.dataset.paymentId;
-    if (!paymentId) {
-      alert('Unable to identify payment to approve.');
-      return;
-    }
-
     const name = currentPaymentElement.dataset.name || 'Resident';
 
-    // Disable approve button during request
     const approveBtn = document.getElementById('payDetailApproveBtn');
-    const originalText = approveBtn.textContent;
     approveBtn.textContent = 'Approving...';
     approveBtn.disabled = true;
 
-    const token = localStorage.getItem('access_token');
-
-    // Try API call if token exists
-    if (token) {
-      try {
-        const response = await fetch(`/api/payments/${paymentId}/approve`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to approve payment');
-        }
-      } catch (error) {
-        console.error('Approval API failed:', error);
-        alert(error.message || 'Failed to approve payment. Please try again.');
-        approveBtn.textContent = originalText;
-        approveBtn.disabled = false;
-        return;
-      }
+    try {
+      await API.put(`/payments/${paymentId}/approve`, {});
+      currentPaymentElement.dataset.status = 'approved';
+      const badge = currentPaymentElement.querySelector('.b');
+      if (badge) { badge.className = 'b ok'; badge.textContent = 'Approved'; }
+      if (typeof showToast === 'function') showToast(`Payment from ${name} approved!`, 0);
+      closePaymentDetailsModal();
+      applyActiveFilter();
+    } catch (err) {
+      alert(err.message || 'Failed to approve payment.');
+    } finally {
+      approveBtn.textContent = 'Approve';
+      approveBtn.disabled = false;
     }
-
-    // Update UI
-    const statusSpan = currentPaymentElement.querySelector('.b');
-    if (statusSpan) {
-      statusSpan.className = 'b ok';
-      statusSpan.textContent = 'Approved';
-    }
-    currentPaymentElement.dataset.status = 'approved';
-
-    if (typeof showToast === 'function') {
-      showToast(`Payment from ${name} approved!`, 0);
-    }
-
-    closePaymentDetailsModal();
-    applyActiveFilter();
-
-    approveBtn.textContent = originalText;
-    approveBtn.disabled = false;
   }
 
+  // ── Reject ───────────────────────────────────────────────────────────────────
   function openRejectFromPayDetails() {
     if (currentPaymentElement) {
-      const elementToReject = currentPaymentElement;
+      const el = currentPaymentElement;
       closePaymentDetailsModal();
-      openRejectModal(elementToReject);
+      openRejectModal(el);
     }
   }
+
+  // ── Init ─────────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', loadPayments);
 </script>
 <script>
 /* ── Initialize Payment Charts ── */
