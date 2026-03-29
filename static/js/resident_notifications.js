@@ -2,35 +2,29 @@ document.addEventListener('DOMContentLoaded', function () {
   const notificationToggle = document.getElementById('notificationToggle');
   const notificationPanel = document.querySelector('.notification-panel');
   const notificationList = document.getElementById('notificationList');
-  const notificationBadge = document.querySelector('.notification-badge');
+  const markAllReadBtn = document.getElementById('markAllReadBtn');
 
   if (!notificationToggle || !notificationPanel) return;
 
+  const STORAGE_KEY = 'notifications_read_at';
   let notifications = [];
 
-  // Fetch notifications from API
+  // Fetch derived notifications from API
   async function fetchNotifications() {
     try {
-      const response = await API.get('/payments/notifications');
+      const response = await API.get('/notifications/');
       notifications = response || [];
-      updateBadge();
       renderNotifications();
     } catch (error) {
       console.log('Notifications fetch failed');
     }
   }
 
-  // Update badge with unread count
-  function updateBadge() {
-    const unreadCount = notifications.filter(n => !n.is_read).length;
-    if (notificationBadge) {
-      if (unreadCount > 0) {
-        notificationBadge.textContent = unreadCount > 9 ? '9+' : unreadCount;
-        notificationBadge.style.display = 'block';
-      } else {
-        notificationBadge.style.display = 'none';
-      }
-    }
+  // Check if an item is unread (newer than last mark-all-read timestamp)
+  function isUnread(item) {
+    const readAt = localStorage.getItem(STORAGE_KEY);
+    if (!readAt) return true;
+    return new Date(item.date) > new Date(readAt);
   }
 
   // Render notification list
@@ -43,13 +37,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     notificationList.innerHTML = notifications.map(n => `
-      <div class="notification-item ${n.is_read ? 'read' : 'unread'}" data-id="${n.id}">
+      <div class="notification-item ${isUnread(n) ? 'unread' : 'read'}" data-id="${n.id}">
         <div class="notification-item__icon">
           ${getNotificationIcon(n.type)}
         </div>
         <div class="notification-item__content">
           <div class="notification-item__title">${escapeHtml(n.title)}</div>
-          <div class="notification-item__time">${getTimeAgo(n.created_at)}</div>
+          <div class="notification-item__message">${escapeHtml(n.message)}</div>
+          <div class="notification-item__time">${getTimeAgo(n.date)}</div>
         </div>
       </div>
     `).join('');
@@ -57,13 +52,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Get icon for notification type
   function getNotificationIcon(type) {
+    const approved = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+    const rejected = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
     const icons = {
-      'payment_approved': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
-      'payment_rejected': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
-      'claim_approved': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
-      'claim_rejected': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+      'payment_approved': approved,
+      'payment_rejected': rejected,
+      'claim_approved': approved,
+      'claim_rejected': rejected
     };
-    return icons[type] || icons['payment_approved'];
+    return icons[type] || approved;
   }
 
   // Convert timestamp to "X ago" format
@@ -85,10 +82,20 @@ document.addEventListener('DOMContentLoaded', function () {
     return div.innerHTML;
   }
 
-  // Toggle panel
+  // Mark all as read (localStorage only — no API call)
+  if (markAllReadBtn) {
+    markAllReadBtn.addEventListener('click', function () {
+      localStorage.setItem(STORAGE_KEY, new Date().toISOString());
+      renderNotifications();
+    });
+  }
+
+  // Toggle panel and fetch on open
   notificationToggle.addEventListener('click', function (e) {
     e.stopPropagation();
+    const isOpening = !notificationPanel.classList.contains('show');
     notificationPanel.classList.toggle('show');
+    if (isOpening) fetchNotifications();
   });
 
   // Close panel when clicking outside
@@ -97,27 +104,4 @@ document.addEventListener('DOMContentLoaded', function () {
       notificationPanel.classList.remove('show');
     }
   });
-
-  // Mark notification as read on click
-  document.addEventListener('click', function (e) {
-    const item = e.target.closest('.notification-item');
-    if (item) {
-      const id = item.dataset.id;
-      markAsRead(id);
-    }
-  });
-
-  // Mark notification as read
-  async function markAsRead(id) {
-    try {
-      await API.put(`/payments/notifications/${id}/read`, {});
-      fetchNotifications();
-    } catch (error) {
-      console.log('Failed to mark notification as read');
-    }
-  }
-
-  // Initial load and poll every 30 seconds
-  fetchNotifications();
-  setInterval(fetchNotifications, 30000);
 });
