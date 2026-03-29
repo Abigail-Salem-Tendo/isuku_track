@@ -1,577 +1,545 @@
 /**
- * Zone Operator Payment Management System
- * Handles payment listing, approval/rejection, and analytics
+ * Zone Operator Payment Management
+ * Handles: payment listing (table), approval/rejection,
+ *          proof-of-payment image lightbox, and chart data.
  */
 
+// ── State ─────────────────────────────────────────────────────────────────────
 let allPayments = [];
-let currentFilter = 'all';
-let revenueChart, statusChart, monthlyChart;
+let currentPaymentElement = null;   // The .pi card being acted on (list view)
+let currentTablePaymentId = null;   // The payment ID being acted on (table view)
 
-// ── API Endpoints ────────────────────────────────────────────
-const PAYMENT_API = '/payments';
+// ── Shared helpers ────────────────────────────────────────────────────────────
+function timeAgo(iso) {
+  const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (diff < 60)    return 'Just now';
+  if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+  return Math.floor(diff / 86400) + 'd ago';
+}
 
-// ── Initialize on page load ──────────────────────────────────
-document.addEventListener('DOMContentLoaded', function () {
-  loadPayments();
-  setupCharts();
-  setupEventListeners();
-});
+function initials(name) {
+  return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+}
 
-// ── Load payments and statistics ─────────────────────────────
+function statusBadge(status) {
+  if (status === 'approved') return '<span class="b ok">Approved</span>';
+  if (status === 'rejected') return '<span class="b op">Rejected</span>';
+  return '<span class="b pe" style="font-size:.7rem;">Tap to review</span>';
+}
+
+function formatMethod(method) {
+  const map = { mobile_money: 'Mobile Money', bank_transfer: 'Bank Transfer', cash: 'Cash' };
+  return map[method] || method || '—';
+}
+
+function getMonthName(n) {
+  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][(n || 1) - 1] || '';
+}
+
+// ── Load & bootstrap ──────────────────────────────────────────────────────────
 async function loadPayments() {
   try {
-    const response = await fetch(PAYMENT_API, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    allPayments = await response.json();
-    
-    // Update statistics
+    await loadUserProfile();
+    const payments = await API.get('/payments/');
+    allPayments = Array.isArray(payments) ? payments : [];
     updateStatistics();
-    
-    // Render payments table
-    renderPaymentsTable();
-    
-    // Update charts with real data
-    updateCharts();
-
-  } catch (error) {
-    console.error('Error loading payments:', error);
-    showError('Failed to load payments');
+    renderPayments(allPayments);       // card list (existing)
+    renderPaymentsTable(allPayments);  // NEW: full table
+    initializeCharts();
+  } catch (err) {
+    console.error('Error loading payments:', err);
+    const list = document.getElementById('paymentsList');
+    if (list) list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--txt-l);">Failed to load payments.</div>';
+    const tbody = document.getElementById('paymentsTableBody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--txt-l);">Failed to load payments.</td></tr>';
   }
 }
 
-// ── Update statistics cards ──────────────────────────────────
+// ── User profile ──────────────────────────────────────────────────────────────
+async function loadUserProfile() {
+  try {
+    let user = null;
+    try { user = await API.get('/auth/me'); } catch (e1) {
+      try { user = await API.get('/auth/profile'); } catch (e2) {}
+    }
+    const name = (user && (user.full_name || user.username)) || localStorage.getItem('userFullName') || 'Zone Operator';
+    updateProfileUI(name);
+  } catch (err) {
+    updateProfileUI(localStorage.getItem('userFullName') || 'Zone Operator');
+  }
+}
+
+function updateProfileUI(fullName) {
+  const ini = (fullName || 'ZO').split(' ').map(n => n.charAt(0).toUpperCase()).join('').slice(0, 2);
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('sidebarProfileName', fullName);
+  set('sidebarProfileAvatar', ini);
+  set('sidebarProfileRole', 'Zone Operator');
+  set('topbarProfileAvatar', ini);
+  set('ddUserAvatar', ini);
+  set('ddUserName', fullName);
+  set('ddUserRole', 'Zone Operator');
+  localStorage.setItem('userFullName', fullName);
+  localStorage.setItem('userInitials', ini);
+}
+
+// ── Statistics cards ──────────────────────────────────────────────────────────
 function updateStatistics() {
-  const approvedPayments = allPayments.filter(p => p.status === 'approved');
-  const pendingPayments = allPayments.filter(p => p.status === 'pending');
-  const rejectedPayments = allPayments.filter(p => p.status === 'rejected');
-  
-  const totalApproved = approvedPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
-  
-  // Update stat cards
-  document.getElementById('totalCollected').textContent = 
-    `RWF ${totalApproved.toLocaleString()}`;
-  document.getElementById('pendingCount').textContent = pendingPayments.length;
-  document.getElementById('approvedCount').textContent = approvedPayments.length;
-  document.getElementById('rejectedCount').textContent = rejectedPayments.length;
-  
-  // Update pending badge
+  const pending  = allPayments.filter(p => p.status === 'pending');
+  const approved = allPayments.filter(p => p.status === 'approved');
+  const totalAmt = approved.reduce((s, p) => s + (p.amount || 0), 0);
+  const rate     = allPayments.length ? Math.round(approved.length / allPayments.length * 100) : 0;
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('totalPayments',  allPayments.length);
+  set('pendingPayments', pending.length);
+  set('totalCollected', `RWF ${totalAmt.toLocaleString()}`);
+  set('approvalRate', rate + '%');
+
   const badge = document.querySelector('.sb-badge.am');
-  if (badge) {
-    badge.textContent = pendingPayments.length;
-    badge.style.display = pendingPayments.length > 0 ? 'inline' : 'none';
-  }
+  if (badge) { badge.textContent = pending.length; badge.style.display = pending.length > 0 ? 'inline' : 'none'; }
 }
 
-// ── Render payments table ────────────────────────────────────
-function renderPaymentsTable() {
-  const tbody = document.getElementById('paymentsTableBody');
-  const emptyState = document.getElementById('emptyState');
-  
-  if (!allPayments || allPayments.length === 0) {
-    tbody.innerHTML = '';
-    emptyState.style.display = 'flex';
-    return;
-  }
-  
-  emptyState.style.display = 'none';
-  
-  tbody.innerHTML = allPayments.map(payment => {
-    const date = new Date(payment.submitted_at);
-    const formattedDate = date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: '2-digit' 
-    });
-    
-    const statusClass = `status-badge ${payment.status}`;
-    const statusText = payment.status.charAt(0).toUpperCase() + payment.status.slice(1);
-    
-    return `
-      <tr class="payment-row-clickable" onclick="showPaymentDetails(${payment.id})">
-        <td>${payment.resident_name || 'Unknown'}</td>
-        <td><span class="amount">RWF ${(payment.amount || 0).toLocaleString()}</span></td>
-        <td><span class="${statusClass}">${statusText}</span></td>
-        <td>${formatPaymentMethod(payment.payment_method)}</td>
-        <td>${formattedDate}</td>
-        <td>
-          <button class="btn-action" onclick="showPaymentDetails(${payment.id}); event.stopPropagation();">
-            View
-          </button>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
+// ── Card list renderer (existing style, kept intact) ─────────────────────────
+function renderPayments(payments) {
+  const list  = document.getElementById('paymentsList');
+  const badge = document.getElementById('pendingBadge');
+  if (!list) return;
 
-// ── Show payment details modal ───────────────────────────────
-function showPaymentDetails(paymentId) {
-  const payment = allPayments.find(p => p.id === paymentId);
-  if (!payment) return;
-  
-  const modal = document.getElementById('detailsModal');
-  const content = document.getElementById('paymentDetailsContent');
-  
-  const proofSection = payment.proof_url 
-    ? `<img src="${payment.proof_url}" alt="Payment proof" class="proof-image">`
-    : '<div class="proof-placeholder">No proof of payment uploaded</div>';
-  
-  const actionButtons = payment.status === 'pending' ? `
-    <button class="btn-action btn-approve" onclick="approvePayment(${paymentId})">
-      ✓ Approve Payment
-    </button>
-    <button class="btn-action btn-reject" onclick="openRejectModal(${paymentId})">
-      ✗ Reject Payment
-    </button>
-  ` : '';
-  
-  content.innerHTML = `
-    <div class="payment-detail-row">
-      <div class="payment-detail-label">Resident</div>
-      <div class="payment-detail-value">${payment.resident_name || 'Unknown'}</div>
-    </div>
-    <div class="payment-detail-row">
-      <div class="payment-detail-label">Amount</div>
-      <div class="payment-detail-value" style="font-weight: bold; color: var(--g2); font-size: 1.1em;">
-        RWF ${(payment.amount || 0).toLocaleString()}
-      </div>
-    </div>
-    <div class="payment-detail-row">
-      <div class="payment-detail-label">Payment Month/Year</div>
-      <div class="payment-detail-value">
-        ${getMonthName(payment.payment_month)} ${payment.payment_year}
-      </div>
-    </div>
-    <div class="payment-detail-row">
-      <div class="payment-detail-label">Submitted Date</div>
-      <div class="payment-detail-value">
-        ${new Date(payment.submitted_at).toLocaleString()}
-      </div>
-    </div>
-    <div class="payment-detail-row">
-      <div class="payment-detail-label">Payment Method</div>
-      <div class="payment-detail-value">
-        ${formatPaymentMethod(payment.payment_method)}
-      </div>
-    </div>
-    <div class="payment-detail-row">
-      <div class="payment-detail-label">Transaction ID</div>
-      <div class="payment-detail-value" style="font-family: monospace;">
-        ${payment.transaction_reference || 'N/A'}
-      </div>
-    </div>
-    <div class="payment-detail-row">
-      <div class="payment-detail-label">Status</div>
-      <div class="payment-detail-value">
-        <span class="status-badge ${payment.status}">
-          ${payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
-        </span>
-      </div>
-    </div>
-    ${payment.rejection_reason ? `
-    <div class="payment-detail-row">
-      <div class="payment-detail-label">Rejection Reason</div>
-      <div class="payment-detail-value">${payment.rejection_reason}</div>
-    </div>
-    ` : ''}
-    <div class="payment-detail-row">
-      <div class="payment-detail-label">Proof of Payment</div>
-      <div class="payment-detail-value">
-        ${proofSection}
-      </div>
-    </div>
-    ${actionButtons ? `
-    <div class="modal-actions">
-      ${actionButtons}
-    </div>
-    ` : ''}
-  `;
-  
-  modal.classList.add('show');
-}
-
-// ── Close modal ──────────────────────────────────────────────
-function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.classList.remove('show');
-  }
-}
-
-// ── Approve payment ──────────────────────────────────────────
-async function approvePayment(paymentId) {
-  if (!confirm('Are you sure you want to approve this payment?')) {
-    return;
-  }
-  
-  try {
-    const response = await fetch(`${PAYMENT_API}/${paymentId}/approve`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({})
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to approve payment');
-    }
-    
-    showSuccess('Payment approved successfully!');
-    closeModal('detailsModal');
-    loadPayments();
-    
-  } catch (error) {
-    console.error('Error approving payment:', error);
-    showError(error.message || 'Failed to approve payment');
-  }
-}
-
-// ── Open rejection modal ──────────────────────────────────────
-function openRejectModal(paymentId) {
-  const modal = document.getElementById('rejectionModal');
-  
-  // Store payment ID in a data attribute
-  modal.dataset.paymentId = paymentId;
-  
-  // Reset form
-  document.getElementById('rejectionReason').value = '';
-  document.getElementById('rejectionDetails').value = '';
-  document.getElementById('rejectionsErrorMessage').innerHTML = '';
-  
-  modal.classList.add('show');
-}
-
-// ── Submit rejection ─────────────────────────────────────────
-async function submitRejection() {
-  const paymentId = document.getElementById('rejectionModal').dataset.paymentId;
-  const reason = document.getElementById('rejectionReason').value.trim();
-  const details = document.getElementById('rejectionDetails').value.trim();
-  
-  if (!reason) {
-    showErrorInModal('rejectionsErrorMessage', 'Please select a rejection reason');
-    return;
-  }
-  
-  // Build rejection reason text
-  let rejectionReasonText = reason;
-  if (reason === 'other' && details) {
-    rejectionReasonText = `Other: ${details}`;
-  } else if (reason === 'other') {
-    showErrorInModal('rejectionsErrorMessage', 'Please provide details for "Other" reason');
-    return;
-  }
-  
-  const btn = document.getElementById('submitRejectBtn');
-  btn.disabled = true;
-  btn.textContent = 'Processing...';
-  
-  try {
-    const response = await fetch(`${PAYMENT_API}/${paymentId}/reject`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        rejection_reason: rejectionReasonText
-      })
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to reject payment');
-    }
-    
-    showSuccess('Payment rejected successfully!');
-    closeModal('rejectionModal');
-    closeModal('detailsModal');
-    loadPayments();
-    
-  } catch (error) {
-    console.error('Error rejecting payment:', error);
-    showErrorInModal('rejectionsErrorMessage', error.message || 'Failed to reject payment');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Reject Payment';
-  }
-}
-
-// ── Filter by status ─────────────────────────────────────────
-function filterByStatus(status) {
-  currentFilter = status;
-  
-  // Update button states
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  event.target.classList.add('active');
-  
-  // Filter and re-render
-  const filtered = status === 'all' 
-    ? allPayments 
-    : allPayments.filter(p => p.status === status);
-  
-  renderFilteredPayments(filtered);
-}
-
-// ── Render filtered payments ─────────────────────────────────
-function renderFilteredPayments(payments) {
-  const tbody = document.getElementById('paymentsTableBody');
-  const emptyState = document.getElementById('emptyState');
-  
   if (!payments || payments.length === 0) {
-    tbody.innerHTML = '';
-    emptyState.style.display = 'flex';
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--txt-l);">No payments found.</div>';
+    if (badge) { badge.textContent = '0 pending'; badge.className = 'b ok'; }
     return;
   }
-  
-  emptyState.style.display = 'none';
-  
-  tbody.innerHTML = payments.map(payment => {
-    const date = new Date(payment.submitted_at);
-    const formattedDate = date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: '2-digit' 
-    });
-    
-    const statusClass = `status-badge ${payment.status}`;
-    const statusText = payment.status.charAt(0).toUpperCase() + payment.status.slice(1);
-    
+
+  const pendingN = payments.filter(p => p.status === 'pending').length;
+  if (badge) {
+    badge.textContent = pendingN + ' pending';
+    badge.className   = pendingN > 0 ? 'b pe' : 'b ok';
+    badge.style.fontSize = '.73rem';
+  }
+
+  list.innerHTML = payments.map(p => {
+    const name       = p.resident_name || 'Resident';
+    const monthLabel = getMonthName(p.payment_month) + ' ' + p.payment_year;
+    const ago        = p.submitted_at ? timeAgo(p.submitted_at) : '';
+    const amt        = `${parseInt(p.amount || 0).toLocaleString()} ${p.currency || 'RWF'}`;
+
     return `
-      <tr class="payment-row-clickable" onclick="showPaymentDetails(${payment.id})">
-        <td>${payment.resident_name || 'Unknown'}</td>
-        <td><span class="amount">RWF ${(payment.amount || 0).toLocaleString()}</span></td>
-        <td><span class="${statusClass}">${statusText}</span></td>
-        <td>${formatPaymentMethod(payment.payment_method)}</td>
-        <td>${formattedDate}</td>
-        <td>
-          <button class="btn-action" onclick="showPaymentDetails(${payment.id}); event.stopPropagation();">
-            View
-          </button>
-        </td>
-      </tr>
-    `;
+      <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;"
+        data-name="${name}"
+        data-amount="${amt}"
+        data-month="${monthLabel}"
+        data-date="${ago}"
+        data-status="${p.status}"
+        data-payment-id="${p.id}"
+        data-method="${p.payment_method || ''}"
+        data-txn="${p.transaction_reference || ''}"
+        data-proof="${p.proof_url || ''}"
+        data-rejection="${p.rejection_reason || ''}">
+        <div class="pi-av">${initials(name)}</div>
+        <div>
+          <div class="pi-name">${name}</div>
+          <div class="pi-meta">Submitted ${ago} · ${monthLabel} · ${amt}</div>
+        </div>
+        <div class="pi-amt">${amt}</div>
+        ${statusBadge(p.status)}
+      </div>`;
   }).join('');
+
+  applyActiveFilter();
 }
 
-// ── Setup charts ─────────────────────────────────────────────
-function setupCharts() {
-  // Check if Chart.js is loaded
-  if (typeof Chart === 'undefined') {
-    console.warn('Chart.js not loaded');
+// ── TABLE renderer (NEW) ─────────────────────────────────────────────────────
+function renderPaymentsTable(payments) {
+  const tbody = document.getElementById('paymentsTableBody');
+  if (!tbody) return;
+
+  if (!payments || payments.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" style="text-align:center;padding:32px;color:var(--txt-l);">
+          No payments found.
+        </td>
+      </tr>`;
     return;
   }
-  
-  // Weekly Revenue Chart
-  const revenueCtx = document.getElementById('revenueChart');
-  if (revenueCtx) {
-    revenueChart = new Chart(revenueCtx, {
-      type: 'line',
-      data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-          label: 'Weekly Revenue (RWF)',
-          data: [0, 0, 0, 0, 0, 0, 0],
-          borderColor: '#2e7d52',
-          backgroundColor: 'rgba(46, 125, 82, 0.1)',
-          tension: 0.4,
-          fill: true,
-          pointRadius: 4,
-          pointBackgroundColor: '#2e7d52'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: true, position: 'top' },
-          tooltip: {
-            callbacks: {
-              label: (context) => `RWF ${context.parsed.y.toLocaleString()}`
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: { color: '#f0f0f0' }
-          }
-        }
-      }
-    });
-  }
-  
-  // Payment Status Distribution Chart
-  const statusCtx = document.getElementById('statusChart');
-  if (statusCtx) {
-    statusChart = new Chart(statusCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Approved', 'Pending', 'Rejected'],
-        datasets: [{
-          data: [0, 0, 0],
-          backgroundColor: ['#2e7d52', '#f59e0b', '#dc2626'],
-          borderWidth: 2,
-          borderColor: '#fff'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom' }
-        }
-      }
-    });
-  }
-  
-  // Monthly Trend Chart
-  const monthlyCtx = document.getElementById('monthlyChart');
-  if (monthlyCtx) {
-    monthlyChart = new Chart(monthlyCtx, {
-      type: 'bar',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-          label: 'Monthly Collections (RWF)',
-          data: [0, 0, 0, 0, 0, 0],
-          backgroundColor: '#2e7d52',
-          borderRadius: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: true }
-        },
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-  }
+
+  tbody.innerHTML = payments.map(p => {
+    const name       = p.resident_name || 'Resident';
+    const email      = p.resident_email ? `<div style="font-size:.75rem;color:var(--txt-l);">${p.resident_email}</div>` : '';
+    const monthLabel = getMonthName(p.payment_month) + ' ' + p.payment_year;
+    const dateStr    = p.submitted_at
+      ? new Date(p.submitted_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'2-digit' })
+      : '—';
+    const amt        = `${parseInt(p.amount || 0).toLocaleString()} ${p.currency || 'RWF'}`;
+    const method     = formatMethod(p.payment_method);
+    const txn        = p.transaction_reference || '—';
+
+    // Status badge
+    const statusCls  = p.status === 'approved' ? 'tbl-badge ok' : p.status === 'rejected' ? 'tbl-badge rej' : 'tbl-badge pend';
+    const statusLbl  = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+
+    // Proof thumbnail or placeholder
+    const proofCell  = p.proof_url
+      ? `<img src="${p.proof_url}" alt="proof"
+            class="tbl-proof-thumb"
+            onclick="openProofLightbox('${p.proof_url}', '${name}'); event.stopPropagation();"
+            title="Click to view full image">`
+      : `<span class="tbl-no-proof">No proof</span>`;
+
+    // Action button
+    const actionBtn  = p.status === 'pending'
+      ? `<button class="tbl-btn-view" onclick="openTablePaymentModal(${p.id}); event.stopPropagation();">Review</button>`
+      : `<button class="tbl-btn-view secondary" onclick="openTablePaymentModal(${p.id}); event.stopPropagation();">View</button>`;
+
+    return `
+      <tr class="tbl-row" onclick="openTablePaymentModal(${p.id})" data-id="${p.id}" data-status="${p.status}">
+        <td>
+          <div class="tbl-resident">
+            <div class="tbl-av">${initials(name)}</div>
+            <div>
+              <div class="tbl-name">${name}</div>
+              ${email}
+            </div>
+          </div>
+        </td>
+        <td class="tbl-amount">${amt}</td>
+        <td><span class="${statusCls}">${statusLbl}</span></td>
+        <td class="tbl-method">${method}</td>
+        <td class="tbl-month">${monthLabel}</td>
+        <td class="tbl-txn">${txn}</td>
+        <td class="tbl-proof-cell">${proofCell}</td>
+        <td class="tbl-actions">${actionBtn}</td>
+      </tr>`;
+  }).join('');
+
+  applyTableFilter();
 }
 
-// ── Update charts with data ──────────────────────────────────
-function updateCharts() {
-  if (!allPayments || allPayments.length === 0) return;
-  
-  // Status distribution
-  const approved = allPayments.filter(p => p.status === 'approved').length;
-  const pending = allPayments.filter(p => p.status === 'pending').length;
-  const rejected = allPayments.filter(p => p.status === 'rejected').length;
-  
-  if (statusChart) {
-    statusChart.data.datasets[0].data = [approved, pending, rejected];
-    statusChart.update();
-  }
-  
-  // Weekly revenue (last 7 days)
-  const today = new Date();
-  const weekData = [0, 0, 0, 0, 0, 0, 0];
-  
-  allPayments.filter(p => p.status === 'approved').forEach(payment => {
-    const payDate = new Date(payment.submitted_at);
-    const dayDiff = Math.floor((today - payDate) / (1000 * 60 * 60 * 24));
-    if (dayDiff >= 0 && dayDiff < 7) {
-      weekData[6 - dayDiff] += payment.amount || 0;
+// ── Table filter (mirrors card filter) ───────────────────────────────────────
+function applyTableFilter() {
+  const activeBtn  = document.querySelector('.ftab.on');
+  const filterType = (activeBtn?.textContent || 'all').toLowerCase();
+  document.querySelectorAll('#paymentsTableBody tr[data-status]').forEach(row => {
+    if (filterType === 'all' || row.dataset.status === filterType) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
     }
   });
-  
-  if (revenueChart) {
-    revenueChart.data.datasets[0].data = weekData;
-    revenueChart.update();
-  }
-  
-  // Monthly trend (last 6 months)
-  const monthData = [0, 0, 0, 0, 0, 0];
-  allPayments.filter(p => p.status === 'approved').forEach(payment => {
-    const monthIdx = payment.payment_month - 1;
-    if (monthIdx >= 0 && monthIdx < 6) {
-      monthData[monthIdx] += payment.amount || 0;
-    }
-  });
-  
-  if (monthlyChart) {
-    monthlyChart.data.datasets[0].data = monthData;
-    monthlyChart.update();
-  }
 }
 
-// ── Setup event listeners ────────────────────────────────────
-function setupEventListeners() {
-  // Close modals on backdrop click
-  const modals = document.querySelectorAll('.modal');
-  modals.forEach(modal => {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.classList.remove('show');
-      }
-    });
-  });
+// ── TABLE: Payment detail modal ───────────────────────────────────────────────
+function openTablePaymentModal(paymentId) {
+  const p = allPayments.find(x => x.id === paymentId);
+  if (!p) return;
+  currentTablePaymentId = paymentId;
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const monthLabel = getMonthName(p.payment_month) + ' ' + p.payment_year;
+  const dateStr    = p.submitted_at ? new Date(p.submitted_at).toLocaleString() : '—';
+
+  set('tblDetailName',   p.resident_name  || '—');
+  set('tblDetailEmail',  p.resident_email || '—');
+  set('tblDetailPhone',  p.resident_phone || '—');
+  set('tblDetailAmount', `${parseInt(p.amount || 0).toLocaleString()} ${p.currency || 'RWF'}`);
+  set('tblDetailMonth',  monthLabel);
+  set('tblDetailDate',   dateStr);
+  set('tblDetailMethod', formatMethod(p.payment_method));
+  set('tblDetailTxn',    p.transaction_reference || 'N/A');
+
+  // Status badge
+  const statusEl = document.getElementById('tblDetailStatus');
+  if (statusEl) {
+    statusEl.textContent = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+    statusEl.className   = `tbl-detail-status-badge ${p.status}`;
+  }
+
+  // Rejection reason
+  const rejRow = document.getElementById('tblDetailRejRow');
+  const rejEl  = document.getElementById('tblDetailRejReason');
+  if (rejRow) rejRow.style.display = p.rejection_reason ? '' : 'none';
+  if (rejEl && p.rejection_reason) rejEl.textContent = p.rejection_reason;
+
+  // Proof image
+  const proofImg    = document.getElementById('tblDetailProofImg');
+  const noProofEl   = document.getElementById('tblDetailNoProof');
+  const proofBtn    = document.getElementById('tblDetailProofBtn');
+  if (p.proof_url) {
+    if (proofImg)  { proofImg.src = p.proof_url; proofImg.style.display = 'block'; }
+    if (noProofEl)   noProofEl.style.display = 'none';
+    if (proofBtn)  { proofBtn.style.display = 'inline-flex'; proofBtn.onclick = () => openProofLightbox(p.proof_url, p.resident_name); }
+  } else {
+    if (proofImg)  proofImg.style.display = 'none';
+    if (noProofEl) noProofEl.style.display = 'flex';
+    if (proofBtn)  proofBtn.style.display = 'none';
+  }
+
+  // Action buttons
+  const approveBtn = document.getElementById('tblDetailApproveBtn');
+  const rejectBtn  = document.getElementById('tblDetailRejectBtn');
+  const isPending  = p.status === 'pending';
+  if (approveBtn) approveBtn.style.display = isPending ? 'inline-flex' : 'none';
+  if (rejectBtn)  rejectBtn.style.display  = isPending ? 'inline-flex' : 'none';
+
+  document.getElementById('tablePaymentModal').classList.add('show');
 }
 
-// ── Helper: Format payment method name ────────────────────────
-function formatPaymentMethod(method) {
-  const methods = {
-    'mobile_money': 'Mobile Money',
-    'bank_transfer': 'Bank Transfer',
-    'cash': 'Cash'
+function closeTablePaymentModal() {
+  document.getElementById('tablePaymentModal').classList.remove('show');
+  currentTablePaymentId = null;
+}
+
+// ── Proof image lightbox ──────────────────────────────────────────────────────
+function openProofLightbox(url, residentName) {
+  const lb       = document.getElementById('proofLightbox');
+  const lbImg    = document.getElementById('lbProofImg');
+  const lbTitle  = document.getElementById('lbTitle');
+  const lbLoader = document.getElementById('lbLoader');
+
+  if (!lb || !lbImg) return;
+
+  if (lbTitle)  lbTitle.textContent = `Payment Proof — ${residentName || 'Resident'}`;
+  if (lbLoader) lbLoader.style.display = 'flex';
+  lbImg.style.display = 'none';
+
+  lbImg.onload = () => {
+    if (lbLoader) lbLoader.style.display = 'none';
+    lbImg.style.display = 'block';
   };
-  return methods[method] || method || 'Unknown';
+  lbImg.onerror = () => {
+    if (lbLoader) lbLoader.style.display = 'none';
+    lbImg.style.display = 'block';
+    lbImg.alt = 'Image could not be loaded';
+  };
+  lbImg.src = url;
+  lb.classList.add('show');
+  document.body.style.overflow = 'hidden';
 }
 
-// ── Helper: Get month name ───────────────────────────────────
-function getMonthName(monthNum) {
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-  return months[monthNum - 1] || '';
+function closeProofLightbox() {
+  const lb = document.getElementById('proofLightbox');
+  if (lb) lb.classList.remove('show');
+  document.body.style.overflow = '';
 }
 
-// ── Helper: Show success message ─────────────────────────────
-function showSuccess(message) {
-  const container = document.getElementById('errorMessage');
-  if (container) {
-    container.innerHTML = `<div class="success-message">${message}</div>`;
-    setTimeout(() => {
-      container.innerHTML = '';
-    }, 4000);
+// ── Approve from table modal ──────────────────────────────────────────────────
+async function approveFromTableModal() {
+  if (!currentTablePaymentId) return;
+  const btn = document.getElementById('tblDetailApproveBtn');
+  if (btn) { btn.textContent = 'Approving…'; btn.disabled = true; }
+
+  try {
+    await API.put(`/payments/${currentTablePaymentId}/approve`, {});
+    const p = allPayments.find(x => x.id === currentTablePaymentId);
+    if (p) p.status = 'approved';
+    if (typeof showToast === 'function') showToast('Payment approved successfully!', 0);
+    closeTablePaymentModal();
+    renderPaymentsTable(allPayments);
+    renderPayments(allPayments);
+    updateStatistics();
+    initializeCharts();
+  } catch (err) {
+    alert(err.message || 'Failed to approve payment.');
+  } finally {
+    if (btn) { btn.textContent = '✓ Approve'; btn.disabled = false; }
   }
 }
 
-// ── Helper: Show error message ───────────────────────────────
-function showError(message) {
-  const container = document.getElementById('errorMessage');
-  if (container) {
-    container.innerHTML = `<div class="error-message">${message}</div>`;
-    setTimeout(() => {
-      container.innerHTML = '';
-    }, 4000);
+// ── Reject from table modal ───────────────────────────────────────────────────
+function openRejectFromTableModal() {
+  const modal = document.getElementById('rejectModal');
+  if (!modal) return;
+  document.getElementById('rejectReason').value = '';
+  document.getElementById('rejectDetails').value = '';
+  closeTablePaymentModal();
+  // Temporarily bind to table flow
+  modal._fromTable = true;
+  modal.style.display = 'flex';
+}
+
+// ── Existing card-list modal ──────────────────────────────────────────────────
+function viewPaymentDetails(el) {
+  currentPaymentElement = el;
+
+  document.getElementById('payDetailName').textContent   = el.dataset.name   || '—';
+  document.getElementById('payDetailAmount').textContent = el.dataset.amount || '—';
+  document.getElementById('payDetailDate').textContent   =
+    el.dataset.month ? el.dataset.month + ' · ' + el.dataset.date : el.dataset.date || '—';
+
+  const methodMap = { mobile_money: 'Mobile Money', bank_transfer: 'Bank Transfer', cash: 'Cash' };
+  document.getElementById('payDetailMethod').textContent = methodMap[el.dataset.method] || el.dataset.method || '—';
+  document.getElementById('payDetailTxn').textContent    = el.dataset.txn || 'N/A';
+
+  const proof    = el.dataset.proof;
+  const proofImg = document.getElementById('payDetailProof');
+  const noProof  = document.getElementById('noProofText');
+  if (proof) {
+    proofImg.src          = proof;
+    proofImg.style.display = 'block';
+    noProof.style.display  = 'none';
+    // Make thumbnail clickable to open lightbox
+    proofImg.style.cursor  = 'zoom-in';
+    proofImg.onclick       = () => openProofLightbox(proof, el.dataset.name);
+  } else {
+    proofImg.style.display = 'none';
+    noProof.style.display  = 'block';
+    proofImg.onclick       = null;
+  }
+
+  const isPending = el.dataset.status === 'pending';
+  document.getElementById('payDetailApproveBtn').style.display = isPending ? 'inline-block' : 'none';
+  document.getElementById('payDetailRejectBtn').style.display  = isPending ? 'inline-block' : 'none';
+
+  document.getElementById('paymentDetailsModal').classList.add('show');
+}
+
+function closePaymentDetailsModal() {
+  document.getElementById('paymentDetailsModal').classList.remove('show');
+  currentPaymentElement = null;
+}
+
+// ── Approve from card modal ───────────────────────────────────────────────────
+async function approveFromPayDetails() {
+  if (!currentPaymentElement) return;
+  const paymentId = currentPaymentElement.dataset.paymentId;
+  const name      = currentPaymentElement.dataset.name || 'Resident';
+  const btn       = document.getElementById('payDetailApproveBtn');
+  btn.textContent = 'Approving…'; btn.disabled = true;
+
+  try {
+    await API.put(`/payments/${paymentId}/approve`, {});
+    // Update local state
+    const p = allPayments.find(x => x.id === parseInt(paymentId));
+    if (p) p.status = 'approved';
+    currentPaymentElement.dataset.status = 'approved';
+    const badge = currentPaymentElement.querySelector('.b');
+    if (badge) { badge.className = 'b ok'; badge.textContent = 'Approved'; }
+    if (typeof showToast === 'function') showToast(`Payment from ${name} approved!`, 0);
+    closePaymentDetailsModal();
+    applyActiveFilter();
+    renderPaymentsTable(allPayments);
+    updateStatistics();
+    initializeCharts();
+  } catch (err) {
+    alert(err.message || 'Failed to approve payment.');
+  } finally {
+    btn.textContent = 'Approve'; btn.disabled = false;
   }
 }
 
-// ── Helper: Show error in modal ──────────────────────────────
-function showErrorInModal(containerId, message) {
-  const container = document.getElementById(containerId);
-  if (container) {
-    container.innerHTML = `<div class="error-message">${message}</div>`;
+// ── Reject modal shared ───────────────────────────────────────────────────────
+function openRejectFromPayDetails() {
+  if (!currentPaymentElement) return;
+  const el = currentPaymentElement;
+  closePaymentDetailsModal();
+  openRejectModal(el);
+}
+
+function openRejectModal(el) {
+  const modal = document.getElementById('rejectModal');
+  modal.style.display = 'flex';
+  modal._fromTable = false;
+  currentPaymentElement = el;
+  document.getElementById('rejectReason').value  = '';
+  document.getElementById('rejectDetails').value = '';
+}
+
+function closeRejectModal() {
+  document.getElementById('rejectModal').style.display = 'none';
+  document.getElementById('rejectReason').value  = '';
+  document.getElementById('rejectDetails').value = '';
+}
+
+async function confirmReject() {
+  const reason  = document.getElementById('rejectReason').value.trim();
+  const details = document.getElementById('rejectDetails').value.trim();
+
+  if (!reason) { alert('Please select a rejection reason.'); return; }
+
+  let reasonText = reason === 'other'
+    ? (details || 'Other')
+    : (document.querySelector(`#rejectReason option[value="${reason}"]`)?.textContent || reason);
+
+  const btn = document.querySelector('#rejectModal .modal-btn:last-child');
+  btn.textContent = 'Rejecting…'; btn.disabled = true;
+
+  // Determine which payment is being rejected
+  const modal     = document.getElementById('rejectModal');
+  const fromTable = modal._fromTable;
+  const paymentId = fromTable ? currentTablePaymentId : currentPaymentElement?.dataset.paymentId;
+  const name      = fromTable
+    ? (allPayments.find(x => x.id === currentTablePaymentId)?.resident_name || 'Resident')
+    : (currentPaymentElement?.dataset.name || 'Resident');
+
+  try {
+    await API.put(`/payments/${paymentId}/reject`, { rejection_reason: reasonText });
+    const p = allPayments.find(x => x.id === parseInt(paymentId));
+    if (p) { p.status = 'rejected'; p.rejection_reason = reasonText; }
+
+    if (!fromTable && currentPaymentElement) {
+      currentPaymentElement.dataset.status = 'rejected';
+      const badge = currentPaymentElement.querySelector('.b');
+      if (badge) { badge.className = 'b op'; badge.textContent = 'Rejected'; }
+    }
+
+    if (typeof showToast === 'function') showToast(`Payment from ${name} rejected.`, 0);
+    closeRejectModal();
+    applyActiveFilter();
+    renderPaymentsTable(allPayments);
+    updateStatistics();
+    initializeCharts();
+  } catch (err) {
+    alert(err.message || 'Failed to reject payment.');
+  } finally {
+    btn.textContent = 'Confirm Rejection'; btn.disabled = false;
   }
 }
+
+// ── Filter tabs (cards + table together) ────────────────────────────────────
+function filterTab(btn) {
+  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  applyActiveFilter();
+  applyTableFilter();
+}
+
+function applyActiveFilter() {
+  const activeBtn  = document.querySelector('.ftab.on');
+  const filterType = (activeBtn?.textContent || 'all').toLowerCase();
+  document.querySelectorAll('.pi').forEach(item => {
+    const status = item.dataset.status || '';
+    item.style.display =
+      (filterType === 'all' || status === filterType) ? '' : 'none';
+  });
+}
+
+// ── Outside click closes modals ───────────────────────────────────────────────
+document.addEventListener('click', function (e) {
+  const detailsMod = document.getElementById('paymentDetailsModal');
+  if (e.target === detailsMod) closePaymentDetailsModal();
+
+  const rejectMod = document.getElementById('rejectModal');
+  if (e.target === rejectMod) closeRejectModal();
+
+  const tableMod = document.getElementById('tablePaymentModal');
+  if (e.target === tableMod) closeTablePaymentModal();
+
+  const lb = document.getElementById('proofLightbox');
+  if (e.target === lb) closeProofLightbox();
+});
+
+// Escape key closes lightbox
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') {
+    closeProofLightbox();
+    closeTablePaymentModal();
+    closePaymentDetailsModal();
+    closeRejectModal();
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadPayments);
