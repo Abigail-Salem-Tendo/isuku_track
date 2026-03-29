@@ -50,6 +50,51 @@ def create_app():
     @app.route("/login")
     def login_page():
         return render_template("login1.html")
+    
+    @app.route("/reset-password")
+    def reset_password_page():
+        return render_template("reset-password.html")
+
+    #Admin pages
+    @app.route("/admin/zones")
+    def admin_zones():
+        return render_template("admin/admin_zones.html")
+    
+    @app.route("/admin/vehicles")
+    def admin_vehicles():
+        return render_template("admin/admin_vehicles.html")
+
+    @app.route("/admin/users")
+    def admin_users():
+        return render_template("admin/admin_users.html")
+
+    @app.route("/admin/operators")
+    def admin_operators():
+        return render_template("admin/admin_zone_operator.html")
+
+    @app.route("/admin/schedules")
+    def admin_schedules():
+        return render_template("admin/admin_schedules.html")
+
+    @app.route("/admin/claims")
+    def admin_claims():
+        return render_template("admin/admin_claims.html")
+
+    @app.route("/admin/payments")
+    def admin_payments():
+        return render_template("admin/admin_payments.html")
+
+    @app.route("/admin/reports")
+    def admin_reports():
+        return render_template("admin/admin_reports.html")
+
+    @app.route("/admin/dashboard")
+    def admin_dashboard():
+        return render_template("admin/admin_dash.html")
+    
+    @app.route("/map")
+    def interactive_map():
+        return render_template("interactive-map.html")
 
     # Resident pages
     @app.route("/resident/dashboard")
@@ -71,11 +116,6 @@ def create_app():
     @app.route("/resident/resident_profile")
     def resident_profile():
         return render_template("resident/resident_profile.html") 
-
-    # Admin pages
-    @app.route("/admin/dashboard")
-    def admin_dashboard():
-        return render_template("admin/admin_dash.html")
 
     # Zone operator pages
     @app.route("/zone-operator/dashboard")

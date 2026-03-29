@@ -862,8 +862,8 @@ window.openOperatorModal = function(operatorId = null) {
             const data = await response.json();
 
             if (data.reset_token) {
-                // dynamically grabbing the frontend domain (e.g., http://127.0.0.1:5500)
-                const frontendSetupLink = `${window.location.origin}/templates/reset-password.html?token=${data.reset_token}`;
+                // Pointing directly to the Flask route that handles password resets
+                const frontendSetupLink = `${window.location.origin}/reset-password?token=${data.reset_token}`;
                 
                 Swal.fire({
                     title: 'Operator Created!',
