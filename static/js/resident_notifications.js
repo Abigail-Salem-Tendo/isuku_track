@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
       notifications = response || [];
       renderNotifications();
     } catch (error) {
-      console.log('Notifications fetch failed');
+      console.error('Notifications fetch failed:', error.message);
     }
   }
 
