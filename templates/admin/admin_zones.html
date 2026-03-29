@@ -202,16 +202,16 @@
         <select class="mf-in" name="zoneSelect" id="modifyZoneSelect" required></select>
       </label>
       <label class="mf-lbl">Zone Name
-        <input class="mf-in" name="zoneName" required />
+        <select class="mf-in" name="zoneName" id="modifyZoneNameSelect" required></select>
       </label>
       <label class="mf-lbl">District
-        <input class="mf-in" name="zoneDistrict" required />
+        <select class="mf-in" name="zoneDistrict" id="modifyZoneDistrictSelect" required></select>
       </label>
       <label class="mf-lbl">Sector
-        <input class="mf-in" name="zoneSector" required />
+        <select class="mf-in" name="zoneSector" id="modifyZoneSectorSelect" required></select>
       </label>
       <label class="mf-lbl">Operator
-        <input class="mf-in" name="zoneOperator" />
+        <select class="mf-in" name="zoneOperator" id="modifyZoneOperatorSelect" required></select>
       </label>
       <label class="mf-lbl">Status
         <select class="mf-in" name="zoneStatus" required>
@@ -293,9 +293,19 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
   var createZoneForm=document.getElementById('createZoneForm');
   var modifyZoneForm=document.getElementById('modifyZoneForm');
   var deleteZoneForm=document.getElementById('deleteZoneForm');
+  var createZoneModalClose=document.getElementById('createZoneModalClose');
+  var modifyZoneModalClose=document.getElementById('modifyZoneModalClose');
+  var deleteZoneModalClose=document.getElementById('deleteZoneModalClose');
+  var createZoneCancel=document.getElementById('createZoneCancel');
+  var modifyZoneCancel=document.getElementById('modifyZoneCancel');
+  var deleteZoneCancel=document.getElementById('deleteZoneCancel');
 
   var modifyZoneSelect=document.getElementById('modifyZoneSelect');
   var deleteZoneSelect=document.getElementById('deleteZoneSelect');
+  var modifyZoneNameSelect=document.getElementById('modifyZoneNameSelect');
+  var modifyZoneDistrictSelect=document.getElementById('modifyZoneDistrictSelect');
+  var modifyZoneSectorSelect=document.getElementById('modifyZoneSectorSelect');
+  var modifyZoneOperatorSelect=document.getElementById('modifyZoneOperatorSelect');
 
   function openModal(modal){
     if(!modal)return;
@@ -310,15 +320,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
     modal.setAttribute('aria-hidden','true');
     var hasOpenModal=!!document.querySelector('.modal.open');
     if(!hasOpenModal)document.body.classList.remove('is-modal-open');
-  }
-
-  function showToast(message,isError){
-    if(!zoneToast)return;
-    zoneToast.textContent=message;
-    zoneToast.classList.remove('show','err');
-    if(isError)zoneToast.classList.add('err');
-    requestAnimationFrame(function(){zoneToast.classList.add('show');});
-    window.setTimeout(function(){zoneToast.classList.remove('show');},2600);
   }
 
   function getRowData(row){
@@ -338,6 +339,176 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
     };
   }
 
+  function refreshZoneSelects(){
+    if(!zoneTableBody)return;
+    var rows=Array.from(zoneTableBody.querySelectorAll('tr'));
+    var options='';
+    if(!rows.length){
+      options='<option value="">No zones available</option>';
+    }else{
+      options='<option value="">Choose a zone...</option>';
+      rows.forEach(function(row,index){
+        var data=getRowData(row);
+        options+='<option value="'+index+'">'+data.zoneName+' ('+data.district+' - '+data.sector+')</option>';
+      });
+    }
+    if(modifyZoneSelect)modifyZoneSelect.innerHTML=options;
+    if(deleteZoneSelect)deleteZoneSelect.innerHTML=options;
+  }
+
+  function setModifyFormValues(index){
+    if(!modifyZoneForm||!zoneTableBody)return;
+    var rows=zoneTableBody.querySelectorAll('tr');
+    var row=rows[index];
+    if(!row)return;
+
+    var uniqueZoneNames={};
+    var uniqueDistricts={};
+    var uniqueSectors={};
+    var uniqueOperators={};
+    Array.from(rows).forEach(function(item){
+      var itemData=getRowData(item);
+      if(itemData.zoneName)uniqueZoneNames[itemData.zoneName]=true;
+      if(itemData.district)uniqueDistricts[itemData.district]=true;
+      if(itemData.sector)uniqueSectors[itemData.sector]=true;
+      uniqueOperators[itemData.operator||'Unassigned']=true;
+    });
+
+    function setSelectOptions(selectEl, values){
+      if(!selectEl)return;
+      var sortedValues=Object.keys(values).sort();
+      selectEl.innerHTML=sortedValues.map(function(value){
+        return '<option value="'+value+'">'+value+'</option>';
+      }).join('');
+    }
+
+    setSelectOptions(modifyZoneNameSelect, uniqueZoneNames);
+    setSelectOptions(modifyZoneDistrictSelect, uniqueDistricts);
+    setSelectOptions(modifyZoneSectorSelect, uniqueSectors);
+    setSelectOptions(modifyZoneOperatorSelect, uniqueOperators);
+
+    var data=getRowData(row);
+    modifyZoneForm.zoneName.value=data.zoneName;
+    modifyZoneForm.zoneDistrict.value=data.district;
+    modifyZoneForm.zoneSector.value=data.sector;
+    modifyZoneForm.zoneOperator.value=data.operator||'Unassigned';
+    modifyZoneForm.zoneStatus.value=data.status==='Pending'?'Pending':'Assigned';
+  }
+
+  if(createZoneBtn){
+    createZoneBtn.addEventListener('click',function(){
+      if(createZoneForm)createZoneForm.reset();
+      openModal(createZoneModal);
+    });
+  }
+
+  if(modifyZoneBtn){
+    modifyZoneBtn.addEventListener('click',function(){
+      refreshZoneSelects();
+      if(modifyZoneForm)modifyZoneForm.reset();
+      openModal(modifyZoneModal);
+      if(!modifyZoneSelect)return;
+      if(modifyZoneSelect.options.length>1){
+        modifyZoneSelect.value=modifyZoneSelect.options[1].value;
+        setModifyFormValues(Number(modifyZoneSelect.value));
+      }else{
+        modifyZoneSelect.value='';
+        showToast('No zones available to modify',true);
+      }
+    });
+  }
+
+  if(deleteZoneBtn){
+    deleteZoneBtn.addEventListener('click',function(){
+      refreshZoneSelects();
+      openModal(deleteZoneModal);
+      if(!deleteZoneSelect)return;
+      if(deleteZoneSelect.options.length>1){
+        deleteZoneSelect.value=deleteZoneSelect.options[1].value;
+      }else{
+        deleteZoneSelect.value='';
+        showToast('No zones available to delete',true);
+      }
+    });
+  }
+
+  if(createZoneModalClose)createZoneModalClose.addEventListener('click',function(){closeModal(createZoneModal);});
+  if(modifyZoneModalClose)modifyZoneModalClose.addEventListener('click',function(){closeModal(modifyZoneModal);});
+  if(deleteZoneModalClose)deleteZoneModalClose.addEventListener('click',function(){closeModal(deleteZoneModal);});
+  if(createZoneCancel)createZoneCancel.addEventListener('click',function(){closeModal(createZoneModal);});
+  if(modifyZoneCancel)modifyZoneCancel.addEventListener('click',function(){closeModal(modifyZoneModal);});
+  if(deleteZoneCancel)deleteZoneCancel.addEventListener('click',function(){closeModal(deleteZoneModal);});
+
+  if(modifyZoneSelect){
+    modifyZoneSelect.addEventListener('change',function(){
+      if(modifyZoneSelect.value==='')return;
+      setModifyFormValues(Number(modifyZoneSelect.value));
+    });
+  }
+
+  if(createZoneForm){
+    createZoneForm.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(!zoneTableBody)return;
+      var zoneName=createZoneForm.zoneName.value.trim();
+      var cell=createZoneForm.zoneCell.value.trim();
+      var district=createZoneForm.zoneDistrict.value.trim();
+      var sector=createZoneForm.zoneSector.value.trim();
+      var operator=createZoneForm.zoneOperator.value.trim();
+      var statusText=operator?'Assigned':'Pending';
+      var statusClass=operator?'ok':'pe';
+      var operatorDisplay=operator||'<span class="ci-meta">Unassigned</span>';
+      var rowHtml='<tr><td><div class="zn">'+zoneName+'</div><div class="zg">'+cell+'</div></td><td>'+district+'</td><td>'+sector+'</td><td>'+operatorDisplay+'</td><td><span class="b '+statusClass+'">'+statusText+'</span></td></tr>';
+      zoneTableBody.insertAdjacentHTML('beforeend',rowHtml);
+      refreshZoneSelects();
+      closeModal(createZoneModal);
+      showToast('Zone created successfully');
+    });
+  }
+
+  if(modifyZoneForm){
+    modifyZoneForm.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(!zoneTableBody||!modifyZoneSelect||modifyZoneSelect.value===''){
+        showToast('Select a zone to modify',true);
+        return;
+      }
+      var row=zoneTableBody.querySelectorAll('tr')[Number(modifyZoneSelect.value)];
+      if(!row)return;
+      var zoneName=modifyZoneForm.zoneName.value.trim();
+      var district=modifyZoneForm.zoneDistrict.value.trim();
+      var sector=modifyZoneForm.zoneSector.value.trim();
+      var operator=modifyZoneForm.zoneOperator.value==='Unassigned'?'':modifyZoneForm.zoneOperator.value.trim();
+      var status=modifyZoneForm.zoneStatus.value;
+      var zoneNameEl=row.querySelector('.zn');
+      if(zoneNameEl)zoneNameEl.textContent=zoneName;
+      row.cells[1].textContent=district;
+      row.cells[2].textContent=sector;
+      row.cells[3].innerHTML=operator||'<span class="ci-meta">Unassigned</span>';
+      row.cells[4].innerHTML='<span class="b '+(status==='Assigned'?'ok':'pe')+'">'+status+'</span>';
+      refreshZoneSelects();
+      closeModal(modifyZoneModal);
+      showToast('Zone updated successfully');
+    });
+  }
+
+  if(deleteZoneForm){
+    deleteZoneForm.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(!zoneTableBody||!deleteZoneSelect||deleteZoneSelect.value===''){
+        showToast('Select a zone to delete',true);
+        return;
+      }
+      var index=Number(deleteZoneSelect.value);
+      var row=zoneTableBody.querySelectorAll('tr')[index];
+      if(!row)return;
+      row.remove();
+      refreshZoneSelects();
+      closeModal(deleteZoneModal);
+      showToast('Zone deleted successfully');
+    });
+  }
+
   
 
 // --- TOAST NOTIFICATION HELPER ---
@@ -350,12 +521,6 @@ function showToast(message, isError) {
     requestAnimationFrame(() => toast.classList.add('show'));
     setTimeout(() => toast.classList.remove('show'), 2600);
 }
-
-// --- REDIRECT ACTIONS TO COMMAND CENTRE ---
-// Zones require map coordinates to exist, so we send the Admin to the spatial tool!
-document.getElementById('createZoneBtn').addEventListener('click', () => window.location.href = '/templates/interactive-map.html');
-document.getElementById('modifyZoneBtn').addEventListener('click', () => window.location.href = '/templates/interactive-map.html');
-document.getElementById('deleteZoneBtn').addEventListener('click', () => window.location.href = '/templates/interactive-map.html');
 
 // --- FETCH & RENDER LIVE DATA ---
 async function loadAdminZones() {
@@ -381,6 +546,8 @@ async function loadAdminZones() {
             </tr>`;
             tbody.insertAdjacentHTML('beforeend', row);
         });
+
+          refreshZoneSelects();
 
         // 2. Populate the Map (Using the tactical Voyager style)
         const mapContainer = document.getElementById('zonesMap');
@@ -420,6 +587,7 @@ async function loadAdminZones() {
 
 // Boot the live data
 loadAdminZones();
+})();
 </script>
 </body>
 </html>

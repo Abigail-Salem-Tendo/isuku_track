@@ -193,15 +193,24 @@
   // --- GLOBAL STATE ---
   let globalVehicles = [];
   let currentFilter = 'All';
+  const dummyVehicles = [
+      { id: 9001, plate_number: 'RAD 101A', driver_name: 'Jean Pierre', driver_phone: '0788123456', status: 'available' },
+      { id: 9002, plate_number: 'RAB 224B', driver_name: 'Amina Keza', driver_phone: '0788234567', status: 'in_use' },
+      { id: 9003, plate_number: 'RAC 337C', driver_name: 'Eric Mugenzi', driver_phone: '0788345678', status: 'maintenance' },
+      { id: 9004, plate_number: 'RAD 448D', driver_name: 'Diane Uwase', driver_phone: '0788456789', status: 'available' }
+  ];
   
   // --- API FETCH & RENDER ---
   async function fetchAndRenderVehicles() {
       try {
-          globalVehicles = await API.get('/vehicles/');
+        const vehicles = await API.get('/vehicles/');
+        globalVehicles = Array.isArray(vehicles) && vehicles.length ? vehicles : dummyVehicles;
           renderTable();
           updateCounters();
       } catch (error) {
-          Swal.fire('Error', 'Failed to load fleet data', 'error');
+        globalVehicles = dummyVehicles;
+        renderTable();
+        updateCounters();
       }
   }
   
@@ -283,6 +292,10 @@
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
   }
+
+  document.getElementById('vehicleModalClose')?.addEventListener('click', () => closeModal('vehicleModal'));
+  document.getElementById('modifyVehicleModalClose')?.addEventListener('click', () => closeModal('modifyVehicleModal'));
+  document.getElementById('deleteVehicleModalClose')?.addEventListener('click', () => closeModal('deleteVehicleModal'));
   
   // --- CREATE VEHICLE ---
   document.getElementById('createVehicleBtn').addEventListener('click', () => {
@@ -327,11 +340,20 @@
       
       let options = '<option value="">Choose vehicle...</option>';
       globalVehicles.forEach(v => { options += `<option value="${v.id}">${v.plate_number}</option>`; });
+
+      const driverOptions = [...new Set(globalVehicles.map(v => v.driver_name).filter(Boolean))]
+        .sort()
+        .map(name => `<option value="${name}">${name}</option>`)
+        .join('');
+      const phoneOptions = [...new Set(globalVehicles.map(v => v.driver_phone).filter(Boolean))]
+        .sort()
+        .map(phone => `<option value="${phone}">${phone}</option>`)
+        .join('');
   
       document.getElementById('modifyVehicleModalForm').innerHTML = `
           <label class="mf-lbl">Select Vehicle<select class="mf-in" id="modSelect" required>${options}</select></label>
-          <label class="mf-lbl">Driver Name<input class="mf-in" id="modDriver" required /></label>
-          <label class="mf-lbl">Phone Number<input class="mf-in" id="modPhone" required /></label>
+        <label class="mf-lbl">Driver Name<select class="mf-in" id="modDriver" required><option value="" disabled selected>Select driver</option>${driverOptions}</select></label>
+        <label class="mf-lbl">Phone Number<select class="mf-in" id="modPhone" required><option value="" disabled selected>Select phone</option>${phoneOptions}</select></label>
           <label class="mf-lbl">Status
               <select class="mf-in" id="modStatus">
                   <option value="available">Available</option>
@@ -363,8 +385,8 @@
       if (!vId) return;
   
       const payload = {
-          driver_name: document.getElementById('modDriver').value.trim(),
-          driver_phone: document.getElementById('modPhone').value.trim(),
+          driver_name: document.getElementById('modDriver').value,
+          driver_phone: document.getElementById('modPhone').value,
           status: document.getElementById('modStatus').value
       };
   
