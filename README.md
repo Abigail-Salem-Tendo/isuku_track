@@ -143,3 +143,6 @@ ISUKU_TRACK/
 ├── extensions.py       # Flask Plugin Initializations (CORS, JWT, Mail, Bcrypt)
 ├── init_db.py          # Script to initialize database tables
 └── requirements.txt    # Project dependencies
+
+
+DEMO LINK : https://drive.google.com/file/d/1BrptHYRoRim-69b55_-Ntf3FajUpOna6/view?usp=sharing
