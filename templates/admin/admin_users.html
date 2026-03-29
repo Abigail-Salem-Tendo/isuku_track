@@ -101,11 +101,6 @@
         <div class="sc-val" id="usersActiveResidents" style="color:var(--g1)">0</div>
         <div class="sc-sub">currently active</div>
       </div>
-      <div class="sc rd" data-user-filter-card="inactive" role="button" tabindex="0" style="cursor:pointer;">
-        <div class="sc-lbl">Inactive</div>
-        <div class="sc-val" id="usersInactiveResidents" style="color:var(--red)">0</div>
-        <div class="sc-sub">needs follow-up</div>
-      </div>
       <div class="sc bl">
         <div class="sc-lbl">Zone Operators</div>
         <div class="sc-val" id="usersZoneOperators">0</div>
@@ -118,7 +113,6 @@
       <button class="ftab" data-user-filter="resident">Residents</button>
       <button class="ftab" data-user-filter="zone operator">Zone Operator</button>
       <button class="ftab" data-user-filter="active">Active</button>
-      <button class="ftab" data-user-filter="inactive">Inactive</button>
     </div>
 
     <section class="card" aria-labelledby="usersTableTitle">
@@ -151,13 +145,6 @@
               <td>Resident</td>
               <td>0722 987 123</td>
               <td><span class="b ok">Active</span></td>
-            </tr>
-            <tr data-role="resident" data-status="inactive">
-              <td>Patrick N.</td>
-              <td>patrick@example.com</td>
-              <td>Resident</td>
-              <td>0788 333 999</td>
-              <td><span class="b op">Inactive</span></td>
             </tr>
           </tbody>
         </table>
@@ -212,16 +199,13 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
     if (role !== 'resident') return;
     total += 1;
     if (status === 'active') active += 1;
-    if (status === 'inactive') inactive += 1;
   });
 
   var totalEl = document.getElementById('usersTotalResidents');
   var activeEl = document.getElementById('usersActiveResidents');
-  var inactiveEl = document.getElementById('usersInactiveResidents');
   var zoneOpsEl = document.getElementById('usersZoneOperators');
   if (totalEl) totalEl.textContent = String(total);
   if (activeEl) activeEl.textContent = String(active);
-  if (inactiveEl) inactiveEl.textContent = String(inactive);
   if (zoneOpsEl) zoneOpsEl.textContent = String(zoneOperators);
 })();
 
