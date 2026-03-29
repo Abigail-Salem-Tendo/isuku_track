@@ -300,9 +300,6 @@
               <div class="ci-ttl">Overflow — KG 11 Ave</div>
               <div class="ci-meta">Alice M. · 2h ago</div>
             </div>
-            <div class="ci-acts">
-              <span class="b op" style="font-size:.7rem;">Pending</span>
-            </div>
           </a>
 
           <a href="zo_claims.html" class="ci" data-category="illegal_dumping" style="text-decoration:none;cursor:pointer;">
@@ -315,9 +312,6 @@
             <div>
               <div class="ci-ttl">Illegal dumping — KN 5</div>
               <div class="ci-meta">Bob N. · 4h ago</div>
-            </div>
-            <div class="ci-acts">
-              <span class="b op" style="font-size:.7rem;">Pending</span>
             </div>
           </a>
 
@@ -333,9 +327,6 @@
               <div class="ci-ttl">Missed collection</div>
               <div class="ci-meta">Grace K. · Yesterday</div>
             </div>
-            <div class="ci-acts">
-              <span class="b go">In Progress</span>
-            </div>
           </a>
 
           <a href="zo_claims.html" class="ci" data-category="damaged_infrastructure" style="text-decoration:none;cursor:pointer;">
@@ -350,9 +341,6 @@
               <div class="ci-ttl">Damaged bin — Street 4</div>
               <div class="ci-meta">David U. · 2 days ago</div>
             </div>
-            <div class="ci-acts">
-              <span class="b op" style="font-size:.7rem;">Pending</span>
-            </div>
           </a>
 
         </div>
@@ -366,7 +354,10 @@
       <div class="card">
         <div class="ch">
           <div class="ct">Payment Verifications</div>
-          <span class="b op" style="font-size:.73rem;">3 pending</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="b op" style="font-size:.73rem;">3 pending</span>
+            <a class="ca" href="zo_payments.html">View all →</a>
+          </div>
         </div>
         <div class="cb">
 
@@ -377,10 +368,7 @@
               <div class="pi-meta">Submitted 1h ago · 1,000 RWF claimed</div>
             </div>
             <div class="pi-amt">1,000 RWF</div>
-            <div class="pay-actions" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
-              <button class="btn-ok btn-approve-pay" style="font-size:.7rem;padding:5px 12px;">Verify &amp; Approve</button>
-              <button class="btn-no btn-reject-pay" style="font-size:.7rem;padding:5px 12px;" onclick="openRejectModal(this)">Reject</button>
-            </div>
+            <span class="b op">Pending</span>
           </div>
 
           <div class="pi">
@@ -390,10 +378,7 @@
               <div class="pi-meta">Submitted 3h ago · 2,000 RWF claimed</div>
             </div>
             <div class="pi-amt">2,000 RWF</div>
-            <div class="pay-actions" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
-              <button class="btn-ok btn-approve-pay" style="font-size:.7rem;padding:5px 12px;">Verify &amp; Approve</button>
-              <button class="btn-no btn-reject-pay" style="font-size:.7rem;padding:5px 12px;" onclick="openRejectModal(this)">Reject</button>
-            </div>
+            <span class="b op">Pending</span>
           </div>
 
           <div class="pi">
@@ -434,7 +419,17 @@
               </svg>
               Quick Notes
             </label>
-            <textarea class="rta" style="min-height:120px;" placeholder="Draft your remarks here before sending the full report..."></textarea>
+            <div class="remark-suggestions" style="margin-bottom:10px;">
+              <label for="quickNoteSuggestion">Suggestions</label>
+              <select id="quickNoteSuggestion" class="remark-select">
+                <option value="">Choose a quick suggestion...</option>
+                <option value="Collection coverage was stable this week with minor delays in evening rounds.">Stable collection coverage</option>
+                <option value="Payment follow-up is required for a few households with pending balances.">Payment follow-up note</option>
+                <option value="Most complaints were resolved within the reporting period.">Issue resolution update</option>
+                <option value="No major operational interruptions were recorded this week.">Operational status summary</option>
+              </select>
+            </div>
+            <textarea id="quickNotesInput" class="rta" style="min-height:120px;" placeholder="Draft your remarks here before sending the full report..."></textarea>
           </div>
 
           <a href="zo_report.html" class="btn-save" style="display:block;text-align:center;text-decoration:none;">Go to Report Page</a>

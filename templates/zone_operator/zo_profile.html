@@ -3,9 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weekly Report — Isuku Track</title>
+  <title>My Profile - Isuku Track</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../static/css/zo_dash.css">
+  <style>
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .profile-form .form-row { margin-bottom: 14px; }
+    .profile-form label {
+      display: block;
+      font-size: .78rem;
+      color: var(--txt-m);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .profile-input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 12px;
+      font-size: .86rem;
+      color: var(--txt);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #fff;
+      outline: none;
+    }
+    .profile-input:focus { border-color: var(--g2); }
+    .profile-input[disabled] {
+      background: #f8faf9;
+      color: #6b7280;
+      cursor: not-allowed;
+    }
+    .field-note {
+      margin-top: 6px;
+      font-size: .72rem;
+      color: var(--txt-l);
+    }
+    .password-wrap {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+    .toggle-pass-btn {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 0 12px;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--txt-m);
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .profile-msg {
+      display: none;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: .78rem;
+      font-weight: 600;
+    }
+    .profile-msg.show { display: block; }
+    .profile-msg.ok { background: #e8f5ee; color: #2e7d52; border: 1px solid #b6e2c8; }
+    .profile-msg.err { background: #fef2f2; color: #b83030; border: 1px solid #fecaca; }
+    @media (max-width: 1024px) {
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
@@ -66,7 +133,7 @@
       </svg>
       Residents
     </a>
-    <a class="sb-a on" href="zo_report.html">
+    <a class="sb-a" href="zo_report.html">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"/>
         <line x1="12" y1="20" x2="12" y2="4"/>
@@ -78,10 +145,10 @@
 
   <div class="sb-foot">
     <div class="sb-user">
-      <div class="sb-av">JP</div>
+      <div class="sb-av" id="profileInitials">ZO</div>
       <div>
-        <div class="sb-un">Jean-Pierre K.</div>
-        <div class="sb-ur">Zone A Operator</div>
+        <div class="sb-un" id="profileSidebarName">Zone Operator</div>
+        <div class="sb-ur" id="profileSidebarRole">Zone Operator</div>
       </div>
     </div>
     <button class="sb-logout" onclick="logout()">
@@ -101,8 +168,8 @@
       <div class="ham" onclick="toggleSb()" aria-label="Toggle sidebar" role="button">
         <span></span><span></span><span></span>
       </div>
-      <h1>Weekly Report</h1>
-      <p>Kimironko Zone A · Manual Submission</p>
+      <h1>My Profile</h1>
+      <p id="profileTopbarSub">Zone Operator Account Settings</p>
     </div>
     <div class="tb-r">
       <div class="icon-btn">
@@ -112,136 +179,76 @@
         </svg>
         <div class="notif-dot"></div>
       </div>
-      <div class="av">JP</div>
+      <div class="av" id="profileTopAvatar">ZO</div>
     </div>
   </div>
 
   <div class="page">
 
-    <div class="sg report-stats" style="grid-template-columns:repeat(2,minmax(0,1fr));">
-      <div class="sc">
-        <div class="sc-lbl">Last Report</div>
-        <div class="sc-val" style="font-size:1.1rem">Mar 9</div>
-        <div class="sc-sub">sent manually</div>
-      </div>
-      <div class="sc">
-        <div class="sc-lbl">Zone Rate</div>
-        <div class="sc-val" style="font-size:1.3rem">94%</div>
-        <div class="sc-sub"><span class="up">↑1%</span> vs last week</div>
-      </div>
-    </div>
+    <div class="profile-grid">
 
-    <div class="row2">
-
-      <!-- Report form -->
       <div class="card">
         <div class="ch">
-          <div class="ct">Send Report</div>
+          <div class="ct">Personal Information</div>
         </div>
-        <div class="cb">
-
-          <div class="date-range-row" style="display:flex;gap:16px;margin-bottom:20px;">
-            <div style="flex:1;">
-              <label style="font-size:.85rem;color:#5a7866;font-weight:500;display:block;margin-bottom:6px;">From Date</label>
-              <input type="date" id="fromDate" class="date-input" style="font-size:1rem;padding:10px 12px;border:1px solid #ddd;border-radius:8px;width:100%;box-sizing:border-box;">
-            </div>
-            <div style="flex:1;">
-              <label style="font-size:.85rem;color:#5a7866;font-weight:500;display:block;margin-bottom:6px;">To Date</label>
-              <input type="date" id="toDate" class="date-input" style="font-size:1rem;padding:10px 12px;border:1px solid #ddd;border-radius:8px;width:100%;box-sizing:border-box;">
-            </div>
+        <div class="cb profile-form">
+          <div class="form-row">
+            <label for="fullName">Full Name</label>
+            <input id="fullName" class="profile-input" type="text" placeholder="Enter full name">
           </div>
 
-          <div class="rsec">
-            <label>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-              </svg>
-              Your Remarks
-            </label>
-            <div class="remark-suggestions">
-              <label for="remarkSuggestion">Suggestions</label>
-              <select id="remarkSuggestion" class="remark-select">
-                <option value="">Choose a quick suggestion...</option>
-                <option value="Collection coverage was stable this week with only minor delays in the evening rounds.">Stable collection coverage</option>
-                <option value="Most residents paid on time this week; follow-up is needed for a few pending households.">Payment follow-up note</option>
-                <option value="Two complaints were received and resolved within the reporting period.">Issue resolution update</option>
-                <option value="Route execution was on schedule and no vehicle interruptions were recorded.">Route execution summary</option>
-                <option value="Community response improved after reminders; participation in reporting increased.">Community engagement insight</option>
-              </select>
-            </div>
-            <textarea id="remarksInput" class="rta" placeholder="Enter your report remarks here..." style="min-height:150px;margin-top:10px;"></textarea>
+          <div class="form-row">
+            <label for="email">Email</label>
+            <input id="email" class="profile-input" type="email" disabled>
+            <div class="field-note">Email cannot be changed.</div>
           </div>
 
-          <button class="btn-save" id="sendReportBtn">Send Report</button>
+          <div class="form-row">
+            <label for="phone">Phone Number</label>
+            <input id="phone" class="profile-input" type="text" placeholder="e.g. 0788000000">
+          </div>
+
+          <div class="form-row">
+            <label for="zoneInfo">Assigned Zone</label>
+            <input id="zoneInfo" class="profile-input" type="text" disabled>
+          </div>
+
+          <button id="saveProfileBtn" class="btn-save" type="button">Save Changes</button>
+          <div id="profileMsg" class="profile-msg"></div>
         </div>
       </div>
 
-      <!-- Previous reports -->
       <div class="card">
         <div class="ch">
-          <div class="ct">Previous Reports</div>
-          <span class="b ok" style="font-size:.73rem;">12 sent</span>
+          <div class="ct">Change Password</div>
         </div>
-        <div class="cb">
-
-          <div class="si">
-            <div class="si-time"><div class="st" style="font-size:.78rem;">Mar 9</div><div class="sd">Sun</div></div>
-            <div class="si-info">
-              <div class="si-ttl">Week of Mar 2–8</div>
-              <div class="si-rt">28 payments · 94% rate · 0 issues</div>
-            </div>
-            <div class="si-right">
-              <span class="b ok">Sent</span>
+        <div class="cb profile-form">
+          <div class="form-row">
+            <label for="currentPassword">Current Password</label>
+            <div class="password-wrap">
+              <input id="currentPassword" class="profile-input" type="password" placeholder="Current password">
+              <button class="toggle-pass-btn" type="button" data-target="currentPassword">Show</button>
             </div>
           </div>
 
-          <div class="si">
-            <div class="si-time"><div class="st" style="font-size:.78rem;">Mar 2</div><div class="sd">Sun</div></div>
-            <div class="si-info">
-              <div class="si-ttl">Week of Feb 24 – Mar 1</div>
-              <div class="si-rt">25 payments · 91% rate · 2 issues</div>
-            </div>
-            <div class="si-right">
-              <span class="b ok">Sent</span>
+          <div class="form-row">
+            <label for="newPassword">New Password</label>
+            <div class="password-wrap">
+              <input id="newPassword" class="profile-input" type="password" placeholder="New password">
+              <button class="toggle-pass-btn" type="button" data-target="newPassword">Show</button>
             </div>
           </div>
 
-          <div class="si">
-            <div class="si-time"><div class="st" style="font-size:.78rem;">Feb 23</div><div class="sd">Sun</div></div>
-            <div class="si-info">
-              <div class="si-ttl">Week of Feb 17–23</div>
-              <div class="si-rt">22 payments · 88% rate · 1 issue</div>
-            </div>
-            <div class="si-right">
-              <span class="b ok">Sent</span>
+          <div class="form-row">
+            <label for="confirmPassword">Confirm New Password</label>
+            <div class="password-wrap">
+              <input id="confirmPassword" class="profile-input" type="password" placeholder="Confirm password">
+              <button class="toggle-pass-btn" type="button" data-target="confirmPassword">Show</button>
             </div>
           </div>
 
-          <div class="si">
-            <div class="si-time"><div class="st" style="font-size:.78rem;">Feb 16</div><div class="sd">Sun</div></div>
-            <div class="si-info">
-              <div class="si-ttl">Week of Feb 10–16</div>
-              <div class="si-rt">30 payments · 96% rate · 0 issues</div>
-            </div>
-            <div class="si-right">
-              <span class="b ok">Sent</span>
-            </div>
-          </div>
-
-          <div class="si">
-            <div class="si-time"><div class="st" style="font-size:.78rem;">Feb 9</div><div class="sd">Sun</div></div>
-            <div class="si-info">
-              <div class="si-ttl">Week of Feb 3–9</div>
-              <div class="si-rt">19 payments · 82% rate · 3 issues</div>
-            </div>
-            <div class="si-right">
-              <span class="b ok">Sent</span>
-            </div>
-          </div>
-
+          <button id="changePasswordBtn" class="btn-save" type="button">Update Password</button>
+          <div id="passwordMsg" class="profile-msg"></div>
         </div>
       </div>
 
@@ -285,7 +292,7 @@
     <span>Payments</span>
   </a>
   <div class="mn-profile-wrap">
-    <div class="mn-item" onclick="toggleProfileDd(event)" style="flex:none;width:100%;justify-content:center;">
+    <div class="mn-item active" onclick="toggleProfileDd(event)" style="flex:none;width:100%;justify-content:center;">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
         <circle cx="12" cy="7" r="4"/>
@@ -294,9 +301,9 @@
     </div>
     <div class="mn-profile-dd" id="profileDd">
       <div class="dd-user">
-        <div class="dd-user-av">JP</div>
-        <div class="dd-user-name">Jean-Pierre K.</div>
-        <div class="dd-user-role">Zone A Operator · Kimironko</div>
+        <div class="dd-user-av" id="ddUserAv">ZO</div>
+        <div class="dd-user-name" id="ddUserName">Zone Operator</div>
+        <div class="dd-user-role" id="ddUserRole">Zone Operator</div>
       </div>
       <div class="dd-item">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -305,14 +312,7 @@
         </svg>
         My Profile
       </div>
-      <div class="dd-item">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-        Settings
-      </div>
-      <div class="dd-item dd-logout" onclick="if(confirm('Logout?'))window.location.href='/logout'">
+      <div class="dd-item dd-logout" onclick="logout()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>
@@ -325,5 +325,6 @@
 </nav>
 
 <script src="../../static/js/zo_dash.js"></script>
+<script src="../../static/js/zo_profile.js"></script>
 </body>
 </html>

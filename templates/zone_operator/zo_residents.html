@@ -126,9 +126,9 @@
         <div class="sc-sub">Kibagabaga Cell</div>
       </div>
       <div class="sc">
-        <div class="sc-lbl">Active</div>
-        <div class="sc-val" style="color:var(--g1)" id="activeResidents">132</div>
-        <div class="sc-sub">regularly paying</div>
+        <div class="sc-lbl">Residents With Claims</div>
+        <div class="sc-val" style="color:var(--red)" id="residentsWithClaims">0</div>
+        <div class="sc-sub">need follow-up</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Total Points</div>
@@ -150,24 +150,7 @@
       </div>
       <div class="cb">
         <div class="map-container" id="residentsMap"></div>
-        <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
-            <div style="width:10px;height:10px;border-radius:50%;background:#48a870;"></div>
-            Active (132)
-          </div>
-          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
-            <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></div>
-            Inactive/Overdue (16)
-          </div>
-        </div>
       </div>
-    </div>
-
-    <div class="ftabs">
-      <button class="ftab on" onclick="filterTab(this)">All</button>
-      <button class="ftab" onclick="filterTab(this)">Active</button>
-      <button class="ftab" onclick="filterTab(this)">Inactive</button>
-      <button class="ftab" onclick="filterTab(this)">New</button>
     </div>
 
     <div class="card">
@@ -191,7 +174,6 @@
             </svg>
             <span>45</span>
           </div>
-          <span class="b ok">Active</span>
         </div>
 
         <div class="ri" data-user-id="2">
@@ -206,7 +188,6 @@
             </svg>
             <span>120</span>
           </div>
-          <span class="b ok">Active</span>
         </div>
 
         <div class="ri" data-user-id="3">
@@ -221,7 +202,6 @@
             </svg>
             <span>85</span>
           </div>
-          <span class="b ok">Active</span>
         </div>
 
         <div class="ri" data-user-id="4">
@@ -236,7 +216,6 @@
             </svg>
             <span>30</span>
           </div>
-          <span class="b op">Inactive</span>
         </div>
 
         <div class="ri" data-user-id="5">
@@ -251,7 +230,6 @@
             </svg>
             <span>150</span>
           </div>
-          <span class="b ok">Active</span>
         </div>
 
         <div class="ri" data-user-id="6">
@@ -266,7 +244,6 @@
             </svg>
             <span>65</span>
           </div>
-          <span class="b ok">Active</span>
         </div>
 
         <div class="ri" data-user-id="7">
@@ -281,7 +258,6 @@
             </svg>
             <span>95</span>
           </div>
-          <span class="b ok">Active</span>
         </div>
 
         <div class="ri" data-user-id="8">
@@ -296,7 +272,6 @@
             </svg>
             <span>0</span>
           </div>
-          <span class="b go">Pending</span>
         </div>
 
         <div class="ri" data-user-id="9">
@@ -311,7 +286,6 @@
             </svg>
             <span>110</span>
           </div>
-          <span class="b ok">Active</span>
         </div>
 
         <div class="ri" data-user-id="10">
@@ -326,7 +300,6 @@
             </svg>
             <span>15</span>
           </div>
-          <span class="b op">Inactive</span>
         </div>
 
       </div>

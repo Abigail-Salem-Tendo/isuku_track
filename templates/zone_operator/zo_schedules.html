@@ -145,38 +145,12 @@
     <!-- Route Map -->
     <div class="card" style="margin-bottom:18px;">
       <div class="ch">
-        <div class="ct">Collection Routes Map</div>
+        <div class="ct">Collection Coverage Map</div>
         <span class="b ok" style="font-size:.73rem;">Live</span>
       </div>
       <div class="cb">
         <div class="map-container" id="routeMap"></div>
-        <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
-            <div style="width:12px;height:3px;background:#3b82f6;"></div>
-            Route A (Today)
-          </div>
-          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
-            <div style="width:12px;height:3px;background:#f59e0b;"></div>
-            Route B
-          </div>
-          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
-            <div style="width:10px;height:10px;border-radius:50%;background:#48a870;"></div>
-            Start Point
-          </div>
-          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
-            <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></div>
-            End Point
-          </div>
-        </div>
       </div>
-    </div>
-
-    <div class="sg schedule-status-ribbon ftabs" aria-label="Schedule status filters">
-      <button class="sc ftab on" type="button" onclick="filterTab(this)">
-        <div class="sc-lbl">Pending</div>
-        <div class="sc-val" id="schedPendingCount">0</div>
-        <div class="sc-sub">not started</div>
-      </button>
     </div>
 
     <div class="card">
@@ -201,7 +175,6 @@
           </div>
           <div class="si-right">
             <span class="b pe" id="s1-badge">Not Started</span>
-            <button class="start-btn" onclick="startRoute(this,'s1-badge')">Start Route</button>
           </div>
         </div>
 
