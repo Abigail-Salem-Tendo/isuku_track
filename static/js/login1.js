@@ -27,11 +27,16 @@ function switchPane(target) {
   document.getElementById('formTitle').textContent = config.title;
   document.getElementById('formSubtitle').textContent = config.subtitle;
 
-  // Reset forgot password form if switching away
+  // Hide tabs on forgot pane, show on login/register
+  const tabs = document.querySelector('.auth-tabs');
+  if (tabs) tabs.style.display = target === 'forgot' ? 'none' : '';
+
+  // Reset forgot password form when switching away
   const forgotForm = document.getElementById('forgotPasswordForm');
-  if (forgotForm && target !== 'forgot') {
-    forgotForm.style.display = 'block';
-    forgotForm.reset();
+  const emailSentState = document.getElementById('emailSentState');
+  if (target !== 'forgot') {
+    if (forgotForm) { forgotForm.style.display = 'block'; forgotForm.reset(); }
+    if (emailSentState) emailSentState.style.display = 'none';
   }
 }
 
@@ -314,14 +319,15 @@ document.getElementById('forgotPasswordForm').addEventListener('submit', async (
       return;
     }
 
-    // Show success message
-    const formTitle = document.getElementById('formTitle');
-    const formSubtitle = document.getElementById('formSubtitle');
-    const form = document.getElementById('forgotPasswordForm');
+    // Show email sent state
+    document.getElementById('forgotPasswordForm').style.display = 'none';
+    document.getElementById('sentEmailAddress').textContent = email;
+    document.getElementById('emailSentState').style.display = 'block';
 
-    formTitle.textContent = 'Check your email';
-    formSubtitle.textContent = `We've sent password reset instructions to ${email}`;
-    form.style.display = 'none';
+    document.getElementById('formTitle').textContent = 'Check your email';
+    document.getElementById('formSubtitle').textContent = `We've sent reset instructions to ${email}`;
+
+    setupResendState(email);
 
   } catch (err) {
     showError('forgotEmailError', 'Network error — please try again');
@@ -330,3 +336,50 @@ document.getElementById('forgotPasswordForm').addEventListener('submit', async (
     btn.textContent = 'Send Reset Link';
   }
 });
+
+let _resendExpiryTimer = null;
+
+function setupResendState(email) {
+  const resendBtn = document.getElementById('resendBtn');
+
+  // Show resend button enabled immediately — no countdown
+  resendBtn.disabled = false;
+  resendBtn.textContent = 'Resend email';
+
+  // After 30 minutes the link in the email expires — prompt user to start over
+  if (_resendExpiryTimer) clearTimeout(_resendExpiryTimer);
+  _resendExpiryTimer = setTimeout(() => {
+    resendBtn.textContent = 'Enter email again';
+    resendBtn.disabled = false;
+    resendBtn.onclick = () => {
+      document.getElementById('emailSentState').style.display = 'none';
+      document.getElementById('forgotPasswordForm').style.display = 'block';
+      document.getElementById('forgotPasswordForm').reset();
+      document.getElementById('formTitle').textContent = 'Reset your password';
+      document.getElementById('formSubtitle').textContent = 'Enter your email to receive reset instructions';
+    };
+  }, 30 * 60 * 1000);
+
+  resendBtn.onclick = async () => {
+    resendBtn.disabled = true;
+    resendBtn.textContent = 'Sending…';
+    try {
+      const res = await fetch(`${API_BASE}/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) {
+        resendBtn.textContent = 'Resend failed';
+        setTimeout(() => setupResendState(email), 2000);
+        return;
+      }
+    } catch {
+      resendBtn.textContent = 'Resend failed';
+      setTimeout(() => setupResendState(email), 2000);
+      return;
+    }
+    // New token issued — restart the 30-min expiry clock
+    setupResendState(email);
+  };
+}
