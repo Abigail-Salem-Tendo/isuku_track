@@ -6,47 +6,44 @@
   <title>Claims — Isuku Track</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../static/css/zo_dash.css">
+  <style>
+    .claim-detail-modal {
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .claim-detail-content {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .claim-image-wrapper {
+      width: 100%;
+      height: auto;
+      background: #f5f5f5;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+    }
+    .modal-close-btn:hover {
+      color: #000;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .modal-btn:disabled {
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
-
-<!-- Claim Details Modal -->
-<div class="modal-overlay" id="claimDetailsModal">
-  <div class="modal" style="max-width:480px;">
-    <div class="modal-title" style="border-bottom:1px solid #eee;padding-bottom:12px;margin-bottom:16px;">Claim Details</div>
-    <div id="claimDetailsContent">
-      <div class="claim-detail-row">
-        <label>Type:</label>
-        <span id="detailType">-</span>
-      </div>
-      <div class="claim-detail-row">
-        <label>Location:</label>
-        <span id="detailLocation">-</span>
-      </div>
-      <div class="claim-detail-row">
-        <label>Submitted by:</label>
-        <span id="detailSubmitter">-</span>
-      </div>
-      <div class="claim-detail-row">
-        <label>Date:</label>
-        <span id="detailDate">-</span>
-      </div>
-      <div class="claim-detail-row">
-        <label>Description:</label>
-        <p id="detailDescription" style="margin:4px 0 0 0;color:var(--txt);"></p>
-      </div>
-      <div class="claim-detail-row" id="detailPhotoRow">
-        <label>Photo Evidence:</label>
-        <img id="detailPhoto" src="" alt="Claim photo" style="max-width:100%;border-radius:8px;margin-top:8px;display:none;">
-        <span id="noPhotoText" style="color:var(--txt-l);">No photo provided</span>
-      </div>
-    </div>
-    <div class="modal-actions" style="margin-top:20px;display:flex;gap:10px;">
-      <button class="modal-btn cancel" onclick="closeClaimDetailsModal()" style="flex:1;">Close</button>
-      <button class="modal-btn" id="detailRejectBtn" style="flex:1;background:#dc2626;color:#fff;" onclick="openRejectFromDetails()">Reject</button>
-      <button class="modal-btn" id="detailApproveBtn" style="flex:1;background:#16a34a;color:#fff;" onclick="approveFromDetails()">Approve</button>
-    </div>
-  </div>
-</div>
 
 <!-- Rejection Reason Modal -->
 <div class="modal-overlay" id="rejectModal">
@@ -55,18 +52,86 @@
     <label class="modal-label">Select a reason</label>
     <select class="modal-select" id="rejectReason">
       <option value="">-- Select reason --</option>
-      <option value="insufficient_evidence">Insufficient or unclear proof/photo</option>
-      <option value="duplicate_claim">Duplicate submission</option>
-      <option value="not_in_zone">Location outside assigned zone</option>
-      <option value="false_claim">False claim</option>
-      <option value="resolved_already">Issue already resolved</option>
+      <option value="insufficient_evidence">Insufficient Evidence</option>
+      <option value="duplicate_claim">Duplicate Claim</option>
+      <option value="not_in_zone">Not In Zone</option>
+      <option value="false_claim">False Claim</option>
+      <option value="resolved_already">Already Resolved</option>
       <option value="other">Other (specify below)</option>
     </select>
-    <label class="modal-label">Additional details (optional)</label>
-    <textarea class="modal-textarea" id="rejectDetails" placeholder="Provide more context if needed..."></textarea>
-    <div class="modal-actions" style="display:flex;gap:10px;">
-      <button class="modal-btn cancel" onclick="closeRejectModal()" style="flex:1;">Cancel</button>
-      <button class="modal-btn" onclick="confirmReject()" style="flex:1;background:#dc2626;color:#fff;">Confirm Rejection</button>
+    <label class="modal-label">Additional details (required)</label>
+    <textarea class="modal-textarea" id="rejectDetails" placeholder="Provide specific reasons for rejection..."></textarea>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeRejectModal()">Cancel</button>
+      <button class="modal-btn confirm" onclick="confirmReject()">Confirm Rejection</button>
+    </div>
+  </div>
+</div>
+
+<!-- Claim Detail Modal -->
+<div class="modal-overlay" id="claimDetailModal">
+  <div class="modal claim-detail-modal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div class="modal-title">Claim Details</div>
+      <button class="modal-close-btn" onclick="closeClaimDetailModal()" style="background: none; border: none; cursor: pointer; font-size: 24px; color: #666;">×</button>
+    </div>
+
+    <div class="claim-detail-content">
+      <!-- Claim Image -->
+      <div class="claim-image-wrapper">
+        <img id="claimDetailImage" src="" alt="Claim photo" style="max-width: 100%; height: auto; border-radius: 8px; background: #f0f0f0;">
+        <div id="imageErrorMsg" style="display: none; text-align: center; color: #999; padding: 20px;">No image available for this claim</div>
+      </div>
+
+      <!-- Claim Info -->
+      <div style="margin-top: 16px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <label style="font-size: 0.75rem; color: var(--txt-l); text-transform: uppercase; font-weight: 600;">Category</label>
+            <div id="claimDetailCategory" style="font-weight: 500; margin-top: 4px;">--</div>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: var(--txt-l); text-transform: uppercase; font-weight: 600;">Status</label>
+            <div id="claimDetailStatus" style="font-weight: 500; margin-top: 4px;">--</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <label style="font-size: 0.75rem; color: var(--txt-l); text-transform: uppercase; font-weight: 600;">Reporter</label>
+            <div id="claimDetailReporter" style="font-weight: 500; margin-top: 4px;">--</div>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: var(--txt-l); text-transform: uppercase; font-weight: 600;">Date Submitted</label>
+            <div id="claimDetailDate" style="font-weight: 500; margin-top: 4px;">--</div>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 0.75rem; color: var(--txt-l); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 4px;">Description</label>
+          <div id="claimDetailDescription" style="background: #f9f9f9; padding: 12px; border-radius: 6px; line-height: 1.5;">--</div>
+        </div>
+
+        <div id="rejectionInfoSection" style="display: none; margin-top: 16px;">
+          <div>
+            <label style="font-size: 0.75rem; color: var(--txt-l); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 4px;">Rejection Reason</label>
+            <div id="claimDetailRejectionCategory" style="background: #fff3cd; padding: 12px; border-radius: 6px; color: #856404;">--</div>
+          </div>
+          <div style="margin-top: 12px;">
+            <label style="font-size: 0.75rem; color: var(--txt-l); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 4px;">Rejection Details</label>
+            <div id="claimDetailRejectionDetail" style="background: #f9f9f9; padding: 12px; border-radius: 6px; line-height: 1.5;">--</div>
+          </div>
+        </div>
+
+        <div id="pointsAwardedSection" style="display: none; margin-top: 16px;">
+          <label style="font-size: 0.75rem; color: var(--txt-l); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 4px;">Points Awarded</label>
+          <div id="claimDetailPoints" style="background: #e8f5e9; padding: 12px; border-radius: 6px; color: #2e7d52; font-weight: 600; font-size: 1.1rem;">+0 points</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions" id="claimDetailActions">
+      <button class="modal-btn cancel" onclick="closeClaimDetailModal()">Close</button>
     </div>
   </div>
 </div>
@@ -87,14 +152,14 @@
 
   <div class="sb-sec">
     <div class="sb-lbl">My Zone</div>
-    <a class="sb-a" href="zo_dash.html">
+    <a class="sb-a" href="/zone-operator/dashboard">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
         <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
       </svg>
       Dashboard
     </a>
-    <a class="sb-a" href="zo_schedules.html">
+    <a class="sb-a" href="/zone-operator/schedules">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="4" width="18" height="18" rx="2"/>
         <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
@@ -102,7 +167,7 @@
       </svg>
       Schedules
     </a>
-    <a class="sb-a on" href="zo_claims.html">
+    <a class="sb-a on" href="/zone-operator/claims">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
         <polyline points="14 2 14 8 20 8"/>
@@ -114,21 +179,21 @@
 
   <div class="sb-sec">
     <div class="sb-lbl">Management</div>
-    <a class="sb-a" href="zo_payments.html">
+    <a class="sb-a" href="/zone-operator/payments">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="2" y="5" width="20" height="14" rx="2"/>
         <line x1="2" y1="10" x2="22" y2="10"/>
       </svg>
       Payments <span class="sb-badge am">3</span>
     </a>
-    <a class="sb-a" href="zo_residents.html">
+    <a class="sb-a" href="/zone-operator/residents">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
         <circle cx="9" cy="7" r="4"/>
       </svg>
       Residents
     </a>
-    <a class="sb-a" href="zo_report.html">
+    <a class="sb-a" href="/zone-operator/report">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"/>
         <line x1="12" y1="20" x2="12" y2="4"/>
@@ -186,23 +251,27 @@
       <div class="av">JP</div>
     </div>
   </div>
-
   <div class="page">
 
-    <div class="claims-stats-grid">
+    <div class="sg">
       <div class="sc">
         <div class="sc-lbl">Pending</div>
-        <div class="sc-val" style="color:var(--red)" id="pendingCount">7</div>
-        <div class="sc-sub">awaiting review</div>
+        <div class="sc-val" style="color:var(--red)" id="pendingCount">--</div>
+        <div class="sc-sub"><span class="dn">Loading...</span></div>
       </div>
       <div class="sc">
-        <div class="sc-lbl">Approved</div>
-        <div class="sc-val" style="color:var(--g1)" id="approvedCount">12</div>
+        <div class="sc-lbl">In Progress</div>
+        <div class="sc-val" style="color:#a06010" id="inProgressCount">--</div>
+        <div class="sc-sub">being reviewed</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Resolved</div>
+        <div class="sc-val" id="resolvedCount">--</div>
         <div class="sc-sub">this month</div>
       </div>
       <div class="sc">
-        <div class="sc-lbl">Rejected</div>
-        <div class="sc-val" style="color:var(--red)" id="rejectedCount">6</div>
+        <div class="sc-lbl">Points Awarded</div>
+        <div class="sc-val" style="color:#f59e0b" id="totalPointsAwarded">--</div>
         <div class="sc-sub">this month</div>
       </div>
     </div>
@@ -210,176 +279,25 @@
     <div class="ftabs">
       <button class="ftab on" onclick="filterTab(this)">All</button>
       <button class="ftab" onclick="filterTab(this)">Pending</button>
-      <button class="ftab" onclick="filterTab(this)">Approved</button>
-      <button class="ftab" onclick="filterTab(this)">Rejected</button>
+      <button class="ftab" onclick="filterTab(this)">In Progress</button>
+      <button class="ftab" onclick="filterTab(this)">Resolved</button>
     </div>
 
     <div class="card">
       <div class="ch">
         <div class="ct">All Claims</div>
-        <span class="b op" style="font-size:.73rem;" id="pendingBadge">7 pending</span>
+        <span class="b op" style="font-size:.73rem;" id="pendingBadge">Loading...</span>
       </div>
       <div class="cb" id="claimsListContainer">
-
-        <div class="ci" data-category="overflow" data-claim-id="1" onclick="viewClaimDetails(this)" style="cursor:pointer;">
-          <div class="ci-ico">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6l-1 14H6L5 6"/>
-              <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
-            </svg>
-          </div>
-          <div class="ci-content">
-            <div class="ci-ttl">Overflow</div>
-            <div class="ci-loc">KG 11 Ave, Kimironko</div>
-            <div class="ci-meta">Alice M. · 2h ago</div>
-          </div>
-          <div class="ci-acts">
-            <span class="b pe">Tap to review</span>
-          </div>
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; gap: 16px;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--g2)" stroke-width="2" style="animation: spin 2s linear infinite;">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2" fill="none"/>
+          </svg>
+          <div style="text-align: center; color: var(--txt-l);">
+            <div style="font-weight: 500; margin-bottom: 4px;">Loading claims...</div>
+           </div>
         </div>
-
-        <div class="ci" data-category="illegal_dumping" data-claim-id="2" onclick="viewClaimDetails(this)" style="cursor:pointer;">
-          <div class="ci-ico">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-            </svg>
-          </div>
-          <div class="ci-content">
-            <div class="ci-ttl">Illegal dumping</div>
-            <div class="ci-loc">KN 5 Rd, Kimironko</div>
-            <div class="ci-meta">Bob N. · 4h ago</div>
-          </div>
-          <div class="ci-acts">
-            <span class="b pe">Tap to review</span>
-          </div>
-        </div>
-
-        <div class="ci" data-category="overflow" data-claim-id="3" onclick="viewClaimDetails(this)" style="cursor:pointer;">
-          <div class="ci-ico">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6l-1 14H6L5 6"/>
-              <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
-            </svg>
-          </div>
-          <div class="ci-content">
-            <div class="ci-ttl">Overflow</div>
-            <div class="ci-loc">KG 9 Ave, Kimironko</div>
-            <div class="ci-meta">Marie J. · 6h ago</div>
-          </div>
-          <div class="ci-acts">
-            <span class="b pe">Tap to review</span>
-          </div>
-        </div>
-
-        <div class="ci" data-category="missed_collection" data-claim-id="4" onclick="viewClaimDetails(this)" style="cursor:pointer;">
-          <div class="ci-ico">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-          </div>
-          <div class="ci-content">
-            <div class="ci-ttl">Missed collection</div>
-            <div class="ci-loc">Kamatamu, Kimironko</div>
-            <div class="ci-meta">Grace K. · Yesterday</div>
-          </div>
-          <div class="ci-acts">
-            <span class="b pe">Tap to review</span>
-          </div>
-        </div>
-
-        <div class="ci" data-category="damaged_infrastructure" data-claim-id="5" onclick="viewClaimDetails(this)" style="cursor:pointer;">
-          <div class="ci-ico">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-          </div>
-          <div class="ci-content">
-            <div class="ci-ttl">Damaged bin</div>
-            <div class="ci-loc">Street 4, Kimironko</div>
-            <div class="ci-meta">David U. · 2 days ago</div>
-          </div>
-          <div class="ci-acts">
-            <span class="b pe">Tap to review</span>
-          </div>
-        </div>
-
-        <div class="ci" data-category="other" data-claim-id="6" onclick="viewClaimDetails(this)" style="cursor:pointer;">
-          <div class="ci-ico">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="1" y="3" width="15" height="13"/>
-              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-              <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-            </svg>
-          </div>
-          <div class="ci-content">
-            <div class="ci-ttl">Vehicle blocking access</div>
-            <div class="ci-loc">KN 3, Kimironko</div>
-            <div class="ci-meta">Paul R. · 1 day ago</div>
-          </div>
-          <div class="ci-acts">
-            <span class="b pe">Tap to review</span>
-          </div>
-        </div>
-
-        <div class="ci" data-category="other" data-claim-id="7" onclick="viewClaimDetails(this)" style="cursor:pointer;">
-          <div class="ci-ico">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-          </div>
-          <div class="ci-content">
-            <div class="ci-ttl">Noise during collection</div>
-            <div class="ci-loc">KG 15, Kimironko</div>
-            <div class="ci-meta">Sara O. · 2 days ago</div>
-          </div>
-          <div class="ci-acts">
-            <span class="b pe">Tap to review</span>
-          </div>
-        </div>
-
-        <div class="ci" data-category="missed_collection" data-claim-id="8" onclick="viewClaimDetails(this)" style="cursor:pointer;">
-          <div class="ci-ico">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6l-1 14H6L5 6"/>
-              <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
-            </svg>
-          </div>
-          <div class="ci-content">
-            <div class="ci-ttl">Missed collection</div>
-            <div class="ci-loc">KG 15 Ave, Kimironko</div>
-            <div class="ci-meta">John M. · 3 days ago</div>
-          </div>
-          <div class="ci-acts">
-            <span class="b pe">Tap to review</span>
-          </div>
-        </div>
-
-        <div class="ci" data-category="damaged_infrastructure" data-claim-id="9" onclick="viewClaimDetails(this)" style="cursor:pointer;">
-          <div class="ci-ico">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-              <polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
-          </div>
-          <div class="ci-content">
-            <div class="ci-ttl">Bin replacement</div>
-            <div class="ci-loc">KG 7 Ave, Kimironko</div>
-            <div class="ci-meta">Eve K. · 5 days ago</div>
-          </div>
-          <div class="ci-acts">
-            <span class="b ok">Approved</span>
-          </div>
-        </div>
-
       </div>
     </div>
 
@@ -389,7 +307,7 @@
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
 
 <nav class="mob-nav">
-  <a class="mn-item" href="zo_schedules.html">
+  <a class="mn-item" href="/zone-operator/schedules">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="4" width="18" height="18" rx="2"/>
       <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
@@ -397,7 +315,7 @@
     </svg>
     <span>Schedules</span>
   </a>
-  <a class="mn-item active" href="zo_claims.html">
+  <a class="mn-item active" href="/zone-operator/claims">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
       <polyline points="14 2 14 8 20 8"/>
@@ -405,7 +323,7 @@
     </svg>
     <span>Claims</span>
   </a>
-  <a class="mn-item mn-home" href="zo_dash.html">
+  <a class="mn-item mn-home" href="/zone-operator/dashboard">
     <div class="mn-home-inner">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -413,7 +331,7 @@
     </div>
     <span>Home</span>
   </a>
-  <a class="mn-item" href="zo_payments.html">
+  <a class="mn-item" href="/zone-operator/payments">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="2" y="5" width="20" height="14" rx="2"/>
       <line x1="2" y1="10" x2="22" y2="10"/>
@@ -459,83 +377,6 @@
     </div>
   </div>
 </nav>
-
-<style>
-  /* Modal detail rows with separators */
-  .claim-detail-row {
-    margin-bottom: 0;
-    padding: 12px 0;
-    border-bottom: 1px solid #eee;
-  }
-  .claim-detail-row:last-child {
-    border-bottom: none;
-  }
-  .claim-detail-row label { display: block; font-size: .8rem; color: var(--txt-l); margin-bottom: 4px; font-weight: 500; }
-  .claim-detail-row span, .claim-detail-row p { font-size: .95rem; color: var(--txt); font-weight: 600; }
-
-  /* Claims Stats Grid - 4 columns on desktop */
-  .claims-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  @media (min-width: 768px) {
-    .claims-stats-grid {
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-  }
-
-  /* Claim item layout - fill space */
-  .ci-content {
-    flex: 1;
-    min-width: 0;
-  }
-  .ci-loc {
-    font-size: .75rem;
-    color: var(--txt-m);
-    margin-top: 2px;
-  }
-
-  /* Category tags */
-  .ci-cat {
-    font-size: .7rem;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-weight: 600;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .ci-cat.overflow {
-    background: rgba(72, 168, 112, 0.1);
-    color: #48a870;
-  }
-  .ci-cat.illegal {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-  }
-  .ci-cat.missed {
-    background: rgba(245, 158, 11, 0.1);
-    color: #f59e0b;
-  }
-  .ci-cat.damaged {
-    background: rgba(99, 102, 241, 0.1);
-    color: #6366f1;
-  }
-  .ci-cat.other {
-    background: rgba(107, 114, 128, 0.1);
-    color: #6b7280;
-  }
-
-  /* Increase badge sizes */
-  .ci-acts .b {
-    font-size: .8rem !important;
-    padding: 6px 14px !important;
-    white-space: nowrap;
-  }
-</style>
-
 <script>
   let currentClaimElement = null;
 
@@ -707,5 +548,6 @@
 <script src="/static/js/api_helper.js"></script>
 <script src="/static/js/notifications.js"></script>
 <script src="../../static/js/zo_dash.js"></script>
+
 </body>
 </html>
