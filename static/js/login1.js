@@ -46,16 +46,79 @@ document.querySelectorAll('[data-switch]').forEach((link) => {
   });
 });
 
-// ── Password visibility toggle ──
+// ── Password visibility toggle (CSS class-driven SVG eye) ──
 
 document.querySelectorAll('.toggle-password').forEach((btn) => {
   btn.addEventListener('click', () => {
     const input = document.getElementById(btn.dataset.target);
-    const isHidden = input.type === 'password';
-    input.type = isHidden ? 'text' : 'password';
-    btn.textContent = isHidden ? 'Hide' : 'Show';
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.classList.add('showing');
+    } else {
+      input.type = 'password';
+      btn.classList.remove('showing');
+    }
   });
 });
+
+// ── Phone formatting (register pane) ──
+(function () {
+  var phoneInput = document.getElementById('phone');
+  if (!phoneInput) return;
+
+  function formatPhone(digits) {
+    digits = digits.replace(/\D/g, '').substring(0, 9);
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return digits.substring(0, 3) + ' ' + digits.substring(3);
+    return digits.substring(0, 3) + ' ' + digits.substring(3, 6) + ' ' + digits.substring(6);
+  }
+
+  phoneInput.addEventListener('input', function () {
+    var raw = phoneInput.value.replace(/\D/g, '').substring(0, 9);
+    var pos = phoneInput.selectionStart;
+    var oldLen = phoneInput.value.length;
+    phoneInput.value = formatPhone(raw);
+    var newLen = phoneInput.value.length;
+    phoneInput.setSelectionRange(Math.max(0, pos + (newLen - oldLen)), Math.max(0, pos + (newLen - oldLen)));
+  });
+})();
+
+// ── Password strength meter (register pane) ──
+(function () {
+  var pwInput = document.getElementById('regPassword');
+  var pwStrength = document.getElementById('regPwStrength');
+  var pwFill = document.getElementById('regPwStrengthFill');
+  var pwLabel = document.getElementById('regPwStrengthLabel');
+  if (!pwInput || !pwStrength) return;
+
+  pwInput.addEventListener('input', function () {
+    var val = pwInput.value;
+    if (!val) { pwStrength.style.display = 'none'; return; }
+    pwStrength.style.display = 'block';
+
+    var score = 0;
+    if (val.length >= 6) score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    var levels = [
+      { min: 0, cls: 'weak',   label: 'Weak' },
+      { min: 2, cls: 'fair',   label: 'Fair' },
+      { min: 3, cls: 'good',   label: 'Good' },
+      { min: 4, cls: 'strong', label: 'Strong' }
+    ];
+    var level = levels[0];
+    for (var i = levels.length - 1; i >= 0; i--) {
+      if (score >= levels[i].min) { level = levels[i]; break; }
+    }
+    pwFill.className = 'pw-strength__bar-fill pw-strength__bar-fill--' + level.cls;
+    pwLabel.className = 'pw-strength__label pw-strength__label--' + level.cls;
+    pwLabel.textContent = level.label;
+  });
+})();
+
 
 // ── Helper: show error on a field ──
 
@@ -162,7 +225,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   clearErrors();
 
   const username = document.getElementById('fullName').value.trim();
-  const phone_number = document.getElementById('phone').value.trim();
+  const phone_number = '0' + document.getElementById('phone').value.replace(/\D/g, '');
   const email = document.getElementById('regEmail').value.trim();
   const zone_id = document.getElementById('zone').value;
   const password = document.getElementById('regPassword').value;
