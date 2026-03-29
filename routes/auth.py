@@ -264,23 +264,22 @@ def update_profile():
 
 @auth_bp.route("/forgot-password", methods=["POST"])
 def forgot_password():
-    # Verify identity with email + phone number, then return reset token
+    # Verify identity with email, then send reset link
     data = request.get_json()
     if not data:
         return jsonify({"error": "Request body is required"}), 400
 
     email = data.get("email", "").strip().lower()
-    phone_number = data.get("phone_number", "").strip()
 
-    if not email or not phone_number:
-        return jsonify({"error": "Email and phone number are required"}), 400
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
 
     # Find user by email
     user = User.query.filter_by(email=email).first()
-    if not user or user.phone_number != phone_number:
-        return jsonify({"error": "No account matches that email and phone number"}), 404
+    if not user:
+        return jsonify({"error": "No account found with that email address"}), 404
 
-    # Both match — generate reset token
+    # Generate reset token
     token = generate_reset_token(email)
     reset_link = f"{request.host_url}reset-password?token={token}"
 
