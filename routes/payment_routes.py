@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import get_jwt_identity, get_jwt
 from extensions import db
 from models.payment import Payment, MonthlyPrice
@@ -6,8 +6,59 @@ from models.user import User
 from models.zone import Zone
 from utils.auth_helpers import role_required
 from datetime import datetime, timezone, date
+import os
+import uuid
 
 payment_bp = Blueprint("payments", __name__)
+
+ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+MAX_FILE_SIZE_MB = 5
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# ==================== FILE UPLOAD ====================
+
+@payment_bp.route("/upload/photo", methods=["POST"])
+@role_required("resident")
+def upload_proof_photo():
+    """Upload a payment proof image and return its URL"""
+    if "photo" not in request.files:
+        return jsonify({"error": "No file provided. Use field name 'photo'"}), 400
+
+    file = request.files["photo"]
+
+    if file.filename == "":
+        return jsonify({"error": "No file selected"}), 400
+
+    if not allowed_file(file.filename):
+        return jsonify({"error": "Invalid file type. Allowed: JPG, PNG, WEBP"}), 400
+
+    # Check file size (read into memory to measure, then reset)
+    file.seek(0, os.SEEK_END)
+    size_mb = file.tell() / (1024 * 1024)
+    file.seek(0)
+
+    if size_mb > MAX_FILE_SIZE_MB:
+        return jsonify({"error": f"File too large. Maximum size is {MAX_FILE_SIZE_MB}MB"}), 400
+
+    # Build a unique filename and save to UPLOAD_FOLDER
+    ext = file.filename.rsplit(".", 1)[1].lower()
+    unique_name = f"proof_{uuid.uuid4().hex}.{ext}"
+
+    upload_folder = current_app.config.get("UPLOAD_FOLDER", os.path.join("static", "uploads", "proofs"))
+    os.makedirs(upload_folder, exist_ok=True)
+
+    save_path = os.path.join(upload_folder, unique_name)
+    file.save(save_path)
+
+    # Build a URL the frontend can use to display the image
+    base_url = current_app.config.get("BASE_URL", "")
+    photo_url = f"{base_url}/static/uploads/proofs/{unique_name}"
+
+    return jsonify({"photo_url": photo_url}), 201
 
 
 # ==================== MONTHLY PRICE MANAGEMENT (Admin Only) ====================
@@ -148,8 +199,20 @@ def get_current_price():
 @payment_bp.route("/", methods=["POST"])
 @role_required("resident")
 def submit_payment():
-    """Resident submits a monthly payment"""
-    data = request.get_json()
+    """Resident submits a monthly payment (JSON or multipart/form-data)"""
+    # Accept both JSON (proof already uploaded separately) and multipart (direct file)
+    content_type = request.content_type or ""
+    if "multipart/form-data" in content_type:
+        data = request.form.to_dict()
+        for key in ("payment_month", "payment_year"):
+            if key in data:
+                try:
+                    data[key] = int(data[key])
+                except ValueError:
+                    pass
+    else:
+        data = request.get_json()
+
     if not data:
         return jsonify({"error": "Request body is required"}), 400
 

@@ -245,6 +245,11 @@ function closeAddPaymentModal() {
   document.getElementById('paymentMonth').disabled = false; // Re-enable month field
   document.querySelectorAll('.rp-error-message').forEach(el => el.classList.remove('visible'));
   document.querySelectorAll('.rp-form-group input, .rp-form-group select').forEach(el => el.classList.remove('error'));
+  // Reset file label and remove preview
+  const label = document.querySelector('.rp-file-label');
+  if (label) label.textContent = '📎 Click to upload or drag file';
+  const preview = document.getElementById('proofPreview');
+  if (preview) preview.remove();
   editingPaymentId = null;
 }
 
@@ -349,6 +354,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.toggleProfileDd = toggleProfileDd;
 
+  // ── File input: live preview and label update ──
+  const proofFileInput = document.getElementById('proofFile');
+  if (proofFileInput) {
+    proofFileInput.addEventListener('change', function () {
+      const file = this.files[0];
+      const label = this.closest('.rp-file-input-wrapper')?.querySelector('.rp-file-label');
+      const existingPreview = document.getElementById('proofPreview');
+      if (existingPreview) existingPreview.remove();
+
+      if (file) {
+        if (label) label.textContent = `📎 ${file.name}`;
+
+        // Show image preview below the input
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const preview = document.createElement('img');
+          preview.id = 'proofPreview';
+          preview.src = e.target.result;
+          preview.alt = 'Payment proof preview';
+          preview.style.cssText = 'width:100%;max-width:280px;max-height:180px;object-fit:contain;border-radius:8px;margin-top:0.5rem;border:1px solid #e5e7eb;';
+          proofFileInput.closest('.rp-file-input-wrapper').insertAdjacentElement('afterend', preview);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        if (label) label.textContent = '📎 Click to upload or drag file';
+      }
+    });
+  }
+
   // ── Form submission (validation + file upload + API call) ──
   const form = document.getElementById('paymentForm');
   if (form) {
@@ -411,12 +445,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
           // Upload file if provided
           if (file) {
+            // Client-side validation before uploading
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+              showToast('Invalid file type. Please upload JPG, PNG, or WEBP.');
+              submitBtn.disabled = false;
+              submitBtn.textContent = originalText;
+              return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+              showToast('File too large. Maximum size is 5MB.');
+              submitBtn.disabled = false;
+              submitBtn.textContent = originalText;
+              return;
+            }
+
             submitBtn.textContent = 'Uploading proof...';
             const formData = new FormData();
             formData.append('photo', file);
 
             const token = localStorage.getItem('access_token');
-            const uploadRes = await fetch(`${CONFIG.API_BASE_URL}/upload/photo`, {
+            const uploadRes = await fetch(`${CONFIG.API_BASE_URL}/payments/upload/photo`, {
               method: 'POST',
               headers: { 'Authorization': `Bearer ${token}` },
               body: formData
