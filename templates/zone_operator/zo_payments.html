@@ -9,6 +9,45 @@
 </head>
 <body>
 
+<!-- Payment Details Modal -->
+<div class="modal-overlay" id="paymentDetailsModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-title" style="border-bottom:1px solid #eee;padding-bottom:12px;margin-bottom:16px;">Payment Details</div>
+    <div id="paymentDetailsContent">
+      <div class="payment-detail-row">
+        <label>Resident:</label>
+        <span id="payDetailName">-</span>
+      </div>
+      <div class="payment-detail-row">
+        <label>Amount:</label>
+        <span id="payDetailAmount" style="font-weight:600;color:var(--g1);">-</span>
+      </div>
+      <div class="payment-detail-row">
+        <label>Submitted:</label>
+        <span id="payDetailDate">-</span>
+      </div>
+      <div class="payment-detail-row">
+        <label>Payment Method:</label>
+        <span id="payDetailMethod">Mobile Money</span>
+      </div>
+      <div class="payment-detail-row">
+        <label>Transaction ID:</label>
+        <span id="payDetailTxn" style="font-family:monospace;">-</span>
+      </div>
+      <div class="payment-detail-row" id="payDetailProofRow">
+        <label>Payment Proof:</label>
+        <img id="payDetailProof" src="" alt="Payment proof" style="max-width:100%;border-radius:8px;margin-top:8px;display:none;">
+        <span id="noProofText" style="color:var(--txt-l);">No proof uploaded</span>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:20px;display:flex;gap:10px;">
+      <button class="modal-btn cancel" onclick="closePaymentDetailsModal()" style="flex:1;">Close</button>
+      <button class="modal-btn" id="payDetailRejectBtn" style="flex:1;background:#dc2626;color:#fff;" onclick="openRejectFromPayDetails()">Reject</button>
+      <button class="modal-btn" id="payDetailApproveBtn" style="flex:1;background:#16a34a;color:#fff;" onclick="approveFromPayDetails()">Approve</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="rejectModal">
   <div class="modal">
     <div class="modal-title">Rejection Reason</div>
@@ -25,9 +64,9 @@
     </select>
     <label class="modal-label">Additional details (optional)</label>
     <textarea class="modal-textarea" id="rejectDetails" placeholder="Provide more context if needed..."></textarea>
-    <div class="modal-actions">
-      <button class="modal-btn cancel" onclick="closeRejectModal()">Cancel</button>
-      <button class="modal-btn confirm" onclick="confirmReject()">Confirm Rejection</button>
+    <div class="modal-actions" style="display:flex;gap:10px;">
+      <button class="modal-btn cancel" onclick="closeRejectModal()" style="flex:1;">Cancel</button>
+      <button class="modal-btn" onclick="confirmReject()" style="flex:1;background:#dc2626;color:#fff;">Confirm Rejection</button>
     </div>
   </div>
 </div>
@@ -226,46 +265,37 @@
       </div>
       <div class="cb">
 
-        <div class="pi">
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Alice Mutoni" data-amount="1,000 RWF" data-date="1h ago" data-status="pending">
           <div class="pi-av">AM</div>
           <div>
             <div class="pi-name">Alice Mutoni</div>
             <div class="pi-meta">Submitted 1h ago · 1,000 RWF claimed</div>
           </div>
           <div class="pi-amt">1,000 RWF</div>
-          <div class="pay-actions" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
-            <button class="btn-ok btn-approve-pay" style="font-size:.7rem;padding:5px 12px;">Verify &amp; Approve</button>
-            <button class="btn-no btn-reject-pay" style="font-size:.7rem;padding:5px 12px;" onclick="openRejectModal(this)">Reject</button>
-          </div>
+          <span class="b pe" style="font-size:.7rem;">Tap to review</span>
         </div>
 
-        <div class="pi">
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Bob Ntwari" data-amount="2,000 RWF" data-date="3h ago" data-status="pending">
           <div class="pi-av">BN</div>
           <div>
             <div class="pi-name">Bob Ntwari</div>
             <div class="pi-meta">Submitted 3h ago · 2,000 RWF claimed</div>
           </div>
           <div class="pi-amt">2,000 RWF</div>
-          <div class="pay-actions" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
-            <button class="btn-ok btn-approve-pay" style="font-size:.7rem;padding:5px 12px;">Verify &amp; Approve</button>
-            <button class="btn-no btn-reject-pay" style="font-size:.7rem;padding:5px 12px;" onclick="openRejectModal(this)">Reject</button>
-          </div>
+          <span class="b pe" style="font-size:.7rem;">Tap to review</span>
         </div>
 
-        <div class="pi">
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Marie Jeannette" data-amount="1,000 RWF" data-date="5h ago" data-status="pending">
           <div class="pi-av">MJ</div>
           <div>
             <div class="pi-name">Marie Jeannette</div>
             <div class="pi-meta">Submitted 5h ago · 1,000 RWF claimed</div>
           </div>
           <div class="pi-amt">1,000 RWF</div>
-          <div class="pay-actions" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
-            <button class="btn-ok btn-approve-pay" style="font-size:.7rem;padding:5px 12px;">Verify &amp; Approve</button>
-            <button class="btn-no btn-reject-pay" style="font-size:.7rem;padding:5px 12px;" onclick="openRejectModal(this)">Reject</button>
-          </div>
+          <span class="b pe" style="font-size:.7rem;">Tap to review</span>
         </div>
 
-        <div class="pi">
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Grace Keza" data-amount="1,000 RWF" data-date="yesterday" data-status="approved">
           <div class="pi-av">GK</div>
           <div>
             <div class="pi-name">Grace Keza</div>
@@ -275,7 +305,7 @@
           <span class="b ok">Approved</span>
         </div>
 
-        <div class="pi">
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="Paul Rugamba" data-amount="1,000 RWF" data-date="2 days ago" data-status="approved">
           <div class="pi-av">PR</div>
           <div>
             <div class="pi-name">Paul Rugamba</div>
@@ -285,7 +315,7 @@
           <span class="b ok">Approved</span>
         </div>
 
-        <div class="pi">
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;" data-name="David Uwimana" data-amount="500 RWF" data-date="3 days ago" data-status="rejected">
           <div class="pi-av">DU</div>
           <div>
             <div class="pi-name">David Uwimana</div>
@@ -376,6 +406,104 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="../../static/js/zo_dash.js"></script>
+
+<style>
+  /* Modal detail rows with separators */
+  .payment-detail-row {
+    margin-bottom: 0;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .payment-detail-row:last-child {
+    border-bottom: none;
+  }
+  .payment-detail-row label { display: block; font-size: .8rem; color: var(--txt-l); margin-bottom: 4px; font-weight: 500; }
+  .payment-detail-row span { font-size: .95rem; color: var(--txt); font-weight: 600; }
+
+  /* Payment item layout fix - fill blank space */
+  .pi > div:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Increase badge sizes */
+  .pi .b {
+    font-size: .8rem !important;
+    padding: 6px 14px !important;
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  let currentPaymentElement = null;
+
+  function viewPaymentDetails(el) {
+    currentPaymentElement = el;
+    const name = el.dataset.name;
+    const amount = el.dataset.amount;
+    const date = el.dataset.date;
+    const status = el.dataset.status;
+
+    // Set details in modal
+    document.getElementById('payDetailName').textContent = name;
+    document.getElementById('payDetailAmount').textContent = amount;
+    document.getElementById('payDetailDate').textContent = date;
+    document.getElementById('payDetailTxn').textContent = 'TXN' + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+    // Hide proof for now (placeholder)
+    document.getElementById('payDetailProof').style.display = 'none';
+    document.getElementById('noProofText').style.display = 'block';
+
+    // Show/hide approve/reject buttons based on status
+    const approveBtn = document.getElementById('payDetailApproveBtn');
+    const rejectBtn = document.getElementById('payDetailRejectBtn');
+
+    if (status === 'approved' || status === 'rejected') {
+      approveBtn.style.display = 'none';
+      rejectBtn.style.display = 'none';
+    } else {
+      approveBtn.style.display = 'inline-block';
+      rejectBtn.style.display = 'inline-block';
+    }
+
+    // Show modal
+    document.getElementById('paymentDetailsModal').classList.add('show');
+  }
+
+  function closePaymentDetailsModal() {
+    document.getElementById('paymentDetailsModal').classList.remove('show');
+    currentPaymentElement = null;
+  }
+
+  function approveFromPayDetails() {
+    if (currentPaymentElement) {
+      const name = currentPaymentElement.dataset.name || 'Resident';
+
+      // Update UI - badge
+      const statusSpan = currentPaymentElement.querySelector('.b');
+      if (statusSpan) {
+        statusSpan.className = 'b ok';
+        statusSpan.textContent = 'Approved';
+      }
+      currentPaymentElement.dataset.status = 'approved';
+
+      // Show toast notification
+      if (typeof showToast === 'function') {
+        showToast(`Payment from ${name} approved!`, 0);
+      }
+
+      closePaymentDetailsModal();
+      applyActiveFilter();
+    }
+  }
+
+  function openRejectFromPayDetails() {
+    if (currentPaymentElement) {
+      closePaymentDetailsModal();
+      openRejectModal(currentPaymentElement);
+    }
+  }
+</script>
 <script>
 /* ── Initialize Payment Charts ── */
 window.addEventListener('load', function() {
