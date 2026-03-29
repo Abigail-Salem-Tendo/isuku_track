@@ -7,6 +7,76 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../static/css/zo_dash.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    .schedules-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    .schedules-table thead {
+      background: #f9f9f9;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .schedules-table th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: var(--txt-l);
+      text-transform: uppercase;
+    }
+    .schedules-table td {
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f0;
+      color: var(--txt-m);
+    }
+    .schedules-table tbody tr:hover {
+      background: #f9f9f9;
+    }
+    .schedule-id {
+      font-weight: 600;
+      color: var(--txt-d);
+    }
+    .schedule-datetime {
+      font-weight: 500;
+      color: var(--txt-d);
+    }
+    .schedule-priority {
+      font-weight: 600;
+      color: #f59e0b;
+    }
+    .schedule-action {
+      display: flex;
+      gap: 6px;
+    }
+    .action-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn.start {
+      background: #e8f5e9;
+      color: #2e7d52;
+    }
+    .action-btn.start:hover {
+      background: #d4e8d8;
+    }
+    .action-btn.complete {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .action-btn.complete:hover {
+      background: #fde68a;
+    }
+    .action-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
 
@@ -26,14 +96,14 @@
 
   <div class="sb-sec">
     <div class="sb-lbl">My Zone</div>
-    <a class="sb-a" href="zo_dash.html">
+    <a class="sb-a" href="/zone-operator/dashboard">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
         <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
       </svg>
       Dashboard
     </a>
-    <a class="sb-a on" href="zo_schedules.html">
+    <a class="sb-a on" href="/zone-operator/schedules">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="4" width="18" height="18" rx="2"/>
         <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
@@ -41,7 +111,7 @@
       </svg>
       Schedules
     </a>
-    <a class="sb-a" href="zo_claims.html">
+    <a class="sb-a" href="/zone-operator/claims">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
         <polyline points="14 2 14 8 20 8"/>
@@ -53,21 +123,21 @@
 
   <div class="sb-sec">
     <div class="sb-lbl">Management</div>
-    <a class="sb-a" href="zo_payments.html">
+    <a class="sb-a" href="/zone-operator/payments">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="2" y="5" width="20" height="14" rx="2"/>
         <line x1="2" y1="10" x2="22" y2="10"/>
       </svg>
       Payments <span class="sb-badge am">3</span>
     </a>
-    <a class="sb-a" href="zo_residents.html">
+    <a class="sb-a" href="/zone-operator/residents">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
         <circle cx="9" cy="7" r="4"/>
       </svg>
       Residents
     </a>
-    <a class="sb-a" href="zo_report.html">
+    <a class="sb-a" href="/zone-operator/report">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"/>
         <line x1="12" y1="20" x2="12" y2="4"/>
@@ -126,157 +196,105 @@
     </div>
   </div>
 
+
   <div class="page">
 
     <div class="sg">
       <div class="sc">
         <div class="sc-lbl">Upcoming</div>
-        <div class="sc-val">3</div>
+        <div class="sc-val" id="statUpcoming">0</div>
         <div class="sc-sub">this week</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Today</div>
-        <div class="sc-val" style="color:var(--g1)">1</div>
-        <div class="sc-sub">14:00 · Route A</div>
+        <div class="sc-val" style="color:var(--g1)" id="statTodayCount">0</div>
+        <div class="sc-sub" id="statTodayDetail">No schedules</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Completed</div>
-        <div class="sc-val">12</div>
+        <div class="sc-val" id="statCompleted">0</div>
         <div class="sc-sub">this month</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Completion Rate</div>
-        <div class="sc-val" style="font-size:1.3rem">100%</div>
-        <div class="sc-sub"><span class="up">↑2%</span> vs last month</div>
+        <div class="sc-val" style="font-size:1.3rem" id="statCompletionRate">0%</div>
+        <div class="sc-sub"><span class="up" id="statCompletionTrend">--%</span> vs last month</div>
       </div>
     </div>
 
     <!-- Route Map -->
     <div class="card" style="margin-bottom:18px;">
       <div class="ch">
-        <div class="ct">Collection Coverage Map</div>
+        <div class="ct">Collection Routes Map</div>
         <span class="b ok" style="font-size:.73rem;">Live</span>
       </div>
       <div class="cb">
         <div class="map-container" id="routeMap"></div>
+        <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:12px;height:3px;background:#3b82f6;"></div>
+            Route A (Today)
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:12px;height:3px;background:#f59e0b;"></div>
+            Route B
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:10px;height:10px;border-radius:50%;background:#48a870;"></div>
+            Start Point
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--txt-m);">
+            <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></div>
+            End Point
+          </div>
+        </div>
       </div>
+    </div>
+
+    <div class="ftabs" style="margin-bottom: 18px;">
+      <button class="ftab on" onclick="filterScheduleTable('all')">All</button>
+      <button class="ftab" onclick="filterScheduleTable('not_started')">Pending</button>
+      <button class="ftab" onclick="filterScheduleTable('ongoing')">Ongoing</button>
+      <button class="ftab" onclick="filterScheduleTable('completed')">Completed</button>
     </div>
 
     <div class="card">
       <div class="ch">
-        <div class="ct">Zone A — Full Schedule</div>
-        <span class="b pe" style="font-size:.73rem;">March 2026</span>
+        <div class="ct" id="scheduleTitle">Loading schedules...</div>
+        <span style="font-size:.72rem;color:var(--txt-l);" id="schedulesCount">Showing 0 schedules</span>
       </div>
       <div class="cb">
+        <table class="schedules-table">
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Date & Time</th>
+              <th>Priority</th>
+              <th>Vehicle</th>
+              <th>Status</th>
+              <th style="text-align:right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="schedulesTableBody">
+            <tr style="text-align:center;color:var(--txt-m);">
+              <td colspan="6" style="padding:40px;">Loading schedules...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <div class="si">
-          <div class="si-time"><div class="st">14:00</div><div class="sd">Today</div></div>
-          <div class="si-info">
-            <div class="si-ttl">Route A — Kibagabaga North</div>
-            <div class="si-rt">KG 11 Ave → KG 15 Ave → KN 5 Rd</div>
-            <div class="si-veh">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-              </svg>
-              RAD 001A · Priority <strong>8.5/10</strong>
-            </div>
-          </div>
-          <div class="si-right">
-            <span class="b pe" id="s1-badge">Not Started</span>
-          </div>
+    <!-- Vehicle Information Modal -->
+    <div id="vehicleModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+      <div style="background:white;border-radius:8px;padding:24px;max-width:400px;width:90%;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+        <h2 style="margin:0 0 16px 0;font-size:1.1rem;color:var(--txt-d);">Assigned Vehicle</h2>
+        <div id="vehicleDetails" style="margin-bottom:24px;">
+          <!-- Details will be populated here -->
         </div>
-
-        <div class="si">
-          <div class="si-time"><div class="st">09:00</div><div class="sd">Thu 19</div></div>
-          <div class="si-info">
-            <div class="si-ttl">Route A — Kibagabaga South</div>
-            <div class="si-rt">KG 7 Ave → KG 9 Ave → KN 3 Rd</div>
-            <div class="si-veh">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-              </svg>
-              RAD 001A · Priority <strong>6.2/10</strong>
-            </div>
-          </div>
-          <div class="si-right">
-            <span class="b pe">Not Started</span>
-          </div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;">
+          <button onclick="closeVehicleModal()" style="padding:8px 16px;border:1px solid #e0e0e0;border-radius:4px;background:white;color:var(--txt-m);font-weight:500;cursor:pointer;">Cancel</button>
+          <button onclick="confirmComplete()" style="padding:8px 16px;border:none;border-radius:4px;background:#2e7d52;color:white;font-weight:500;cursor:pointer;">Confirm Complete</button>
         </div>
-
-        <div class="si">
-          <div class="si-time"><div class="st">07:30</div><div class="sd">Sat 21</div></div>
-          <div class="si-info">
-            <div class="si-ttl">Route B — Market Area Sweep</div>
-            <div class="si-rt">KG 3 Ave → KG 5 Ave → Market Rd</div>
-            <div class="si-veh">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-              </svg>
-              RAD 002B · Priority <strong>7.0/10</strong>
-            </div>
-          </div>
-          <div class="si-right">
-            <span class="b pe">Not Started</span>
-          </div>
-        </div>
-
-        <div class="si">
-          <div class="si-time"><div class="st">08:30</div><div class="sd">Mon 16</div></div>
-          <div class="si-info">
-            <div class="si-ttl">Route A — Full Sweep</div>
-            <div class="si-rt">All streets, Kibagabaga Cell</div>
-            <div class="si-veh">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-              </svg>
-              RAD 001A · Priority <strong>9.0/10</strong>
-            </div>
-          </div>
-          <div class="si-right">
-            <span class="b ok">Completed</span>
-          </div>
-        </div>
-
-        <div class="si">
-          <div class="si-time"><div class="st">14:00</div><div class="sd">Fri 14</div></div>
-          <div class="si-info">
-            <div class="si-ttl">Route B — Residential East</div>
-            <div class="si-rt">KN 1 Rd → KN 3 Rd → Bypass</div>
-            <div class="si-veh">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-              </svg>
-              RAD 002B · Priority <strong>5.8/10</strong>
-            </div>
-          </div>
-          <div class="si-right">
-            <span class="b ok">Completed</span>
-          </div>
-        </div>
-
-        <div class="si">
-          <div class="si-time"><div class="st">09:00</div><div class="sd">Wed 11</div></div>
-          <div class="si-info">
-            <div class="si-ttl">Route A — Kibagabaga South</div>
-            <div class="si-rt">KG 7 Ave → KG 9 Ave · Full sweep</div>
-            <div class="si-veh">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-              </svg>
-              RAD 001A · Priority <strong>6.2/10</strong>
-            </div>
-          </div>
-          <div class="si-right">
-            <span class="b ok">Completed</span>
-          </div>
-        </div>
-
       </div>
     </div>
 
@@ -286,7 +304,7 @@
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
 
 <nav class="mob-nav">
-  <a class="mn-item active" href="zo_schedules.html" style="flex:1">
+  <a class="mn-item active" href="/zone-operator/schedules" style="flex:1">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="4" width="18" height="18" rx="2"/>
       <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
@@ -294,7 +312,7 @@
     </svg>
     <span>Schedules</span>
   </a>
-  <a class="mn-item" href="zo_claims.html">
+  <a class="mn-item" href="/zone-operator/claims">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
       <polyline points="14 2 14 8 20 8"/>
@@ -302,7 +320,7 @@
     </svg>
     <span>Claims</span>
   </a>
-  <a class="mn-item mn-home" href="zo_dash.html">
+  <a class="mn-item mn-home" href="/zone-operator/dashboard">
     <div class="mn-home-inner">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -310,7 +328,7 @@
     </div>
     <span>Home</span>
   </a>
-  <a class="mn-item" href="zo_payments.html">
+  <a class="mn-item" href="/zone-operator/payments">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="2" y="5" width="20" height="14" rx="2"/>
       <line x1="2" y1="10" x2="22" y2="10"/>
