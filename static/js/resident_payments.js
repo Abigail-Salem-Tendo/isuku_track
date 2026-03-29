@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function () {
           formData.append('photo', file);
 
           const token = localStorage.getItem('access_token');
-          const uploadRes = await fetch('http://127.0.0.1:5000/api/upload/photo', {
+          const uploadRes = await fetch(`${CONFIG.API_BASE_URL}/upload/photo`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
             body: formData
