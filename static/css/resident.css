@@ -655,16 +655,16 @@
   /* Show topbar on desktop for notifications - just hide menu button and title */
   .topbar {
     display: flex;
-    position: fixed;
+    position: sticky;
     top: 0;
     right: 0;
     left: 310px;
-    height: 60px;
+    height: 40px;
     padding: 0 32px;
     justify-content: flex-end;
     align-items: center;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    background: var(--background);
+    border-bottom: none;
     z-index: 50;
   }
 
