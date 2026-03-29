@@ -213,6 +213,86 @@
 .pw-strength__label--good   { color: #eab308; }
 .pw-strength__label--strong { color: #22c55e; }
 
+/* ── Email sent confirmation state ── */
+.email-sent {
+  text-align: center;
+  padding: 8px 0 20px;
+}
+
+.email-sent__icon {
+  width: 52px;
+  height: 52px;
+  background: rgba(22, 163, 74, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.email-sent__icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--primary);
+}
+
+.email-sent__label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.email-sent__address {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  display: inline-block;
+  margin-bottom: 12px;
+  word-break: break-all;
+}
+
+.email-sent__expiry {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.email-sent__resend {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.email-sent__resend:hover:not(:disabled) {
+  background: rgba(22, 163, 74, 0.06);
+  border-color: var(--primary);
+}
+
+.email-sent__resend:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  border-color: var(--border);
+}
+
+.email-sent__countdown {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
 /* ── Field icon wrapper ── */
 .field-icon-wrap {
   position: relative;
