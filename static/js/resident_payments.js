@@ -402,12 +402,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function () {
-      if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-      }
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
     });
   }
 

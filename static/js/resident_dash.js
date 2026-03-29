@@ -1,3 +1,18 @@
+// ── Toast notification ──
+function showToast(message, type) {
+  var container = document.getElementById('toastContainer');
+  if (!container) return;
+  var isError = type === 'error';
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + (isError ? 'toast--error' : 'toast--success');
+  toast.innerHTML =
+    '<span class="toast__text">' + message + '</span>' +
+    '<button class="toast__close" onclick="this.parentElement.remove()">&#x2715;</button>' +
+    '<div class="toast__progress"></div>';
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3500);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
 
   // ── Sidebar toggle (mobile) ──
@@ -319,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         var uploadData = await uploadRes.json();
         if (!uploadRes.ok) {
-          alert(uploadData.error || 'Failed to submit claim');
+          showToast(uploadData.error || 'Failed to submit claim', 'error');
           return;
         }
 
@@ -338,16 +353,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         var claimData = await claimRes.json();
         if (!claimRes.ok) {
-          alert(claimData.error || 'Failed to submit claim');
+          showToast(claimData.error || 'Failed to submit claim', 'error');
           return;
         }
 
-        alert('Claim submitted successfully!');
+        showToast('Claim submitted successfully!');
         form.reset();
         loadClaimStats();
         loadRecentClaims();
       } catch (err) {
-        alert('Network error — please try again');
+        showToast('Network error — please try again', 'error');
       } finally {
         btn.disabled = false;
         btn.textContent = 'Submit Claim';
