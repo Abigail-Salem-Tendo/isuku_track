@@ -137,18 +137,13 @@
                   <label>Payment For Month *</label>
                   <select id="paymentMonth" name="paymentMonth" required>
                     <option value="">-- Select Month --</option>
-                    <option value="2026-03">March 2026</option>
-                    <option value="2026-04">April 2026</option>
-                    <option value="2026-05">May 2026</option>
-                    <option value="2026-06">June 2026</option>
-                    <option value="2026-07">July 2026</option>
                   </select>
                   <div class="rp-error-message" id="paymentMonthError">Please select a month</div>
                 </div>
 
                 <div class="rp-form-group">
                   <label>Amount (Frw) *</label>
-                  <input type="number" id="amount" name="amount" placeholder="2,000" min="1" required />
+                  <input type="number" id="amount" name="amount" placeholder="Loading..." min="1" readonly required />
                   <div class="rp-error-message" id="amountError">Please enter a valid amount</div>
                 </div>
 
@@ -248,8 +243,8 @@
             </div>
             <div class="rp-summary-content">
               <span class="rp-summary-label">Total Paid (This Year)</span>
-              <span class="rp-summary-value" id="totalPaid">24,000</span>
-              <span class="rp-summary-sub">12 payments approved</span>
+              <span class="rp-summary-value" id="totalPaid">Loading...</span>
+              <span class="rp-summary-sub" id="totalPaidSub">Loading...</span>
             </div>
           </div>
           <div class="rp-summary-card rp-summary-card--pending">
@@ -261,7 +256,7 @@
             </div>
             <div class="rp-summary-content">
               <span class="rp-summary-label">Pending Review</span>
-              <span class="rp-summary-value" id="pendingCount">1</span>
+              <span class="rp-summary-value" id="pendingCount">Loading...</span>
               <span class="rp-summary-sub">Awaiting verification</span>
             </div>
           </div>
@@ -275,7 +270,7 @@
             </div>
             <div class="rp-summary-content">
               <span class="rp-summary-label">Monthly Fee</span>
-              <span class="rp-summary-value">2,000</span>
+              <span class="rp-summary-value" id="monthlyFeeValue">Loading...</span>
               <span class="rp-summary-sub">Frw · Due by 5th</span>
             </div>
           </div>
@@ -288,8 +283,8 @@
             </div>
             <div class="rp-summary-content">
               <span class="rp-summary-label">Payment Status</span>
-              <span class="rp-summary-value" style="font-size:1.1rem;color:var(--rp-primary);">✓ Up to Date</span>
-              <span class="rp-summary-sub">Next: April 2026</span>
+              <span class="rp-summary-value" style="font-size:1.1rem;color:var(--rp-primary);" id="paymentStatusText">Loading...</span>
+              <span class="rp-summary-sub" id="nextPaymentText">Loading...</span>
             </div>
           </div>
         </div>
@@ -339,73 +334,13 @@
                 </tr>
               </thead>
               <tbody id="paymentTableBody">
-                <tr data-status="pending">
-                  <td><strong>Mar 20, 2026</strong><br><span style="font-size:.85rem;color:#999">10:45 AM</span></td>
-                  <td>March 2026</td>
-                  <td><span class="rp-pay-method momo">MTN MoMo</span></td>
-                  <td class="rp-amount-cell">2,000 Frw</td>
-                  <td><span class="rp-badge pending">Pending</span></td>
-                  <td>
-                    <button class="rp-btn-link" onclick="viewPaymentDetail(1)">View</button>
-                  </td>
-                </tr>
-                <tr data-status="approved">
-                  <td><strong>Feb 18, 2026</strong><br><span style="font-size:.85rem;color:#999">2:30 PM</span></td>
-                  <td>February 2026</td>
-                  <td><span class="rp-pay-method momo">MTN MoMo</span></td>
-                  <td class="rp-amount-cell">2,000 Frw</td>
-                  <td><span class="rp-badge approved">Approved</span></td>
-                  <td>
-                    <button class="rp-btn-link" onclick="viewPaymentDetail(2)">View</button>
-                  </td>
-                </tr>
-                <tr data-status="approved">
-                  <td><strong>Jan 15, 2026</strong><br><span style="font-size:.85rem;color:#999">9:15 AM</span></td>
-                  <td>January 2026</td>
-                  <td><span class="rp-pay-method bank">Bank Transfer</span></td>
-                  <td class="rp-amount-cell">2,000 Frw</td>
-                  <td><span class="rp-badge approved">Approved</span></td>
-                  <td>
-                    <button class="rp-btn-link" onclick="viewPaymentDetail(3)">View</button>
-                  </td>
-                </tr>
-                <tr data-status="rejected">
-                  <td><strong>Dec 28, 2025</strong><br><span style="font-size:.85rem;color:#999">4:00 PM</span></td>
-                  <td>December 2025</td>
-                  <td><span class="rp-pay-method momo">MTN MoMo</span></td>
-                  <td class="rp-amount-cell">2,000 Frw</td>
-                  <td><span class="rp-badge rejected">Rejected</span></td>
-                  <td>
-                    <button class="rp-btn-link" onclick="openAddPaymentModal()" style="color:#dc2626;">Resubmit</button>
-                  </td>
-                </tr>
-                <tr data-status="approved">
-                  <td><strong>Dec 10, 2025</strong><br><span style="font-size:.85rem;color:#999">11:20 AM</span></td>
-                  <td>December 2025</td>
-                  <td><span class="rp-pay-method airtel">Airtel Money</span></td>
-                  <td class="rp-amount-cell">2,000 Frw</td>
-                  <td><span class="rp-badge approved">Approved</span></td>
-                  <td>
-                    <button class="rp-btn-link" onclick="viewPaymentDetail(5)">View</button>
-                  </td>
-                </tr>
-                <tr data-status="approved">
-                  <td><strong>Nov 12, 2025</strong><br><span style="font-size:.85rem;color:#999">3:45 PM</span></td>
-                  <td>November 2025</td>
-                  <td><span class="rp-pay-method momo">MTN MoMo</span></td>
-                  <td class="rp-amount-cell">2,000 Frw</td>
-                  <td><span class="rp-badge approved">Approved</span></td>
-                  <td>
-                    <button class="rp-btn-link" onclick="viewPaymentDetail(6)">View</button>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
 
           <!-- Pagination -->
           <div class="rp-table-pagination">
-            <span class="rp-pag-info">Showing 1-6 of 12 payments</span>
+            <span class="rp-pag-info" id="paymentsPaginationInfo">Loading payments...</span>
             <div class="rp-pag-controls">
               <button class="rp-pag-btn" disabled>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -513,6 +448,7 @@
   </div>
 
   <script src="/static/js/auth.js"></script>
+  <script src="/static/js/api_helper.js"></script>
   <script src="/static/js/resident_notifications.js"></script>
   <script src="/static/js/resident_payments.js"></script>
   <script>
