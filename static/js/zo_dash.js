@@ -910,7 +910,6 @@ async function confirmReject() {
     if (actsEl) {
       actsEl.innerHTML = '<span class="b op" style="font-size:.7rem;">Rejected</span>';
     }
-    itemElement.classList.add('resolved');
     
     if (typeof updateClaimsCounts === 'function') {
       updateClaimsCounts();

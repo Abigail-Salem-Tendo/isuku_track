@@ -187,11 +187,6 @@
         <div class="sc-sub">awaiting review</div>
       </div>
       <div class="sc">
-        <div class="sc-lbl">Resolved</div>
-        <div class="sc-val" id="resolvedCount">18</div>
-        <div class="sc-sub">this month</div>
-      </div>
-      <div class="sc">
         <div class="sc-lbl">Approved</div>
         <div class="sc-val" style="color:var(--g1)" id="approvedCount">12</div>
         <div class="sc-sub">this month</div>
@@ -206,7 +201,8 @@
     <div class="ftabs">
       <button class="ftab on" onclick="filterTab(this)">All</button>
       <button class="ftab" onclick="filterTab(this)">Pending</button>
-      <button class="ftab" onclick="filterTab(this)">Resolved</button>
+      <button class="ftab" onclick="filterTab(this)">Approved</button>
+      <button class="ftab" onclick="filterTab(this)">Rejected</button>
     </div>
 
     <div class="card">
@@ -358,7 +354,7 @@
           </div>
         </div>
 
-        <div class="ci resolved" data-category="damaged_infrastructure" data-claim-id="9" onclick="viewClaimDetails(this)" style="cursor:pointer;">
+        <div class="ci" data-category="damaged_infrastructure" data-claim-id="9" onclick="viewClaimDetails(this)" style="cursor:pointer;">
           <div class="ci-ico">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
@@ -371,7 +367,7 @@
             <div class="ci-meta">Eve K. · 5 days ago</div>
           </div>
           <div class="ci-acts">
-            <span class="b ok">Resolved</span>
+            <span class="b ok">Approved</span>
           </div>
         </div>
 
@@ -541,7 +537,6 @@
     const titleEl = el.querySelector('.ci-ttl');
     const locEl = el.querySelector('.ci-loc');
     const meta = el.querySelector('.ci-meta').textContent.trim();
-    const isResolved = el.classList.contains('resolved');
     const badgeEl = el.querySelector('.ci-acts .b');
     const badgeText = badgeEl ? badgeEl.textContent.trim().toLowerCase() : '';
     const isApproved = badgeText.includes('approved');
@@ -567,7 +562,7 @@
     const approveBtn = document.getElementById('detailApproveBtn');
     const rejectBtn = document.getElementById('detailRejectBtn');
 
-    if (isResolved || isApproved || isRejected) {
+    if (isApproved || isRejected) {
       approveBtn.style.display = 'none';
       rejectBtn.style.display = 'none';
     } else {
@@ -634,7 +629,6 @@
     if (actsEl) {
       actsEl.innerHTML = '<span class="b ok" style="font-size:.7rem;">Approved</span>';
     }
-    currentClaimElement.classList.add('resolved');
 
     // Show toast notification with points
     const POINTS_PER_CATEGORY = {
@@ -677,7 +671,6 @@
         const text = badge.textContent.trim().toLowerCase();
         if (text.includes('approved')) approved++;
         else if (text.includes('rejected')) rejected++;
-        else if (text.includes('resolved')) approved++;
         else pending++;
       } else {
         pending++;
@@ -687,13 +680,11 @@
     const pendingEl = document.getElementById('pendingCount');
     const approvedEl = document.getElementById('approvedCount');
     const rejectedEl = document.getElementById('rejectedCount');
-    const resolvedEl = document.getElementById('resolvedCount');
     const pendingBadgeEl = document.getElementById('pendingBadge');
 
     if (pendingEl) pendingEl.textContent = pending;
     if (approvedEl) approvedEl.textContent = approved;
     if (rejectedEl) rejectedEl.textContent = rejected;
-    if (resolvedEl) resolvedEl.textContent = approved + rejected;
     if (pendingBadgeEl) pendingBadgeEl.textContent = pending + ' pending';
 
     // Update header text
