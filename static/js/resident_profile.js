@@ -209,6 +209,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (msgEl) msgEl.innerHTML = msg;
   }
 
+  // ── Track original values for change detection ──
+  var originalProfile = { username: '', phone: '', zoneId: '' };
+
   // ── Load profile from backend ──
   async function loadProfile() {
     try {
@@ -230,6 +233,11 @@ document.addEventListener('DOMContentLoaded', function () {
         // Phone: convert stored format to local 9-digit display
         var localPhone = stripToLocal(user.phone_number || '');
         document.getElementById('phone').value = formatPhoneDisplay(localPhone);
+
+        // Store originals for change detection
+        originalProfile.username = user.username || '';
+        originalProfile.phone = '0' + localPhone;
+        originalProfile.zoneId = user.zone ? String(user.zone.id) : '';
 
         // Hero card
         document.getElementById('profileName').textContent = user.username;
@@ -350,6 +358,16 @@ document.addEventListener('DOMContentLoaded', function () {
     if (valid) {
       var phoneToSend = '0' + rawPhone;
 
+      // Frontend: catch no-changes before wasting a network call
+      if (
+        fullName.value.trim() === originalProfile.username &&
+        phoneToSend === originalProfile.phone &&
+        zone.value === originalProfile.zoneId
+      ) {
+        showToast('No changes detected.', 'error');
+        return;
+      }
+
       setLoading(profileSaveBtn, true);
       try {
         var token = localStorage.getItem('access_token');
@@ -420,6 +438,14 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
       confirm.classList.remove('error');
       document.getElementById('confirmPasswordError').classList.remove('visible');
+    }
+
+    // Frontend: catch same-password before wasting a network call
+    if (valid && newPass.value === current.value) {
+      newPass.classList.add('error');
+      document.getElementById('newPasswordError').textContent = 'New password must be different from current password';
+      document.getElementById('newPasswordError').classList.add('visible');
+      valid = false;
     }
 
     if (valid) {

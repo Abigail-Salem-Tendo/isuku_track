@@ -184,6 +184,11 @@ def update_profile():
     if not user:
         return jsonify({"error": "User not found"}), 404
 
+    # Capture originals for no-changes detection
+    original_username = user.username
+    original_phone = user.phone_number
+    original_zone_id = user.zone_id
+
     errors = []
 
     # Editable profile username
@@ -229,6 +234,8 @@ def update_profile():
             errors.append("Current password is required to set a new password")
         elif not bcrypt.check_password_hash(user.password_hash, current_password):
             errors.append("Current password is incorrect")
+        elif bcrypt.check_password_hash(user.password_hash, data["new_password"]):
+            errors.append("New password must be different from current password")
         else:
             error = validate_password(data["new_password"])
             if error:
@@ -249,6 +256,14 @@ def update_profile():
 
     if errors:
         return jsonify({"error": errors[0]}), 400
+
+    # Backend: no-changes check for profile fields
+    profile_fields = {"username", "phone_number", "zone_id"}
+    if profile_fields.intersection(data.keys()) and "new_password" not in data:
+        if (user.username == original_username and
+                user.phone_number == original_phone and
+                user.zone_id == original_zone_id):
+            return jsonify({"error": "No changes detected"}), 400
 
     try:
         db.session.commit()
