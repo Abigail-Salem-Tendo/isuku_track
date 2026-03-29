@@ -51,6 +51,35 @@ def create_app():
     def login_page():
         return render_template("login1.html")
 
+    #Admin pages
+    @app.route("/admin/zones")
+    def admin_zones():
+        return render_template("admin/admin_zones.html")
+
+    @app.route("/admin/users")
+    def admin_users():
+        return render_template("admin/admin_users.html")
+
+    @app.route("/admin/operators")
+    def admin_operators():
+        return render_template("admin/admin_zone_operator.html")
+
+    @app.route("/admin/schedules")
+    def admin_schedules():
+        return render_template("admin/admin_schedules.html")
+
+    @app.route("/admin/claims")
+    def admin_claims():
+        return render_template("admin/admin_claims.html")
+
+    @app.route("/admin/payments")
+    def admin_payments():
+        return render_template("admin/admin_payments.html")
+
+    @app.route("/admin/reports")
+    def admin_reports():
+        return render_template("admin/admin_reports.html")
+
     # Resident pages
     @app.route("/resident/dashboard")
     def resident_dashboard():
