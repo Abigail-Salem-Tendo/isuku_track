@@ -16,6 +16,7 @@ from routes.upload import upload_bp
 from routes.reports import reports_bp
 from routes.payment_routes import payment_bp
 from routes.notifications import notifications_bp
+from routes.residents import residents_bp
 from flask import render_template
 
 
@@ -41,6 +42,8 @@ def create_app():
     app.register_blueprint(reports_bp, url_prefix='/api/reports')
     app.register_blueprint(payment_bp, url_prefix='/api/payments')
     app.register_blueprint(notifications_bp, url_prefix='/api/notifications')
+    app.register_blueprint(residents_bp, url_prefix='/api/residents')
+
 
 
     @app.route("/")

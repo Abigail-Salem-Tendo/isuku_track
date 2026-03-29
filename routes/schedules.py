@@ -82,7 +82,24 @@ def update_schedule(id):
             return jsonify({"error": "Invalid date_time_end format"}), 400
 
     if 'status' in data:
-        schedule.status = data['status']
+        new_status = data['status']
+        current_status = schedule.status
+
+        # Validate status transitions
+        valid_transitions = {
+            'not_started': ['ongoing'],
+            'ongoing': ['completed'],
+            'completed': []  # Cannot transition from completed
+        }
+
+        if new_status not in valid_transitions.get(current_status, []):
+            return jsonify({
+                "error": f"Invalid status transition from '{current_status}' to '{new_status}'. "
+                         f"Valid transitions from '{current_status}': {valid_transitions.get(current_status, [])}"
+            }), 400
+
+        schedule.status = new_status
+
     if 'zone_operator_id' in data:
         schedule.zone_operator_id = data['zone_operator_id']
     if 'zone_id' in data:
