@@ -207,21 +207,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize map
   function initializeMap() {
-    // Destroy existing map if it exists
-    if (map) {
-      map.remove();
-    }
+    // Only initialize map once
+    if (map) return;
 
     const mapContainer = document.getElementById('residentsMap');
     if (!mapContainer) return;
 
-    // Create map centered on Kigali, Rwanda
-    map = L.map('residentsMap').setView([-1.9536, 30.0605], 13);
+    try {
+      // Create map centered on Kigali, Rwanda
+      map = L.map('residentsMap').setView([-1.9536, 30.0605], 13);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 19
-    }).addTo(map);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(map);
+
+      // Update markers for residents
+      updateMapMarkers();
+    } catch (mapError) {
+      console.error('Map initialization error:', mapError);
+      if (map) {
+        try {
+          map.remove();
+          map = null;
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+    }
+  }
+
+  function updateMapMarkers() {
+    if (!map) return; // Map not initialized yet
 
     // Clear old markers
     markers.forEach(marker => marker.remove());
@@ -262,16 +279,27 @@ document.addEventListener('DOMContentLoaded', function() {
   // Fetch residents from API
   async function fetchResidents() {
     try {
-      const response = await fetch(API_BASE, { headers });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(API_BASE, { 
+        headers,
+        signal: controller.signal 
+      });
+      clearTimeout(timeoutId);
+      
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       allResidents = await response.json();
+      if (!Array.isArray(allResidents)) allResidents = [];
       updateStats();
       renderResidents();
       initializeMap();
+      updateMapMarkers();
       fetchAndDisplayZoneName();
     } catch (error) {
       console.error('Failed to fetch residents:', error);
+      allResidents = [];
       const container = document.getElementById('residentsContainer');
       if (container) {
         container.innerHTML = '<div style="padding: 20px; color: red;">Failed to load residents. Please refresh.</div>';
@@ -305,7 +333,7 @@ function logout() {
   if (confirm('Are you sure you want to logout?')) {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
-    window.location.href = '/login';
+    window.location.href = '/logout';
   }
 }
 

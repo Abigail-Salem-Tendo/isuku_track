@@ -159,13 +159,23 @@ document.addEventListener('DOMContentLoaded', function() {
   // Fetch claims from API
   async function fetchClaims() {
     try {
-      const response = await fetch(API_BASE, { headers });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(API_BASE, { 
+        headers,
+        signal: controller.signal 
+      });
+      clearTimeout(timeoutId);
+      
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       allClaims = await response.json();
+      if (!Array.isArray(allClaims)) allClaims = [];
       renderClaims();
     } catch (error) {
       console.error('Failed to fetch claims:', error);
+      allClaims = [];
       const container = document.getElementById('claimsListContainer');
       if (container) {
         container.innerHTML = '<div style="padding: 20px; color: red;">Failed to load claims. Please refresh.</div>';
@@ -532,7 +542,7 @@ function logout() {
   if (confirm('Are you sure you want to logout?')) {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
-    window.location.href = '/login';
+    window.location.href = '/logout';
   }
 }
 

@@ -149,11 +149,11 @@ function handleAuthSuccess(data) {
   localStorage.setItem('user', JSON.stringify(data.user));
 
   const role = data.user.role;
-  //referencing from the html pages themselves
+  // Redirect to Flask routes, not template files
   if (role === 'admin') {
-    window.location.href = '/templates/admin/admin_dash.html';
+    window.location.href = '/admin/dashboard';
   } else if (role === 'zone_operator') {
-    window.location.href = '/templates/zone_operator/zo_dash.html';
+    window.location.href = '/zone-operator/dashboard';
   } else {
     window.location.href = '/resident/dashboard';
   }

@@ -478,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      window.location.href = '/login';
+      window.location.href = '/logout';
     }
   }
 

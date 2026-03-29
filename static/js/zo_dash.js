@@ -779,6 +779,8 @@ document.addEventListener('click', function() {
 /* ── Logout ── */
 function logout() {
   if (confirm('Are you sure you want to logout?')) {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
     window.location.href = '/logout';
   }
 }

@@ -27,9 +27,11 @@ async function getCurrentUserZone() {
 
     if (response.ok) {
       const data = await response.json();
+      const user = data.user || {};
+      const zone = user.zone || {};
       return {
-        zone_id: data.user?.zone_id || null,
-        zone_name: data.user?.zone_name || null
+        zone_id: zone.id || null,
+        zone_name: zone.name || null
       };
     }
 
@@ -50,16 +52,22 @@ async function fetchSchedules(zoneId) {
       url += `?zone_id=${zoneId}`;
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
-      }
+      },
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      console.error(`API error: ${response.status}`);
+      return [];
     }
 
     const schedules = await response.json();
@@ -488,20 +496,12 @@ function showToast(message, type = 'success') {
 async function initSchedules() {
   try {
     // Get current user's zone
-    currentUserZoneId = await getCurrentUserZone();
-
-    // If we can't get zone from API, try to infer it from page
-    if (!currentUserZoneId) {
-      // Fallback: try to fetch any schedules and use the first zone_id
-      const allScheds = await fetchSchedules();
-      if (allScheds.length > 0) {
-        currentUserZoneId = allScheds[0].zone_id;
-      }
-    }
+    const userZone = await getCurrentUserZone();
+    const zoneId = userZone.zone_id;
 
     // Fetch schedules for this zone
-    const schedules = currentUserZoneId
-      ? await fetchSchedules(currentUserZoneId)
+    const schedules = zoneId
+      ? await fetchSchedules(zoneId)
       : await fetchSchedules();
 
     // Store and render
