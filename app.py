@@ -50,6 +50,10 @@ def create_app():
     @app.route("/login")
     def login_page():
         return render_template("login1.html")
+    
+    @app.route("/reset-password")
+    def reset_password_page():
+        return render_template("reset-password.html")
 
     #Admin pages
     @app.route("/admin/zones")
