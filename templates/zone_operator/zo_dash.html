@@ -248,6 +248,16 @@
       <div class="ch">
         <div class="ct">Zone Map — Resident Bins</div>
         <div style="display:flex;gap:10px;align-items:center;">
+          
+          <a class="ca" href="/map" style="display:flex; align-items:center; gap:4px;" title="Open fully interactive map">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+            Full Map
+          </a>
+
           <button class="fullscreen-btn" onclick="toggleMapFullscreen()" title="Toggle Fullscreen">
             <svg id="expandIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 3 21 3 21 9"/>
@@ -262,9 +272,11 @@
               <line x1="3" y1="21" x2="10" y2="14"/>
             </svg>
           </button>
+          
           <a class="ca" href="/zone-operator/schedules">View Routes →</a>
         </div>
       </div>
+      
       <div class="cb">
         <div class="map-container" id="zoneMap"></div>
         <div class="map-legend" style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;">
@@ -478,6 +490,7 @@
 <!-- JavaScript -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/interactive_map.js"></script>
 <script src="/static/js/api_helper.js"></script>
 <script src="/static/js/notifications.js"></script>
 <script src="../../static/js/zo_dash.js"></script>
