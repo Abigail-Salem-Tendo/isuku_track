@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Profile — Isuku Track</title>
   <link rel="stylesheet" href="/static/css/base1.css" />
+  <link rel="stylesheet" href="/static/css/login1.css" />
   <link rel="stylesheet" href="/static/css/dashboard.css" />
   <link rel="stylesheet" href="/static/css/resident.css" />
 </head>
@@ -98,124 +99,197 @@
           </svg>
         </button>
         <span class="topbar__title">Profile</span>
-        <button class="topbar__bell">
-          <svg viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 0 1-6 0v-1m6 0H9" />
-          </svg>
-          <span class="topbar__bell-badge"></span>
-        </button>
+        <div style="position: relative;">
+          <button class="topbar__bell" id="notificationToggle">
+            <svg viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 0 1-6 0v-1m6 0H9" />
+            </svg>
+          </button>
+          <div class="notification-panel">
+            <div class="notif-header">
+              <span>Notifications</span>
+              <button id="markAllReadBtn">Mark all as read</button>
+            </div>
+            <div id="notificationList"></div>
+          </div>
+        </div>
       </div>
 
       <main class="resident-main">
+
+        <!-- Toast container -->
+        <div class="toast-container" id="toastContainer"></div>
 
         <div class="page-header">
           <h1>My Profile</h1>
           <p>View and update your personal information</p>
         </div>
 
-        <!-- Profile Avatar Card -->
-        <div class="profile-avatar-card">
-          <div class="profile-avatar" id="profileAvatar">R</div>
-          <div class="profile-avatar-info">
-            <div class="profile-avatar-name" id="profileName">Resident</div>
-            <div class="profile-avatar-zone" id="profileZone">Loading zone...</div>
+        <!-- Profile Hero Card -->
+        <div class="profile-hero">
+          <div class="profile-hero__avatar" id="profileAvatar">R</div>
+          <div class="profile-hero__info">
+            <div class="profile-hero__name" id="profileName">Resident</div>
+            <div class="profile-hero__meta">
+              <div class="profile-hero__zone">
+                <span class="profile-hero__zone-dot"></span>
+                <span id="profileZone">Loading zone...</span>
+              </div>
+              <div class="profile-hero__zone-details" id="profileZoneDetails"></div>
+            </div>
           </div>
-          <!-- Loyalty points -->
-          <div class="profile-points">
-            <div class="profile-points__value" id="profilePoints">—</div>
-            <div class="profile-points__label">Loyalty Points</div>
-          </div>
-        </div>
-
-        <!-- Edit Personal Info -->
-        <div class="section">
-          <div class="section__header">
-            <span class="section__title">Personal Information</span>
-          </div>
-          <div class="dashboard-form">
-            <form id="profileForm" novalidate>
-
-              <div class="form-group">
-                <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" name="fullName" placeholder="Your full name" />
-                <span class="error-message" id="fullNameError">Full name is required</span>
+          <div class="profile-hero__loyalty">
+            <div class="profile-hero__loyalty-top">
+              <div class="profile-hero__loyalty-pts">
+                <span class="pts-num" id="profilePtsNum">—</span>
+                <span class="pts-unit">pts</span>
               </div>
-
-              <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" placeholder="Your email" disabled />
-                <p class="field-note">Email cannot be changed. Contact admin if needed.</p>
-              </div>
-
-              <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" placeholder="07XXXXXXXX" />
-                <span class="error-message" id="phoneError">Phone number is required</span>
-              </div>
-
-              <!-- Zone change -->
-              <div class="form-group">
-                <label for="zone">Zone</label>
-                <select id="zone" name="zone">
-                  <option value="">— Loading zones... —</option>
-                </select>
-                <span class="error-message" id="zoneError">Please select a zone</span>
-                <p class="field-note">Only change this if you have moved to a different area.</p>
-              </div>
-
-              <div style="margin-top: 8px;">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-              </div>
-
-            </form>
+              <span class="profile-hero__loyalty-target" id="profileLoyaltyTarget">Next reward: 100 pts</span>
+            </div>
+            <div class="profile-hero__loyalty-bar">
+              <div class="profile-hero__loyalty-fill" id="profileLoyaltyFill" style="width:0%"></div>
+            </div>
+            <div class="profile-hero__loyalty-bottom">
+              <span class="profile-hero__loyalty-emoji" id="profileLoyaltyEmoji"></span>
+              <span class="profile-hero__loyalty-msg" id="profileLoyaltyMsg">Loading...</span>
+            </div>
           </div>
         </div>
 
-        <!-- Change Password -->
-        <div class="section">
-          <div class="section__header">
-            <span class="section__title">Change Password</span>
+        <!-- Two-column form grid on desktop -->
+        <div class="profile-grid">
+
+          <!-- Edit Personal Info -->
+          <div class="section">
+            <div class="section__header">
+              <span class="section__title">Personal Information</span>
+            </div>
+            <div class="dashboard-form">
+              <form id="profileForm" novalidate>
+
+                <div class="form-group">
+                  <label for="fullName">Full Name</label>
+                  <div class="field-icon-wrap">
+                    <svg class="field-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <input type="text" id="fullName" name="fullName" placeholder="Your full name" />
+                  </div>
+                  <span class="error-message" id="fullNameError">Full name is required</span>
+                </div>
+
+                <div class="form-group">
+                  <label for="email">Email Address</label>
+                  <div class="field-icon-wrap">
+                    <svg class="field-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                    <input type="email" id="email" name="email" placeholder="Your email" disabled />
+                  </div>
+                  <p class="field-note">Email cannot be changed. Contact admin if needed.</p>
+                </div>
+
+                <div class="form-group">
+                  <label for="phone">Phone Number</label>
+                  <div class="phone-field" id="phoneFieldWrap">
+                    <div class="phone-field__prefix">
+                      <span class="phone-field__flag">&#127479;&#127484;</span>
+                      <span class="phone-field__code">+250</span>
+                    </div>
+                    <input type="tel" id="phone" name="phone" placeholder="788 000 000" />
+                  </div>
+                  <span class="error-message" id="phoneError">Phone number is required</span>
+                </div>
+
+                <div class="form-group">
+                  <label for="zone">Zone</label>
+                  <div class="field-icon-wrap">
+                    <svg class="field-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+                    </svg>
+                    <select id="zone" name="zone">
+                      <option value="">— Loading zones... —</option>
+                    </select>
+                  </div>
+                  <span class="error-message" id="zoneError">Please select a zone</span>
+                  <p class="field-note">Only change this if you have moved to a different area.</p>
+                </div>
+
+                <div style="margin-top: 8px;">
+                  <button type="submit" class="btn btn-primary" id="profileSaveBtn">
+                    <span class="btn__text">Save Changes</span>
+                  </button>
+                </div>
+
+              </form>
+            </div>
           </div>
-          <div class="dashboard-form">
-            <form id="passwordForm" novalidate>
 
-              <div class="form-group">
-                <label for="currentPassword">Current Password</label>
-                <div class="input-wrapper">
-                  <input type="password" id="currentPassword" name="currentPassword"
-                    placeholder="Enter current password" />
-                  <button type="button" class="toggle-password" data-target="currentPassword">Show</button>
+          <!-- Change Password -->
+          <div class="section">
+            <div class="section__header">
+              <span class="section__title">Change Password</span>
+            </div>
+            <div class="dashboard-form">
+              <form id="passwordForm" novalidate>
+
+                <div class="form-group">
+                  <label for="currentPassword">Current Password</label>
+                  <div class="input-wrapper">
+                    <input type="password" id="currentPassword" name="currentPassword"
+                      placeholder="Enter current password" />
+                    <button type="button" class="toggle-password" data-target="currentPassword" aria-label="Toggle password visibility">
+                      <svg class="eye-open" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      <svg class="eye-closed" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    </button>
+                  </div>
+                  <span class="error-message" id="currentPasswordError">Current password is required</span>
                 </div>
-                <span class="error-message" id="currentPasswordError">Current password is required</span>
-              </div>
 
-              <div class="form-group">
-                <label for="newPassword">New Password</label>
-                <div class="input-wrapper">
-                  <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" />
-                  <button type="button" class="toggle-password" data-target="newPassword">Show</button>
+                <div class="form-group">
+                  <label for="newPassword">New Password</label>
+                  <div class="input-wrapper">
+                    <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" />
+                    <button type="button" class="toggle-password" data-target="newPassword" aria-label="Toggle password visibility">
+                      <svg class="eye-open" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      <svg class="eye-closed" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    </button>
+                  </div>
+                  <span class="error-message" id="newPasswordError">Password must be at least 6 characters</span>
+                  <!-- Password strength meter -->
+                  <div class="pw-strength" id="pwStrength" style="display:none;">
+                    <div class="pw-strength__bar-track">
+                      <div class="pw-strength__bar-fill" id="pwStrengthFill"></div>
+                    </div>
+                    <div class="pw-strength__label" id="pwStrengthLabel"></div>
+                  </div>
                 </div>
-                <span class="error-message" id="newPasswordError">Password must be at least 6 characters</span>
-              </div>
 
-              <div class="form-group">
-                <label for="confirmPassword">Confirm New Password</label>
-                <div class="input-wrapper">
-                  <input type="password" id="confirmPassword" name="confirmPassword"
-                    placeholder="Repeat new password" />
-                  <button type="button" class="toggle-password" data-target="confirmPassword">Show</button>
+                <div class="form-group">
+                  <label for="confirmPassword">Confirm New Password</label>
+                  <div class="input-wrapper">
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                      placeholder="Repeat new password" />
+                    <button type="button" class="toggle-password" data-target="confirmPassword" aria-label="Toggle password visibility">
+                      <svg class="eye-open" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      <svg class="eye-closed" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    </button>
+                  </div>
+                  <span class="error-message" id="confirmPasswordError">Passwords do not match</span>
                 </div>
-                <span class="error-message" id="confirmPasswordError">Passwords do not match</span>
-              </div>
 
-              <div style="margin-top: 8px;">
-                <button type="submit" class="btn btn-secondary">Update Password</button>
-              </div>
+                <div style="margin-top: 8px;">
+                  <button type="submit" class="btn btn-secondary" id="passwordSaveBtn">
+                    <span class="btn__text">Update Password</span>
+                  </button>
+                </div>
 
-            </form>
+              </form>
+            </div>
           </div>
-        </div>
+
+        </div><!-- /profile-grid -->
 
       </main>
     </div>
@@ -283,7 +357,7 @@
           </svg>
           My Profile
         </a>
-        <a href="/static/pages/resident/settings.html" class="dd-item">
+        <a href="/resident/resident_profile" class="dd-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3" />
@@ -292,7 +366,8 @@
           </svg>
           Settings
         </a>
-        <div class="dd-item dd-logout" onclick="if(confirm('Logout?'))window.location.href='/logout'">
+        <div class="dd-item dd-logout" onclick="logout()"
+
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -306,8 +381,16 @@
   </nav>
 
   <script src="/static/js/auth.js"></script>
+  <script src="/static/js/api_helper.js"></script>
+  <script src="/static/js/resident_notifications.js"></script>
   <script src="/static/js/resident_profile.js"></script>
   <script>
+    function logout() {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      window.location.href = '/logout';
+    }
     // Profile dropdown toggle
     function toggleProfileDd(e) {
       e.stopPropagation();

@@ -3,11 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payments — Isuku Track</title>
+  <title>Payments - Isuku Track</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../static/css/zo_dash.css">
 </head>
 <body>
+
+<!-- Payment Details Modal -->
+<div class="modal-overlay" id="paymentDetailsModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-title" style="border-bottom:1px solid #eee;padding-bottom:12px;margin-bottom:16px;">Payment Details</div>
+    <div id="paymentDetailsContent">
+      <div class="payment-detail-row">
+        <label>Resident:</label>
+        <span id="payDetailName">-</span>
+      </div>
+      <div class="payment-detail-row">
+        <label>Amount:</label>
+        <span id="payDetailAmount" style="font-weight:600;color:var(--g1);">-</span>
+      </div>
+      <div class="payment-detail-row">
+        <label>Submitted:</label>
+        <span id="payDetailDate">-</span>
+      </div>
+      <div class="payment-detail-row">
+        <label>Payment Method:</label>
+        <span id="payDetailMethod">Mobile Money</span>
+      </div>
+      <div class="payment-detail-row">
+        <label>Transaction ID:</label>
+        <span id="payDetailTxn" style="font-family:monospace;">-</span>
+      </div>
+      <div class="payment-detail-row" id="payDetailProofRow">
+        <label>Payment Proof:</label>
+        <img id="payDetailProof" src="" alt="Payment proof" style="max-width:100%;border-radius:8px;margin-top:8px;display:none;">
+        <span id="noProofText" style="color:var(--txt-l);">No proof uploaded</span>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:20px;display:flex;gap:10px;">
+      <button class="modal-btn cancel" onclick="closePaymentDetailsModal()" style="flex:1;">Close</button>
+      <button class="modal-btn" id="payDetailRejectBtn" style="flex:1;background:#dc2626;color:#fff;" onclick="openRejectFromPayDetails()">Reject</button>
+      <button class="modal-btn" id="payDetailApproveBtn" style="flex:1;background:#16a34a;color:#fff;" onclick="approveFromPayDetails()">Approve</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-overlay" id="rejectModal">
   <div class="modal">
@@ -25,9 +64,9 @@
     </select>
     <label class="modal-label">Additional details (optional)</label>
     <textarea class="modal-textarea" id="rejectDetails" placeholder="Provide more context if needed..."></textarea>
-    <div class="modal-actions">
-      <button class="modal-btn cancel" onclick="closeRejectModal()">Cancel</button>
-      <button class="modal-btn confirm" onclick="confirmReject()">Confirm Rejection</button>
+    <div class="modal-actions" style="display:flex;gap:10px;">
+      <button class="modal-btn cancel" onclick="closeRejectModal()" style="flex:1;">Cancel</button>
+      <button class="modal-btn" onclick="confirmReject()" style="flex:1;background:#dc2626;color:#fff;">Confirm Rejection</button>
     </div>
   </div>
 </div>
@@ -48,14 +87,14 @@
 
   <div class="sb-sec">
     <div class="sb-lbl">My Zone</div>
-    <a class="sb-a" href="zo_dash.html">
+    <a class="sb-a" href="/zone-operator/dashboard">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
         <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
       </svg>
       Dashboard
     </a>
-    <a class="sb-a" href="zo_schedules.html">
+    <a class="sb-a" href="/zone-operator/schedules">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="4" width="18" height="18" rx="2"/>
         <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
@@ -63,33 +102,33 @@
       </svg>
       Schedules
     </a>
-    <a class="sb-a" href="zo_claims.html">
+    <a class="sb-a" href="/zone-operator/claims">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
         <polyline points="14 2 14 8 20 8"/>
         <line x1="16" y1="13" x2="8" y2="13"/>
       </svg>
-      Claims <span class="sb-badge">7</span>
+      Claims
     </a>
   </div>
 
   <div class="sb-sec">
     <div class="sb-lbl">Management</div>
-    <a class="sb-a on" href="zo_payments.html">
+    <a class="sb-a on" href="/zone-operator/payments">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="2" y="5" width="20" height="14" rx="2"/>
         <line x1="2" y1="10" x2="22" y2="10"/>
       </svg>
-      Payments <span class="sb-badge am">3</span>
+      Payments
     </a>
-    <a class="sb-a" href="zo_residents.html">
+    <a class="sb-a" href="/zone-operator/residents">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
         <circle cx="9" cy="7" r="4"/>
       </svg>
       Residents
     </a>
-    <a class="sb-a" href="zo_report.html">
+    <a class="sb-a" href="/zone-operator/report">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"/>
         <line x1="12" y1="20" x2="12" y2="4"/>
@@ -99,12 +138,23 @@
     </a>
   </div>
 
+  <div class="sb-sec">
+    <div class="sb-lbl">Account</div>
+    <a class="sb-a" href="/zone-operator/profile">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      My Profile
+    </a>
+  </div>
+
   <div class="sb-foot">
     <div class="sb-user">
-      <div class="sb-av">JP</div>
+      <div class="sb-av" id="sidebarProfileAvatar">ZO</div>
       <div>
-        <div class="sb-un">Jean-Pierre K.</div>
-        <div class="sb-ur">Zone A Operator</div>
+        <div class="sb-un" id="sidebarProfileName">Zone Operator</div>
+        <div class="sb-ur" id="sidebarProfileRole">Zone Operator</div>
       </div>
     </div>
     <button class="sb-logout" onclick="logout()">
@@ -128,38 +178,47 @@
       <p>Kimironko Zone A · 3 pending verifications</p>
     </div>
     <div class="tb-r">
-      <div class="icon-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-        </svg>
-        <div class="notif-dot"></div>
+      <div class="notif-wrap" style="position:relative;">
+        <button class="icon-btn" id="notifToggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <div class="notif-dot" id="notifDot" style="display:none;"></div>
+        </button>
+        <div class="notif-panel" id="notifPanel">
+          <div class="notif-head">
+            <span>Notifications</span>
+            <button id="markAllReadBtn">Mark all as read</button>
+          </div>
+          <div id="notifList"></div>
+        </div>
       </div>
-      <div class="av">JP</div>
+      <div class="av" id="topbarProfileAvatar">ZO</div>
     </div>
   </div>
 
   <div class="page">
     <div class="sg">
       <div class="sc">
-        <div class="sc-lbl">This Week</div>
-        <div class="sc-val" id="weekPayments">28</div>
-        <div class="sc-sub"><span class="up">↑3</span> vs last week</div>
+        <div class="sc-lbl">Total Payments</div>
+        <div class="sc-val" id="totalPayments">0</div>
+        <div class="sc-sub">this month</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Pending</div>
-        <div class="sc-val" style="color:var(--red)" id="pendingPayments">3</div>
+        <div class="sc-val" style="color:var(--red)" id="pendingPayments">0</div>
         <div class="sc-sub">awaiting review</div>
       </div>
       <div class="sc">
-        <div class="sc-lbl">Revenue (week)</div>
-        <div class="sc-val" style="font-size:1.1rem" id="weekRevenue">28,000</div>
-        <div class="sc-sub">RWF collected</div>
+        <div class="sc-lbl">Total Collected</div>
+        <div class="sc-val" style="font-size:1.1rem" id="totalCollected">RWF 0</div>
+        <div class="sc-sub">approved payments</div>
       </div>
       <div class="sc">
-        <div class="sc-lbl">Collection Rate</div>
-        <div class="sc-val" style="font-size:1.3rem" id="collectionRate">94%</div>
-        <div class="sc-sub"><span class="up">↑1%</span> vs last week</div>
+        <div class="sc-lbl">Approval Rate</div>
+        <div class="sc-val" style="font-size:1.3rem" id="approvalRate">0%</div>
+        <div class="sc-sub">of total payments</div>
       </div>
     </div>
 
@@ -193,7 +252,7 @@
     <div class="card" style="margin-bottom:18px;">
       <div class="ch">
         <div class="ct">Monthly Collection Trend</div>
-        <a class="ca" href="zo_report.html">View Report →</a>
+        <a class="ca" href="/zone-operator/report">View Report →</a>
       </div>
       <div class="cb">
         <div class="chart-container" style="height:220px;">
@@ -222,80 +281,145 @@
     <div class="card">
       <div class="ch">
         <div class="ct">Payment Verifications</div>
-        <span class="b op" style="font-size:.73rem;">3 pending</span>
+        <span class="b op" style="font-size:.73rem;" id="pendingBadge">Loading...</span>
       </div>
-      <div class="cb">
-
-        <div class="pi">
-          <div class="pi-av">AM</div>
-          <div>
-            <div class="pi-name">Alice Mutoni</div>
-            <div class="pi-meta">Submitted 1h ago · 1,000 RWF claimed</div>
-          </div>
-          <div class="pi-amt">1,000 RWF</div>
-          <div class="pay-actions" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
-            <button class="btn-ok btn-approve-pay" style="font-size:.7rem;padding:5px 12px;">Verify &amp; Approve</button>
-            <button class="btn-no btn-reject-pay" style="font-size:.7rem;padding:5px 12px;" onclick="openRejectModal(this)">Reject</button>
-          </div>
-        </div>
-
-        <div class="pi">
-          <div class="pi-av">BN</div>
-          <div>
-            <div class="pi-name">Bob Ntwari</div>
-            <div class="pi-meta">Submitted 3h ago · 2,000 RWF claimed</div>
-          </div>
-          <div class="pi-amt">2,000 RWF</div>
-          <div class="pay-actions" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
-            <button class="btn-ok btn-approve-pay" style="font-size:.7rem;padding:5px 12px;">Verify &amp; Approve</button>
-            <button class="btn-no btn-reject-pay" style="font-size:.7rem;padding:5px 12px;" onclick="openRejectModal(this)">Reject</button>
-          </div>
-        </div>
-
-        <div class="pi">
-          <div class="pi-av">MJ</div>
-          <div>
-            <div class="pi-name">Marie Jeannette</div>
-            <div class="pi-meta">Submitted 5h ago · 1,000 RWF claimed</div>
-          </div>
-          <div class="pi-amt">1,000 RWF</div>
-          <div class="pay-actions" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
-            <button class="btn-ok btn-approve-pay" style="font-size:.7rem;padding:5px 12px;">Verify &amp; Approve</button>
-            <button class="btn-no btn-reject-pay" style="font-size:.7rem;padding:5px 12px;" onclick="openRejectModal(this)">Reject</button>
-          </div>
-        </div>
-
-        <div class="pi">
-          <div class="pi-av">GK</div>
-          <div>
-            <div class="pi-name">Grace Keza</div>
-            <div class="pi-meta">Submitted yesterday · 1,000 RWF</div>
-          </div>
-          <div class="pi-amt">1,000 RWF</div>
-          <span class="b ok">Approved</span>
-        </div>
-
-        <div class="pi">
-          <div class="pi-av">PR</div>
-          <div>
-            <div class="pi-name">Paul Rugamba</div>
-            <div class="pi-meta">Submitted 2 days ago · 1,000 RWF</div>
-          </div>
-          <div class="pi-amt">1,000 RWF</div>
-          <span class="b ok">Approved</span>
-        </div>
-
-        <div class="pi">
-          <div class="pi-av">DU</div>
-          <div>
-            <div class="pi-name">David Uwimana</div>
-            <div class="pi-meta">Submitted 3 days ago · 500 RWF</div>
-          </div>
-          <div class="pi-amt">500 RWF</div>
-          <span class="b op">Rejected</span>
-        </div>
-
+      <div class="cb" id="paymentsList">
+        <div style="padding:20px;text-align:center;color:var(--txt-l);">Loading payments...</div>
       </div>
+
+    <!-- ══════════════ PAYMENTS TABLE ══════════════ -->
+    <div class="card" style="margin-top:18px;">
+      <div class="ch">
+        <div class="ct">Payments Table</div>
+        <span class="tbl-count-badge" id="tblCountBadge">— payments</span>
+      </div>
+      <div class="cb" style="padding:0;overflow-x:auto;">
+        <table class="zo-payments-table">
+          <thead>
+            <tr>
+              <th>Resident</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Method</th>
+              <th>For Month</th>
+              <th>Transaction ID</th>
+              <th>Proof</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsTableBody">
+            <tr><td colspan="8" style="text-align:center;padding:24px;color:var(--txt-l);">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ TABLE PAYMENT DETAIL MODAL ══════════════ -->
+<div class="modal-overlay tbl-modal-overlay" id="tablePaymentModal">
+  <div class="modal tbl-modal">
+    <div class="tbl-modal-header">
+      <div class="tbl-modal-title">Payment Details</div>
+      <button class="tbl-modal-close" onclick="closeTablePaymentModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="tbl-modal-body">
+      <!-- Resident info -->
+      <div class="tbl-modal-section">
+        <div class="tbl-modal-section-title">Resident</div>
+        <div class="tbl-modal-grid">
+          <div class="tbl-modal-field"><label>Name</label><span id="tblDetailName">—</span></div>
+          <div class="tbl-modal-field"><label>Email</label><span id="tblDetailEmail">—</span></div>
+          <div class="tbl-modal-field"><label>Phone</label><span id="tblDetailPhone">—</span></div>
+        </div>
+      </div>
+      <!-- Payment info -->
+      <div class="tbl-modal-section">
+        <div class="tbl-modal-section-title">Payment</div>
+        <div class="tbl-modal-grid">
+          <div class="tbl-modal-field"><label>Amount</label><span id="tblDetailAmount" class="tbl-modal-amount">—</span></div>
+          <div class="tbl-modal-field"><label>For Month</label><span id="tblDetailMonth">—</span></div>
+          <div class="tbl-modal-field"><label>Submitted</label><span id="tblDetailDate">—</span></div>
+          <div class="tbl-modal-field"><label>Method</label><span id="tblDetailMethod">—</span></div>
+          <div class="tbl-modal-field"><label>Transaction ID</label><span id="tblDetailTxn" style="font-family:monospace;font-size:.88rem;">—</span></div>
+          <div class="tbl-modal-field"><label>Status</label><span id="tblDetailStatus" class="tbl-detail-status-badge pending">—</span></div>
+        </div>
+      </div>
+      <!-- Rejection reason (hidden unless rejected) -->
+      <div class="tbl-modal-section" id="tblDetailRejRow" style="display:none;">
+        <div class="tbl-modal-section-title" style="color:var(--red);">Rejection Reason</div>
+        <div style="background:#fff5f5;border:1px solid #fecaca;border-radius:8px;padding:12px;font-size:.9rem;color:#dc2626;" id="tblDetailRejReason"></div>
+      </div>
+      <!-- Proof of payment -->
+      <div class="tbl-modal-section">
+        <div class="tbl-modal-section-title">Proof of Payment</div>
+        <div class="tbl-proof-area">
+          <img id="tblDetailProofImg" src="" alt="Payment proof"
+               class="tbl-detail-proof-img"
+               style="display:none;"
+               onclick="openProofLightbox(this.src, document.getElementById('tblDetailName').textContent)"
+               title="Click to view full size">
+          <div id="tblDetailNoProof" class="tbl-no-proof-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <span>No proof uploaded</span>
+          </div>
+          <button class="tbl-view-full-btn" id="tblDetailProofBtn" style="display:none;"
+                  onclick="openProofLightbox(document.getElementById('tblDetailProofImg').src, document.getElementById('tblDetailName').textContent)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+            </svg>
+            View Full Size
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Actions -->
+    <div class="tbl-modal-footer">
+      <button class="tbl-modal-btn cancel" onclick="closeTablePaymentModal()">Close</button>
+      <button class="tbl-modal-btn reject" id="tblDetailRejectBtn" onclick="openRejectFromTableModal()" style="display:none;">
+        ✗ Reject
+      </button>
+      <button class="tbl-modal-btn approve" id="tblDetailApproveBtn" onclick="approveFromTableModal()" style="display:none;">
+        ✓ Approve
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PROOF LIGHTBOX ══════════════ -->
+<div class="proof-lightbox" id="proofLightbox" onclick="if(event.target===this)closeProofLightbox()">
+  <div class="lb-inner">
+    <div class="lb-header">
+      <span class="lb-title" id="lbTitle">Payment Proof</span>
+      <div class="lb-controls">
+        <a id="lbDownloadBtn" href="#" download="payment_proof" class="lb-btn" title="Download image">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+        </a>
+        <button class="lb-btn" onclick="closeProofLightbox()" title="Close (Esc)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="lb-img-wrap">
+      <div class="lb-loader" id="lbLoader">
+        <div class="lb-spinner"></div>
+        <span>Loading image…</span>
+      </div>
+      <img id="lbProofImg" src="" alt="Payment proof" class="lb-img"
+           style="display:none;"
+           onload="document.getElementById('lbLoader').style.display='none';this.style.display='block';document.getElementById('lbDownloadBtn').href=this.src;">
     </div>
   </div>
 </div>
@@ -303,7 +427,7 @@
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
 
 <nav class="mob-nav">
-  <a class="mn-item" href="zo_schedules.html">
+  <a class="mn-item" href="/zone-operator/schedules">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="4" width="18" height="18" rx="2"/>
       <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
@@ -311,7 +435,7 @@
     </svg>
     <span>Schedules</span>
   </a>
-  <a class="mn-item" href="zo_claims.html">
+  <a class="mn-item" href="/zone-operator/claims">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
       <polyline points="14 2 14 8 20 8"/>
@@ -319,7 +443,7 @@
     </svg>
     <span>Claims</span>
   </a>
-  <a class="mn-item mn-home" href="zo_dash.html">
+  <a class="mn-item mn-home" href="/zone-operator/dashboard">
     <div class="mn-home-inner">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -327,7 +451,7 @@
     </div>
     <span>Home</span>
   </a>
-  <a class="mn-item active" href="zo_payments.html">
+  <a class="mn-item active" href="/zone-operator/payments">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="2" y="5" width="20" height="14" rx="2"/>
       <line x1="2" y1="10" x2="22" y2="10"/>
@@ -344,9 +468,9 @@
     </div>
     <div class="mn-profile-dd" id="profileDd">
       <div class="dd-user">
-        <div class="dd-user-av">JP</div>
-        <div class="dd-user-name">Jean-Pierre K.</div>
-        <div class="dd-user-role">Zone A Operator · Kimironko</div>
+        <div class="dd-user-av" id="ddUserAvatar">ZO</div>
+        <div class="dd-user-name" id="ddUserName">Zone Operator</div>
+        <div class="dd-user-role" id="ddUserRole">Zone Operator</div>
       </div>
       <div class="dd-item">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -375,20 +499,655 @@
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/api_helper.js"></script>
+<script src="/static/js/notifications.js"></script>
 <script src="../../static/js/zo_dash.js"></script>
+<script src="../../static/js/zo_payments.js"></script>
+
+<style>
+  /* Modal detail rows with separators */
+  .payment-detail-row {
+    margin-bottom: 0;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .payment-detail-row:last-child {
+    border-bottom: none;
+  }
+  .payment-detail-row label { display: block; font-size: .8rem; color: var(--txt-l); margin-bottom: 4px; font-weight: 500; }
+  .payment-detail-row span { font-size: .95rem; color: var(--txt); font-weight: 600; }
+
+  /* Payment item layout fix - fill blank space */
+  .pi > div:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Increase badge sizes */
+  .pi .b {
+    font-size: .8rem !important;
+    padding: 6px 14px !important;
+    white-space: nowrap;
+  }
+
+  /* ══════════════════════════════════════════════
+     PAYMENTS TABLE
+  ══════════════════════════════════════════════ */
+  .zo-payments-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .875rem;
+  }
+  .zo-payments-table thead tr {
+    background: #f8faf9;
+    border-bottom: 2px solid #e5ede9;
+  }
+  .zo-payments-table th {
+    padding: 12px 14px;
+    text-align: left;
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--txt-l, #6b7280);
+    white-space: nowrap;
+  }
+  .zo-payments-table td {
+    padding: 13px 14px;
+    border-bottom: 1px solid #f0f4f2;
+    vertical-align: middle;
+    color: var(--txt, #1a2e22);
+  }
+  .tbl-row { cursor: pointer; transition: background .15s; }
+  .tbl-row:hover { background: #f2f8f5; }
+  .tbl-row:last-child td { border-bottom: none; }
+
+  /* Resident cell */
+  .tbl-resident { display: flex; align-items: center; gap: 10px; }
+  .tbl-av {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--g-light, #e8f5ee); color: var(--g1, #2e7d52);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 700; flex-shrink: 0;
+  }
+  .tbl-name { font-weight: 600; font-size: .875rem; }
+  .tbl-amount { font-weight: 700; color: var(--g1, #2e7d52); }
+  .tbl-month, .tbl-method { color: var(--txt-m, #4b5563); }
+  .tbl-txn { font-family: monospace; font-size: .8rem; color: var(--txt-l, #6b7280); }
+
+  /* Status badges in table */
+  .tbl-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: .75rem; font-weight: 600; white-space: nowrap;
+  }
+  .tbl-badge.ok  { background: #dcfce7; color: #16a34a; }
+  .tbl-badge.rej { background: #fee2e2; color: #dc2626; }
+  .tbl-badge.pend { background: #fef9c3; color: #ca8a04; }
+
+  /* Proof thumbnail */
+  .tbl-proof-cell { text-align: center; }
+  .tbl-proof-thumb {
+    width: 44px; height: 44px; object-fit: cover; border-radius: 6px;
+    border: 2px solid #e5ede9; cursor: zoom-in;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .tbl-proof-thumb:hover { transform: scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,.18); }
+  .tbl-no-proof { font-size: .75rem; color: var(--txt-l, #9ca3af); font-style: italic; }
+
+  /* Table action buttons */
+  .tbl-btn-view {
+    padding: 5px 14px; border-radius: 6px; border: none; cursor: pointer;
+    font-size: .8rem; font-weight: 600; white-space: nowrap;
+    background: var(--g1, #2e7d52); color: #fff; transition: background .15s;
+  }
+  .tbl-btn-view:hover { background: #245f40; }
+  .tbl-btn-view.secondary { background: #f0f4f2; color: var(--g1, #2e7d52); }
+  .tbl-btn-view.secondary:hover { background: #e0ede7; }
+
+  /* Table count badge */
+  .tbl-count-badge {
+    font-size: .75rem; padding: 4px 12px; border-radius: 20px;
+    background: var(--g-light, #e8f5ee); color: var(--g1, #2e7d52); font-weight: 600;
+  }
+
+  /* ══════════════════════════════════════════════
+     TABLE PAYMENT DETAIL MODAL
+  ══════════════════════════════════════════════ */
+  .tbl-modal-overlay { z-index: 1100; }
+  .tbl-modal {
+    max-width: 560px; width: 95%; max-height: 90vh;
+    display: flex; flex-direction: column; overflow: hidden;
+    border-radius: 16px; padding: 0;
+  }
+  .tbl-modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 24px 16px; border-bottom: 1px solid #eee; flex-shrink: 0;
+  }
+  .tbl-modal-title { font-size: 1.05rem; font-weight: 700; color: var(--txt, #1a2e22); }
+  .tbl-modal-close {
+    background: none; border: none; cursor: pointer; padding: 4px;
+    color: var(--txt-l, #6b7280); border-radius: 6px; display: flex;
+    transition: background .15s;
+  }
+  .tbl-modal-close:hover { background: #f3f4f6; color: var(--txt); }
+
+  .tbl-modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; }
+  .tbl-modal-section { margin-bottom: 20px; }
+  .tbl-modal-section:last-child { margin-bottom: 0; }
+  .tbl-modal-section-title {
+    font-size: .7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--txt-l, #6b7280); margin-bottom: 10px;
+  }
+  .tbl-modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tbl-modal-field { display: flex; flex-direction: column; gap: 2px; }
+  .tbl-modal-field label { font-size: .72rem; color: var(--txt-l, #6b7280); font-weight: 500; }
+  .tbl-modal-field span { font-size: .9rem; font-weight: 600; color: var(--txt, #1a2e22); }
+  .tbl-modal-amount { font-size: 1.1rem !important; color: var(--g1, #2e7d52) !important; }
+
+  .tbl-detail-status-badge {
+    display: inline-block; padding: 3px 12px; border-radius: 20px;
+    font-size: .78rem; font-weight: 700;
+  }
+  .tbl-detail-status-badge.approved { background: #dcfce7; color: #16a34a; }
+  .tbl-detail-status-badge.rejected { background: #fee2e2; color: #dc2626; }
+  .tbl-detail-status-badge.pending  { background: #fef9c3; color: #ca8a04; }
+
+  /* Proof area in modal */
+  .tbl-proof-area {
+    background: #f8faf9; border: 1px solid #e5ede9; border-radius: 10px;
+    padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .tbl-detail-proof-img {
+    max-width: 100%; max-height: 260px; object-fit: contain;
+    border-radius: 8px; cursor: zoom-in; border: 1px solid #ddd;
+    transition: box-shadow .2s;
+  }
+  .tbl-detail-proof-img:hover { box-shadow: 0 4px 16px rgba(0,0,0,.15); }
+  .tbl-no-proof-placeholder {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: var(--txt-l, #9ca3af); padding: 16px;
+  }
+  .tbl-view-full-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 16px; border-radius: 8px; border: 1px solid #e5ede9;
+    background: #fff; color: var(--g1, #2e7d52); font-size: .82rem;
+    font-weight: 600; cursor: pointer; transition: background .15s;
+  }
+  .tbl-view-full-btn:hover { background: #f0f9f4; }
+
+  .tbl-modal-footer {
+    display: flex; gap: 10px; padding: 16px 24px 20px;
+    border-top: 1px solid #eee; flex-shrink: 0;
+  }
+  .tbl-modal-btn {
+    flex: 1; padding: 10px; border-radius: 10px; border: none;
+    font-size: .9rem; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    transition: background .15s;
+  }
+  .tbl-modal-btn.cancel  { background: #f3f4f6; color: var(--txt); }
+  .tbl-modal-btn.cancel:hover { background: #e5e7eb; }
+  .tbl-modal-btn.approve { background: #16a34a; color: #fff; }
+  .tbl-modal-btn.approve:hover { background: #15803d; }
+  .tbl-modal-btn.reject  { background: #dc2626; color: #fff; }
+  .tbl-modal-btn.reject:hover  { background: #b91c1c; }
+
+  /* ══════════════════════════════════════════════
+     PROOF IMAGE LIGHTBOX
+  ══════════════════════════════════════════════ */
+  .proof-lightbox {
+    position: fixed; inset: 0; z-index: 1200;
+    background: rgba(0,0,0,.88); display: none;
+    align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .proof-lightbox.show { display: flex; }
+  .lb-inner {
+    display: flex; flex-direction: column;
+    max-width: 860px; width: 100%; max-height: 95vh;
+    background: #1a1a1a; border-radius: 14px; overflow: hidden;
+  }
+  .lb-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 18px; background: #111; flex-shrink: 0;
+  }
+  .lb-title { color: #e5e7eb; font-size: .9rem; font-weight: 600; }
+  .lb-controls { display: flex; gap: 8px; align-items: center; }
+  .lb-btn {
+    background: rgba(255,255,255,.08); border: none; color: #d1d5db;
+    width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background .15s; text-decoration: none;
+  }
+  .lb-btn:hover { background: rgba(255,255,255,.18); color: #fff; }
+  .lb-img-wrap {
+    flex: 1; overflow: auto; display: flex;
+    align-items: center; justify-content: center; padding: 16px;
+    min-height: 200px;
+  }
+  .lb-img {
+    max-width: 100%; max-height: calc(95vh - 80px);
+    object-fit: contain; border-radius: 6px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.5);
+  }
+  .lb-loader {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    color: #9ca3af; font-size: .85rem;
+  }
+  .lb-spinner {
+    width: 36px; height: 36px; border: 3px solid rgba(255,255,255,.15);
+    border-top-color: #48a870; border-radius: 50%;
+    animation: lb-spin .7s linear infinite;
+  }
+  @keyframes lb-spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .zo-payments-table th:nth-child(4),
+    .zo-payments-table td:nth-child(4),
+    .zo-payments-table th:nth-child(6),
+    .zo-payments-table td:nth-child(6) { display: none; }
+    .tbl-modal-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
 <script>
-/* ── Initialize Payment Charts ── */
-window.addEventListener('load', function() {
+  let currentPaymentElement = null;
+  let allPayments = [];
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+  function timeAgo(iso) {
+    const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  }
+
+  function initials(name) {
+    return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  function statusBadge(status) {
+    if (status === 'approved') return '<span class="b ok">Approved</span>';
+    if (status === 'rejected') return '<span class="b op">Rejected</span>';
+    return '<span class="b pe" style="font-size:.7rem;">Tap to review</span>';
+  }
+
+  // ── Load payments from API ───────────────────────────────────────────────────
+  async function loadPayments() {
+    try {
+      // Load user profile first
+      await loadUserProfile();
+      
+      const payments = await API.get('/payments/');
+      allPayments = Array.isArray(payments) ? payments : [];
+      updateStatistics();
+      renderPayments(allPayments);
+      initializeCharts();
+    } catch (err) {
+      console.error('Error loading payments:', err);
+      document.getElementById('paymentsList').innerHTML =
+        '<div style="padding:20px;text-align:center;color:var(--txt-l);">Failed to load payments.</div>';
+    }
+  }
+
+  // ── Load user profile ────────────────────────────────────────────────────────
+  async function loadUserProfile() {
+    try {
+      let user = null;
+      
+      // Try /auth/me endpoint
+      try {
+        user = await API.get('/auth/me');
+      } catch (e1) {
+        // If that fails, try /auth/profile
+        try {
+          user = await API.get('/auth/profile');
+        } catch (e2) {
+          // If API calls fail, use cached value
+          console.warn('Profile endpoints not available');
+        }
+      }
+
+      if (user && (user.username || user.full_name)) {
+        const name = user.full_name || user.username || 'Zone Operator';
+        updateProfileUI(name);
+      } else {
+        // Use cached or default values
+        const cached = localStorage.getItem('userFullName');
+        if (cached) {
+          updateProfileUI(cached);
+        }
+      }
+    } catch (err) {
+      console.error('Error loading user profile:', err);
+      // Use cached or default values
+      const cached = localStorage.getItem('userFullName') || 'Zone Operator';
+      updateProfileUI(cached);
+    }
+  }
+
+  // ── Update all profile UI elements ────────────────────────────────────────────
+  function updateProfileUI(fullName) {
+    const initials = (fullName || 'ZO')
+      .split(' ')
+      .map(n => n.charAt(0).toUpperCase())
+      .join('')
+      .slice(0, 2);
+
+    // Update sidebar profile
+    const sidebarName = document.getElementById('sidebarProfileName');
+    const sidebarAvatar = document.getElementById('sidebarProfileAvatar');
+    const sidebarRole = document.getElementById('sidebarProfileRole');
+
+    if (sidebarName) sidebarName.textContent = fullName || 'Zone Operator';
+    if (sidebarAvatar) sidebarAvatar.textContent = initials;
+    if (sidebarRole) sidebarRole.textContent = 'Zone Operator';
+
+    // Update topbar avatar
+    const topbarAvatar = document.getElementById('topbarProfileAvatar');
+    if (topbarAvatar) topbarAvatar.textContent = initials;
+
+    // Update mobile dropdown profile
+    const ddUserAv = document.getElementById('ddUserAvatar');
+    const ddUserName = document.getElementById('ddUserName');
+    const ddUserRole = document.getElementById('ddUserRole');
+
+    if (ddUserAv) ddUserAv.textContent = initials;
+    if (ddUserName) ddUserName.textContent = fullName || 'Zone Operator';
+    if (ddUserRole) ddUserRole.textContent = 'Zone Operator';
+
+    // Store for future use
+    localStorage.setItem('userFullName', fullName || 'Zone Operator');
+    localStorage.setItem('userInitials', initials);
+  }
+
+  // ── Update statistics from payment data ──────────────────────────────────────
+  function updateStatistics() {
+    if (!allPayments || allPayments.length === 0) {
+      document.getElementById('totalPayments').textContent = '0';
+      document.getElementById('pendingPayments').textContent = '0';
+      document.getElementById('totalCollected').textContent = 'RWF 0';
+      document.getElementById('approvalRate').textContent = '0%';
+      // Update sidebar badge
+      const badge = document.querySelector('.sb-badge.am');
+      if (badge) {
+        badge.textContent = '0';
+        badge.style.display = 'none';
+      }
+      return;
+    }
+
+    const pendingCount = allPayments.filter(p => p.status === 'pending').length;
+    const approvedPayments = allPayments.filter(p => p.status === 'approved');
+    const totalAmount = approvedPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const approvalRate = allPayments.length > 0 
+      ? Math.round((approvedPayments.length / allPayments.length) * 100)
+      : 0;
+
+    document.getElementById('totalPayments').textContent = allPayments.length;
+    document.getElementById('pendingPayments').textContent = pendingCount;
+    document.getElementById('totalCollected').textContent = `RWF ${totalAmount.toLocaleString()}`;
+    document.getElementById('approvalRate').textContent = approvalRate + '%';
+
+    // Update sidebar badge
+    const badge = document.querySelector('.sb-badge.am');
+    if (badge) {
+      badge.textContent = pendingCount;
+      badge.style.display = pendingCount > 0 ? 'inline' : 'none';
+    }
+  }
+
+  function renderPayments(payments) {
+    const list = document.getElementById('paymentsList');
+    const badge = document.getElementById('pendingBadge');
+
+    if (!payments || payments.length === 0) {
+      list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--txt-l);">No payments found.</div>';
+      if (badge) { badge.textContent = '0 pending'; badge.className = 'b ok'; }
+      return;
+    }
+
+    const pending = payments.filter(p => p.status === 'pending').length;
+    if (badge) {
+      badge.textContent = pending + ' pending';
+      badge.className = pending > 0 ? 'b pe' : 'b ok';
+      badge.style.fontSize = '.73rem';
+    }
+
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    list.innerHTML = payments.map(p => {
+      const name = p.resident_name || 'Resident';
+      const monthLabel = monthNames[(p.payment_month || 1) - 1] + ' ' + p.payment_year;
+      const submittedAgo = p.submitted_at ? timeAgo(p.submitted_at) : '';
+      const amt = `${parseInt(p.amount || 0).toLocaleString()} ${p.currency || 'RWF'}`;
+
+      return `
+        <div class="pi" onclick="viewPaymentDetails(this)" style="cursor:pointer;"
+          data-name="${name}"
+          data-amount="${amt}"
+          data-month="${monthLabel}"
+          data-date="${submittedAgo}"
+          data-status="${p.status}"
+          data-payment-id="${p.id}"
+          data-method="${p.payment_method || ''}"
+          data-txn="${p.transaction_reference || ''}"
+          data-proof="${p.proof_url || ''}"
+          data-rejection="${p.rejection_reason || ''}">
+          <div class="pi-av">${initials(name)}</div>
+          <div>
+            <div class="pi-name">${name}</div>
+            <div class="pi-meta">Submitted ${submittedAgo} · ${monthLabel} · ${amt}</div>
+          </div>
+          <div class="pi-amt">${amt}</div>
+          ${statusBadge(p.status)}
+        </div>`;
+    }).join('');
+
+    applyActiveFilter();
+  }
+
+  // ── View payment details modal ───────────────────────────────────────────────
+  function viewPaymentDetails(el) {
+    currentPaymentElement = el;
+
+    document.getElementById('payDetailName').textContent = el.dataset.name || '-';
+    document.getElementById('payDetailAmount').textContent = el.dataset.amount || '-';
+    document.getElementById('payDetailDate').textContent =
+      el.dataset.month ? el.dataset.month + ' · ' + el.dataset.date : el.dataset.date || '-';
+
+    const methodMap = { mobile_money: 'Mobile Money', bank_transfer: 'Bank Transfer', cash: 'Cash' };
+    document.getElementById('payDetailMethod').textContent = methodMap[el.dataset.method] || el.dataset.method || '-';
+    document.getElementById('payDetailTxn').textContent = el.dataset.txn || 'N/A';
+
+    const proof = el.dataset.proof;
+    const proofImg = document.getElementById('payDetailProof');
+    const noProof = document.getElementById('noProofText');
+    if (proof) {
+      proofImg.src = proof;
+      proofImg.style.display = 'block';
+      noProof.style.display = 'none';
+    } else {
+      proofImg.style.display = 'none';
+      noProof.style.display = 'block';
+    }
+
+    const status = el.dataset.status;
+    const approveBtn = document.getElementById('payDetailApproveBtn');
+    const rejectBtn = document.getElementById('payDetailRejectBtn');
+    const isPending = status === 'pending';
+    approveBtn.style.display = isPending ? 'inline-block' : 'none';
+    rejectBtn.style.display = isPending ? 'inline-block' : 'none';
+
+    document.getElementById('paymentDetailsModal').classList.add('show');
+  }
+
+  function closePaymentDetailsModal() {
+    document.getElementById('paymentDetailsModal').classList.remove('show');
+    currentPaymentElement = null;
+  }
+
+  // ── Approve ──────────────────────────────────────────────────────────────────
+  async function approveFromPayDetails() {
+    if (!currentPaymentElement) return;
+    const paymentId = currentPaymentElement.dataset.paymentId;
+    const name = currentPaymentElement.dataset.name || 'Resident';
+
+    const approveBtn = document.getElementById('payDetailApproveBtn');
+    approveBtn.textContent = 'Approving...';
+    approveBtn.disabled = true;
+
+    try {
+      await API.put(`/payments/${paymentId}/approve`, {});
+      currentPaymentElement.dataset.status = 'approved';
+      const badge = currentPaymentElement.querySelector('.b');
+      if (badge) { badge.className = 'b ok'; badge.textContent = 'Approved'; }
+      if (typeof showToast === 'function') showToast(`Payment from ${name} approved!`, 0);
+      closePaymentDetailsModal();
+      applyActiveFilter();
+    } catch (err) {
+      alert(err.message || 'Failed to approve payment.');
+    } finally {
+      approveBtn.textContent = 'Approve';
+      approveBtn.disabled = false;
+    }
+  }
+
+  // ── Reject ───────────────────────────────────────────────────────────────────
+  function openRejectFromPayDetails() {
+    if (currentPaymentElement) {
+      const el = currentPaymentElement;
+      closePaymentDetailsModal();
+      openRejectModal(el);
+    }
+  }
+
+  // ── Filtering ───────────────────────────────────────────────────────────────
+  function filterTab(btn) {
+    document.querySelectorAll('.ftab').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    applyActiveFilter();
+  }
+
+  function applyActiveFilter() {
+    const activeBtn = document.querySelector('.ftab.on');
+    const filterType = activeBtn?.textContent?.toLowerCase() || 'all';
+    const items = document.querySelectorAll('.pi');
+
+    items.forEach(item => {
+      const status = item.dataset.status || '';
+      let hide = false;
+
+      if (filterType === 'all') {
+        hide = false;
+      } else if (filterType === 'pending') {
+        hide = status !== 'pending';
+      } else if (filterType === 'approved') {
+        hide = status !== 'approved';
+      } else if (filterType === 'rejected') {
+        hide = status !== 'rejected';
+      }
+
+      item.style.display = hide ? 'none' : '';
+    });
+  }
+
+  // ── Modal Management ──────────────────────────────────────────────────────────
+  function openRejectModal(el) {
+    const modal = document.getElementById('rejectModal');
+    modal.style.display = 'flex';
+    currentPaymentElement = el;
+  }
+
+  function closeRejectModal() {
+    const modal = document.getElementById('rejectModal');
+    modal.style.display = 'none';
+    document.getElementById('rejectReason').value = '';
+    document.getElementById('rejectDetails').value = '';
+  }
+
+  async function confirmReject() {
+    if (!currentPaymentElement) return;
+
+    const paymentId = currentPaymentElement.dataset.paymentId;
+    const reason = document.getElementById('rejectReason').value.trim();
+    const details = document.getElementById('rejectDetails').value.trim();
+    const name = currentPaymentElement.dataset.name || 'Resident';
+
+    if (!reason) {
+      alert('Please select a rejection reason.');
+      return;
+    }
+
+    const rejectReasonText = reason === 'other' ? details : document.querySelector(`#rejectReason option[value="${reason}"]`).textContent;
+
+    const btn = document.querySelector('#rejectModal .modal-btn:last-child');
+    btn.textContent = 'Rejecting...';
+    btn.disabled = true;
+
+    try {
+      await API.put(`/payments/${paymentId}/reject`, {
+        rejection_reason: rejectReasonText
+      });
+      currentPaymentElement.dataset.status = 'rejected';
+      const badge = currentPaymentElement.querySelector('.b');
+      if (badge) { badge.className = 'b op'; badge.textContent = 'Rejected'; }
+      if (typeof showToast === 'function') showToast(`Payment from ${name} rejected.`, 0);
+      closeRejectModal();
+      applyActiveFilter();
+    } catch (err) {
+      alert(err.message || 'Failed to reject payment.');
+    } finally {
+      btn.textContent = 'Confirm Rejection';
+      btn.disabled = false;
+    }
+  }
+
+  // ── Close modals on outside click ──────────────────────────────────────────────
+  document.addEventListener('click', function (e) {
+    const detailsModal = document.getElementById('paymentDetailsModal');
+    if (e.target === detailsModal) {
+      closePaymentDetailsModal();
+    }
+    const rejectMod = document.getElementById('rejectModal');
+    if (e.target === rejectMod) {
+      closeRejectModal();
+    }
+  });
+
+  // ── Init ─────────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', loadPayments);
+</script>
+
+<script>
+/* ── Chart Initialization with Dynamic Data ── */
+let revenueChartInstance, statusChartInstance, trendChartInstance;
+
+function initializeCharts() {
+  if (typeof Chart === 'undefined') {
+    console.warn('Chart.js not loaded');
+    return;
+  }
+
+  // Calculate data from real payments
+  const chartData = calculateChartData();
+
+  // Destroy existing charts if they exist
+  if (revenueChartInstance) revenueChartInstance.destroy();
+  if (statusChartInstance) statusChartInstance.destroy();
+  if (trendChartInstance) trendChartInstance.destroy();
+
   // Weekly Revenue Bar Chart
   const revenueCtx = document.getElementById('revenueChart');
-  if (revenueCtx && typeof Chart !== 'undefined') {
-    new Chart(revenueCtx, {
+  if (revenueCtx) {
+    revenueChartInstance = new Chart(revenueCtx, {
       type: 'bar',
       data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        labels: chartData.weekDays,
         datasets: [{
           label: 'Revenue (RWF)',
-          data: [4000, 5500, 3000, 6000, 4500, 3000, 2000],
+          data: chartData.weeklyRevenue,
           backgroundColor: 'rgba(72, 168, 112, 0.8)',
           borderRadius: 6,
           borderSkipped: false
@@ -425,13 +1184,13 @@ window.addEventListener('load', function() {
 
   // Payment Status Doughnut Chart
   const statusCtx = document.getElementById('paymentStatusChart');
-  if (statusCtx && typeof Chart !== 'undefined') {
-    new Chart(statusCtx, {
+  if (statusCtx) {
+    statusChartInstance = new Chart(statusCtx, {
       type: 'doughnut',
       data: {
         labels: ['Approved', 'Pending', 'Rejected'],
         datasets: [{
-          data: [132, 3, 6],
+          data: [chartData.approved, chartData.pending, chartData.rejected],
           backgroundColor: ['#48a870', '#f59e0b', '#ef4444'],
           borderWidth: 0,
           cutout: '65%'
@@ -452,15 +1211,15 @@ window.addEventListener('load', function() {
 
   // Monthly Trend Line Chart
   const trendCtx = document.getElementById('monthlyTrendChart');
-  if (trendCtx && typeof Chart !== 'undefined') {
-    new Chart(trendCtx, {
+  if (trendCtx) {
+    trendChartInstance = new Chart(trendCtx, {
       type: 'line',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: chartData.months,
         datasets: [
           {
             label: 'Revenue (RWF)',
-            data: [95000, 102000, 98000, 115000, 120000, 128000],
+            data: chartData.monthlyRevenue,
             borderColor: '#48a870',
             backgroundColor: 'rgba(72, 168, 112, 0.1)',
             fill: true,
@@ -468,8 +1227,8 @@ window.addEventListener('load', function() {
             yAxisID: 'y'
           },
           {
-            label: 'Payments',
-            data: [95, 102, 98, 115, 120, 128],
+            label: 'Payment Count',
+            data: chartData.monthlyCount,
             borderColor: '#3b82f6',
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
             fill: false,
@@ -523,7 +1282,109 @@ window.addEventListener('load', function() {
       }
     });
   }
-});
+}
+
+// ── Calculate chart data from payments ────────────────────────────────────────
+function calculateChartData() {
+  const data = {
+    weekDays: [],
+    weeklyRevenue: [],
+    monthlyRevenue: [],
+    monthlyCount: [],
+    months: [],
+    approved: 0,
+    pending: 0,
+    rejected: 0
+  };
+
+  if (!allPayments || allPayments.length === 0) {
+    // Return empty data with default structure
+    data.weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    data.weeklyRevenue = [0, 0, 0, 0, 0, 0, 0];
+    data.months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    data.monthlyRevenue = [0, 0, 0, 0, 0, 0];
+    data.monthlyCount = [0, 0, 0, 0, 0, 0];
+    return data;
+  }
+
+  // Count payment statuses
+  data.approved = allPayments.filter(p => p.status === 'approved').length;
+  data.pending = allPayments.filter(p => p.status === 'pending').length;
+  data.rejected = allPayments.filter(p => p.status === 'rejected').length;
+
+  // Weekly revenue (last 7 days)
+  const today = new Date();
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const weeklyData = [0, 0, 0, 0, 0, 0, 0];
+  
+  allPayments.filter(p => p.status === 'approved').forEach(payment => {
+    const payDate = new Date(payment.submitted_at);
+    const dayDiff = Math.floor((today - payDate) / (1000 * 60 * 60 * 24));
+    if (dayDiff >= 0 && dayDiff < 7) {
+      const dayIndex = 6 - dayDiff;
+      weeklyData[dayIndex] += payment.amount || 0;
+    }
+  });
+
+  data.weekDays = dayNames;
+  data.weeklyRevenue = weeklyData;
+
+  // Monthly revenue and count (last 6 months)
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthlyRevenue = [0, 0, 0, 0, 0, 0];
+  const monthlyCount = [0, 0, 0, 0, 0, 0];
+
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+
+  // Get last 6 months
+  const lastSixMonths = [];
+  for (let i = 5; i >= 0; i--) {
+    let month = currentMonth - i;
+    let year = currentYear;
+    if (month < 0) {
+      month += 12;
+      year -= 1;
+    }
+    lastSixMonths.push({ month: month + 1, year: year });
+  }
+
+  allPayments.filter(p => p.status === 'approved').forEach(payment => {
+    const monthIdx = lastSixMonths.findIndex(m => 
+      m.month === payment.payment_month && m.year === payment.payment_year
+    );
+    if (monthIdx >= 0) {
+      monthlyRevenue[monthIdx] += payment.amount || 0;
+      monthlyCount[monthIdx] += 1;
+    }
+  });
+
+  const months = lastSixMonths.map(m => monthNames[m.month - 1]);
+  data.months = months;
+  data.monthlyRevenue = monthlyRevenue;
+  data.monthlyCount = monthlyCount;
+
+  return data;
+}
 </script>
+
+<script>
+  // Update table count badge after render
+  const _origRenderTable = window.renderPaymentsTable;
+  document.addEventListener('DOMContentLoaded', function() {
+    const _patchTable = setInterval(function() {
+      if (typeof renderPaymentsTable === 'function') {
+        const orig = renderPaymentsTable;
+        window.renderPaymentsTable = function(payments) {
+          orig(payments);
+          const badge = document.getElementById('tblCountBadge');
+          if (badge) badge.textContent = (payments ? payments.length : 0) + ' payments';
+        };
+        clearInterval(_patchTable);
+      }
+    }, 50);
+  });
+</script>
+
 </body>
 </html>

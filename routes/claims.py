@@ -325,7 +325,12 @@ def approve_claim(id):
         return jsonify({"error": "This claim is not in your zone"}), 403
 
     if claim.status != "under_review":
-        return jsonify({"error": f"Only claims under review can be approved. Current status: {claim.status}"}), 400
+        if claim.status == "approved":
+            return jsonify({"error": "This claim has already been approved.", "status": claim.status}), 400
+        elif claim.status == "rejected":
+            return jsonify({"error": "This claim has already been rejected.", "status": claim.status}), 400
+        else:
+            return jsonify({"error": f"Only claims under review can be approved. Current status: {claim.status}.", "status": claim.status}), 400
 
     # Award points based on category
     points_map = current_app.config.get("POINTS_PER_CATEGORY", {})
@@ -372,7 +377,12 @@ def reject_claim(id):
         return jsonify({"error": "This claim is not in your zone"}), 403
 
     if claim.status != "under_review":
-        return jsonify({"error": f"Only claims under review can be rejected. Current status: {claim.status}"}), 400
+        if claim.status == "approved":
+            return jsonify({"error": "This claim has already been approved.", "status": claim.status}), 400
+        elif claim.status == "rejected":
+            return jsonify({"error": "This claim has already been rejected.", "status": claim.status}), 400
+        else:
+            return jsonify({"error": f"Only claims under review can be rejected. Current status: {claim.status}.", "status": claim.status}), 400
 
     # Rejection requires both category and detail
     rejection_category = data.get("rejection_category")

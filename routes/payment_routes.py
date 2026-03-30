@@ -1,14 +1,64 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import get_jwt_identity, get_jwt
 from extensions import db
 from models.payment import Payment, MonthlyPrice
-from models.notification import Notification
 from models.user import User
 from models.zone import Zone
 from utils.auth_helpers import role_required
 from datetime import datetime, timezone, date
+import os
+import uuid
 
 payment_bp = Blueprint("payments", __name__)
+
+ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+MAX_FILE_SIZE_MB = 5
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# ==================== FILE UPLOAD ====================
+
+@payment_bp.route("/upload/photo", methods=["POST"])
+@role_required("resident")
+def upload_proof_photo():
+    """Upload a payment proof image and return its URL"""
+    if "photo" not in request.files:
+        return jsonify({"error": "No file provided. Use field name 'photo'"}), 400
+
+    file = request.files["photo"]
+
+    if file.filename == "":
+        return jsonify({"error": "No file selected"}), 400
+
+    if not allowed_file(file.filename):
+        return jsonify({"error": "Invalid file type. Allowed: JPG, PNG, WEBP"}), 400
+
+    # Check file size (read into memory to measure, then reset)
+    file.seek(0, os.SEEK_END)
+    size_mb = file.tell() / (1024 * 1024)
+    file.seek(0)
+
+    if size_mb > MAX_FILE_SIZE_MB:
+        return jsonify({"error": f"File too large. Maximum size is {MAX_FILE_SIZE_MB}MB"}), 400
+
+    # Build a unique filename and save to UPLOAD_FOLDER
+    ext = file.filename.rsplit(".", 1)[1].lower()
+    unique_name = f"proof_{uuid.uuid4().hex}.{ext}"
+
+    upload_folder = current_app.config.get("UPLOAD_FOLDER", os.path.join("static", "uploads", "proofs"))
+    os.makedirs(upload_folder, exist_ok=True)
+
+    save_path = os.path.join(upload_folder, unique_name)
+    file.save(save_path)
+
+    # Build a URL the frontend can use to display the image
+    base_url = current_app.config.get("BASE_URL", "")
+    photo_url = f"{base_url}/static/uploads/proofs/{unique_name}"
+
+    return jsonify({"photo_url": photo_url}), 201
 
 
 # ==================== MONTHLY PRICE MANAGEMENT (Admin Only) ====================
@@ -149,8 +199,20 @@ def get_current_price():
 @payment_bp.route("/", methods=["POST"])
 @role_required("resident")
 def submit_payment():
-    """Resident submits a monthly payment"""
-    data = request.get_json()
+    """Resident submits a monthly payment (JSON or multipart/form-data)"""
+    # Accept both JSON (proof already uploaded separately) and multipart (direct file)
+    content_type = request.content_type or ""
+    if "multipart/form-data" in content_type:
+        data = request.form.to_dict()
+        for key in ("payment_month", "payment_year"):
+            if key in data:
+                try:
+                    data[key] = int(data[key])
+                except ValueError:
+                    pass
+    else:
+        data = request.get_json()
+
     if not data:
         return jsonify({"error": "Request body is required"}), 400
 
@@ -221,7 +283,8 @@ def submit_payment():
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": "Failed to submit payment"}), 500
+        print(f"Payment submission error for user {user_id}: {str(e)}")
+        return jsonify({"error": "Failed to submit payment. Please try again."}), 500
 
     return jsonify({
         "message": "Payment submitted successfully. Awaiting approval.",
@@ -340,6 +403,55 @@ def get_payment(payment_id):
     return jsonify(payment.to_dict()), 200
 
 
+# ==================== PAYMENT UPDATE (Resident - Pending Only) ====================
+
+@payment_bp.route("/<int:payment_id>", methods=["PUT"])
+@role_required("resident")
+def update_payment(payment_id):
+    """Update a pending payment (resident only)"""
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request body is required"}), 400
+
+    user_id = get_jwt_identity()
+    payment = Payment.query.get_or_404(payment_id)
+
+    # Access control - only the resident who submitted the payment can update it
+    if payment.resident_id != int(user_id):
+        return jsonify({"error": "You can only update your own payments"}), 403
+
+    # Only pending payments can be updated
+    if payment.status != "pending":
+        return jsonify({"error": f"Only pending payments can be updated. Current status: {payment.status}"}), 400
+
+    # Update allowed fields
+    if "payment_method" in data:
+        payment_method = data.get("payment_method")
+        valid_methods = ["mobile_money", "bank_transfer", "cash"]
+        if payment_method not in valid_methods:
+            return jsonify({"error": f"Invalid payment method. Must be one of: {', '.join(valid_methods)}"}), 400
+        payment.payment_method = payment_method
+
+    if "transaction_reference" in data:
+        payment.transaction_reference = data.get("transaction_reference")
+
+    if "proof_url" in data:
+        proof_url = data.get("proof_url")
+        if proof_url:  # Only update if provided
+            payment.proof_url = proof_url
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update payment"}), 500
+
+    return jsonify({
+        "message": "Payment updated successfully",
+        "payment": payment.to_dict()
+    }), 200
+
+
 # ==================== PAYMENT APPROVAL/REJECTION (Admin & Zone Operator) ====================
 
 @payment_bp.route("/<int:payment_id>/approve", methods=["PUT"])
@@ -364,19 +476,7 @@ def approve_payment(payment_id):
     payment.reviewed_by = int(user_id)
     payment.reviewed_at = datetime.now(timezone.utc)
 
-    # Create notification for resident
-    month_name = datetime(2000, payment.payment_month, 1).strftime("%B")
-    notification = Notification(
-        user_id=payment.resident_id,
-        title="Payment Approved",
-        message=f"Your payment of {payment.amount} {payment.currency} for {month_name} {payment.payment_year} has been approved.",
-        notification_type="payment_approved",
-        reference_id=payment.id,
-        reference_type="payment"
-    )
-
     try:
-        db.session.add(notification)
         db.session.commit()
     except Exception as e:
         db.session.rollback()
@@ -419,19 +519,7 @@ def reject_payment(payment_id):
     payment.reviewed_by = int(user_id)
     payment.reviewed_at = datetime.now(timezone.utc)
 
-    # Create notification for resident
-    month_name = datetime(2000, payment.payment_month, 1).strftime("%B")
-    notification = Notification(
-        user_id=payment.resident_id,
-        title="Payment Rejected",
-        message=f"Your payment for {month_name} {payment.payment_year} has been rejected. Reason: {rejection_reason}",
-        notification_type="payment_rejected",
-        reference_id=payment.id,
-        reference_type="payment"
-    )
-
     try:
-        db.session.add(notification)
         db.session.commit()
     except Exception as e:
         db.session.rollback()
@@ -442,65 +530,6 @@ def reject_payment(payment_id):
         "payment": payment.to_dict()
     }), 200
 
-
-# ==================== NOTIFICATIONS (Resident) ====================
-
-@payment_bp.route("/notifications", methods=["GET"])
-@role_required("resident", "zone_operator", "admin")
-def get_notifications():
-    """Get user notifications"""
-    user_id = get_jwt_identity()
-
-    unread_only = request.args.get("unread", "false").lower() == "true"
-
-    query = Notification.query.filter_by(user_id=user_id)
-
-    if unread_only:
-        query = query.filter_by(is_read=False)
-
-    notifications = query.order_by(Notification.created_at.desc()).all()
-    return jsonify([n.to_dict() for n in notifications]), 200
-
-
-@payment_bp.route("/notifications/<int:notification_id>/read", methods=["PUT"])
-@role_required("resident", "zone_operator", "admin")
-def mark_notification_read(notification_id):
-    """Mark a notification as read"""
-    user_id = get_jwt_identity()
-
-    notification = Notification.query.get_or_404(notification_id)
-
-    if notification.user_id != int(user_id):
-        return jsonify({"error": "You can only mark your own notifications as read"}), 403
-
-    notification.is_read = True
-
-    try:
-        db.session.commit()
-    except Exception:
-        db.session.rollback()
-        return jsonify({"error": "Failed to update notification"}), 500
-
-    return jsonify({
-        "message": "Notification marked as read",
-        "notification": notification.to_dict()
-    }), 200
-
-
-@payment_bp.route("/notifications/read-all", methods=["PUT"])
-@role_required("resident", "zone_operator", "admin")
-def mark_all_notifications_read():
-    """Mark all notifications as read"""
-    user_id = get_jwt_identity()
-
-    try:
-        Notification.query.filter_by(user_id=user_id, is_read=False).update({"is_read": True})
-        db.session.commit()
-    except Exception:
-        db.session.rollback()
-        return jsonify({"error": "Failed to update notifications"}), 500
-
-    return jsonify({"message": "All notifications marked as read"}), 200
 
 
 # ==================== PAYMENT HISTORY (Resident) ====================
