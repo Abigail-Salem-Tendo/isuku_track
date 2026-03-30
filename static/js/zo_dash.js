@@ -872,18 +872,26 @@ function createBinIcon(status) {
   });
 }
 
-function toggleMapFullscreen() {
-  const mapCard    = document.getElementById('mapCard');
-  const expandIcon = document.getElementById('expandIcon');
-  const collapseIcon = document.getElementById('collapseIcon');
-  if (!mapCard) return;
-  mapCard.classList.toggle('fullscreen');
-  const isFull = mapCard.classList.contains('fullscreen');
-  if (expandIcon)   expandIcon.style.display   = isFull ? 'none'  : 'block';
-  if (collapseIcon) collapseIcon.style.display  = isFull ? 'block' : 'none';
-  document.body.style.overflow = isFull ? 'hidden' : '';
-  setTimeout(() => { if (zoneMapInstance) zoneMapInstance.invalidateSize(); }, 300);
-}
+/* ════════════════════════════════════════════════════════════
+   MAP HELPERS & FULLSCREEN
+   ════════════════════════════════════════════════════════════ */
+   function toggleMapFullscreen() {
+    const mapCard    = document.getElementById('mapCard');
+    const expandIcon = document.getElementById('expandIcon');
+    const collapseIcon = document.getElementById('collapseIcon');
+    if (!mapCard) return;
+    
+    mapCard.classList.toggle('fullscreen');
+    const isFull = mapCard.classList.contains('fullscreen');
+    
+    if (expandIcon)   expandIcon.style.display   = isFull ? 'none'  : 'block';
+    if (collapseIcon) collapseIcon.style.display  = isFull ? 'block' : 'none';
+    
+    document.body.style.overflow = isFull ? 'hidden' : '';
+    
+    
+    setTimeout(() => { if (zoneMapInstance) zoneMapInstance.invalidateSize(); }, 300);
+  }
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
