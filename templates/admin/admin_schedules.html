@@ -160,84 +160,9 @@
   </div>
 </div>
 
-<<<<<<< HEAD
-<script src="/static/js/api_helper.js"></script>
-<script>function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();
-
-var schedModal=document.getElementById('schedModal');var schedModalForm=document.getElementById('schedModalForm');var schedModalClose=document.getElementById('schedModalClose');var createSchedBtn=document.getElementById('createSchedBtn');
-var modifySchedModal=document.getElementById('modifySchedModal');var modifySchedModalForm=document.getElementById('modifySchedModalForm');var modifySchedModalClose=document.getElementById('modifySchedModalClose');var modifySchedBtn=document.getElementById('modifySchedBtn');
-var deleteSchedModal=document.getElementById('deleteSchedModal');var deleteSchedModalForm=document.getElementById('deleteSchedModalForm');var deleteSchedModalClose=document.getElementById('deleteSchedModalClose');var deleteSchedBtn=document.getElementById('deleteSchedBtn');
-
-function closeSchedModal(){if(!schedModal)return;schedModal.classList.remove('open');schedModal.setAttribute('aria-hidden','true');if(schedModalForm)schedModalForm.innerHTML='';}
-function closeModifySchedModal(){if(!modifySchedModal)return;modifySchedModal.classList.remove('open');modifySchedModal.setAttribute('aria-hidden','true');if(modifySchedModalForm)modifySchedModalForm.innerHTML='';}
-function closeDeleteSchedModal(){if(!deleteSchedModal)return;deleteSchedModal.classList.remove('open');deleteSchedModal.setAttribute('aria-hidden','true');if(deleteSchedModalForm)deleteSchedModalForm.innerHTML='';}
-
-function isVehicleAvailable(status){var normalized=String(status||'').trim().toLowerCase();return normalized==='available';}
-
-async function getAvailableVehicleOptions(){var vehicles=[];try{if(typeof API!=='undefined'&&API.get){vehicles=await API.get('/vehicles/');}}catch(e){vehicles=[];}var availableVehicles=Array.isArray(vehicles)?vehicles.filter(function(vehicle){return isVehicleAvailable(vehicle.status);}):[];var options='<option value="" disabled selected>Select available vehicle</option>';availableVehicles.forEach(function(vehicle){options+='<option value="'+vehicle.plate_number+'">'+vehicle.plate_number+'</option>';});if(!availableVehicles.length){options='<option value="">No available vehicles</option>';}return{optionsHtml:options,count:availableVehicles.length};}
-
-async function openSchedModal(){if(!schedModal||!schedModalForm)return;var tbody=document.getElementById('scheduleTableBody');var rows=tbody?Array.from(tbody.querySelectorAll('tr')):[];var operatorMap={};rows.forEach(function(row){var operatorCell=row.querySelector('td:nth-child(2)');if(!operatorCell)return;var operatorName=operatorCell.textContent.trim();if(operatorName)operatorMap[operatorName]=true;});var operators=Object.keys(operatorMap).sort();var operatorOptions='<option value="" disabled selected>Select zone operator</option>';operators.forEach(function(operator){operatorOptions+='<option value="'+operator+'">'+operator+'</option>';});if(!operators.length){operatorOptions='<option value="">No operators available</option>';}var operatorField='<label class="mf-lbl">Zone Operator<select class="mf-in" name="schedOperator" '+(operators.length?'required':'disabled')+'>'+operatorOptions+'</select></label>';var availableVehiclesResult=await getAvailableVehicleOptions();var vehicleField='<label class="mf-lbl">Vehicle<select class="mf-in" name="schedVehicle" '+(availableVehiclesResult.count?'required':'disabled')+'>'+availableVehiclesResult.optionsHtml+'</select></label>';var formHtml='<label class="mf-lbl">Zone<input class="mf-in" name="schedZone" required placeholder="Zone A" /></label>'+operatorField+vehicleField+'<label class="mf-lbl">Schedule Date<input class="mf-in" name="schedDate" type="date" required /></label>'+'<label class="mf-lbl">Day of Collection<select class="mf-in" name="schedDay" required><option value="">Select day</option><option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option><option value="Friday">Friday</option><option value="Saturday">Saturday</option><option value="Sunday">Sunday</option></select></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="schedFormCancel">Cancel</button><button type="submit" class="mf-btn" '+(operators.length&&availableVehiclesResult.count?'':'disabled')+'>Create Schedule</button></div>';schedModalForm.innerHTML=formHtml;schedModal.classList.add('open');schedModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('schedFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeSchedModal);}}
-
-async function openModifySchedModal(){if(!modifySchedModal||!modifySchedModalForm)return;var tbody=document.querySelector('.zt tbody');if(!tbody)return;var rows=Array.from(tbody.querySelectorAll('tr'));if(rows.length===0){alert('No schedules to modify');return;}var scheduleOptions='<label class="mf-lbl">Select Schedule to Modify<select class="mf-in" name="modifySchedule" required><option value="">Choose a schedule...</option>';var operatorMap={};rows.forEach(function(row,i){var zone=row.querySelector('td:nth-child(1) .zn').textContent.trim();var operator=row.querySelector('td:nth-child(2)').textContent.trim();if(operator)operatorMap[operator]=true;scheduleOptions+='<option value="'+i+'_'+zone+'">'+zone+'</option>';});scheduleOptions+='</select></label>';var operators=Object.keys(operatorMap).sort();var operatorOptions='<option value="" disabled selected>Select zone operator</option>';operators.forEach(function(operator){operatorOptions+='<option value="'+operator+'">'+operator+'</option>';});if(!operators.length){operatorOptions='<option value="">No operators available</option>';}var operatorField='<label class="mf-lbl">Zone Operator<select class="mf-in" name="modifySchedOperator" '+(operators.length?'required':'disabled')+'>'+operatorOptions+'</select></label>';var availableVehiclesResult=await getAvailableVehicleOptions();var vehicleField='<label class="mf-lbl">Vehicle<select class="mf-in" name="modifySchedVehicle" '+(availableVehiclesResult.count?'required':'disabled')+'>'+availableVehiclesResult.optionsHtml+'</select></label>';var formHtml=scheduleOptions+operatorField+vehicleField+'<label class="mf-lbl">Schedule Date<input class="mf-in" name="schedDate" type="date" required /></label>'+'<label class="mf-lbl">Day of Collection<select class="mf-in" name="schedDay" required><option value="">Select day</option><option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option><option value="Friday">Friday</option><option value="Saturday">Saturday</option><option value="Sunday">Sunday</option></select></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="modifyFormCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#1976d2;" '+(operators.length&&availableVehiclesResult.count?'':'disabled')+'>Update Schedule</button></div>';modifySchedModalForm.innerHTML=formHtml;modifySchedModal.classList.add('open');modifySchedModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('modifyFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeModifySchedModal);}}
-
-function openDeleteSchedModal(){if(!deleteSchedModal||!deleteSchedModalForm)return;var tbody=document.querySelector('.zt tbody');if(!tbody)return;var rows=Array.from(tbody.querySelectorAll('tr'));if(rows.length===0){alert('No schedules to delete');return;}var scheduleOptions='<label class="mf-lbl">Select Schedule to Delete<select class="mf-in" name="deleteSchedule" required><option value="">Choose a schedule...</option>';rows.forEach(function(row,i){var zone=row.querySelector('td:nth-child(1) .zn').textContent.trim();scheduleOptions+='<option value="'+i+'_'+zone+'">'+zone+'</option>';});scheduleOptions+='</select></label>';var formHtml=scheduleOptions+'<div style="background:#fff3cd;padding:10px;border-radius:6px;margin:12px 0;font-size:.74rem;color:#856404;border:1px solid #ffc107;"><strong>⚠ Warning:</strong> Deleting a schedule cannot be undone.</div>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="deleteFormCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#d32f2f;">Delete Schedule</button></div>';deleteSchedModalForm.innerHTML=formHtml;deleteSchedModal.classList.add('open');deleteSchedModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('deleteFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeDeleteSchedModal);}}
-
-if(createSchedBtn){createSchedBtn.addEventListener('click',openSchedModal);}
-if(modifySchedBtn){modifySchedBtn.addEventListener('click',openModifySchedModal);}
-if(deleteSchedBtn){deleteSchedBtn.addEventListener('click',openDeleteSchedModal);}
-if(schedModalClose){schedModalClose.addEventListener('click',closeSchedModal);}
-if(modifySchedModalClose){modifySchedModalClose.addEventListener('click',closeModifySchedModal);}
-if(deleteSchedModalClose){deleteSchedModalClose.addEventListener('click',closeDeleteSchedModal);}
-
-if(schedModalForm){schedModalForm.addEventListener('submit',function(e){e.preventDefault();var zone=schedModalForm.querySelector('input[name="schedZone"]').value;var operator=schedModalForm.querySelector('select[name="schedOperator"]').value;var vehicle=schedModalForm.querySelector('select[name="schedVehicle"]').value;var date=schedModalForm.querySelector('input[name="schedDate"]').value;var day=schedModalForm.querySelector('select[name="schedDay"]').value;console.log('Creating schedule:',{zone:zone,operator:operator,vehicle:vehicle,date:date,day:day});closeSchedModal();var successMsg='Schedule for '+zone+' assigned to '+operator+' with vehicle '+vehicle+' created successfully!';if(schedModal){var toast=document.createElement('div');toast.className='toast show';toast.textContent=successMsg;document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);}});}
-
-if(modifySchedModalForm){modifySchedModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedSchedule=modifySchedModalForm.querySelector('select[name="modifySchedule"]').value;var operator=modifySchedModalForm.querySelector('select[name="modifySchedOperator"]').value;var vehicle=modifySchedModalForm.querySelector('select[name="modifySchedVehicle"]').value;var date=modifySchedModalForm.querySelector('input[name="schedDate"]').value;var day=modifySchedModalForm.querySelector('select[name="schedDay"]').value;if(!selectedSchedule||!operator||!vehicle){return;}console.log('Modifying schedule:',{selectedSchedule:selectedSchedule,operator:operator,vehicle:vehicle,date:date,day:day});closeModifySchedModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Schedule updated and assigned to '+operator+' with vehicle '+vehicle+' successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}
-
-if(deleteSchedModalForm){deleteSchedModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedSchedule=deleteSchedModalForm.querySelector('select[name="deleteSchedule"]').value;if(!selectedSchedule||!confirm('Are you sure you want to delete this schedule? This action cannot be undone.')){return;}console.log('Deleting schedule:',selectedSchedule);closeDeleteSchedModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Schedule deleted successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}
-
-(function(){
-  var tabs=Array.from(document.querySelectorAll('.zone-operator-status-ribbon .ftab'));
-  var rows=Array.from(document.querySelectorAll('#scheduleTableBody tr'));
-  if(!tabs.length||!rows.length)return;
-
-  function rowStatus(row){
-    var status=row.getAttribute('data-schedule-status')||'';
-    if(status)return status;
-    var badge=row.querySelector('td:nth-child(3) .b');
-    return badge?badge.textContent.trim():'Pending';
-  }
-
-  function updateCounts(){
-    var counts={Completed:0,Ongoing:0,Pending:0};
-    rows.forEach(function(row){var s=rowStatus(row);if(counts[s]!==undefined)counts[s]+=1;});
-    var c=document.getElementById('scheduleCompletedCount');
-    var o=document.getElementById('scheduleOngoingCount');
-    var p=document.getElementById('schedulePendingCount');
-    if(c)c.textContent=String(counts.Completed);
-    if(o)o.textContent=String(counts.Ongoing);
-    if(p)p.textContent=String(counts.Pending);
-  }
-
-  function applyFilter(status){
-    rows.forEach(function(row){row.style.display=rowStatus(row)===status?'':'none';});
-  }
-
-  tabs.forEach(function(tab){
-    tab.addEventListener('click',function(){
-      tabs.forEach(function(t){t.classList.remove('on');});
-      tab.classList.add('on');
-      applyFilter(tab.getAttribute('data-schedule-filter')||'Completed');
-    });
-  });
-
-  updateCounts();
-  applyFilter('Completed');
-})();</script>
-=======
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/static/js/api_helper.js"></script>
 <script src="/static/js/notifications.js"></script>
 <script src="/static/js/admin_schedules.js"></script>
->>>>>>> 3d770faaf07f9aeaa039a224045e16a4f0f0ac0c
 </body>
 </html>
