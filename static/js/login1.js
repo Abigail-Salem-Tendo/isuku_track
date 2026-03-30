@@ -27,16 +27,11 @@ function switchPane(target) {
   document.getElementById('formTitle').textContent = config.title;
   document.getElementById('formSubtitle').textContent = config.subtitle;
 
-  // Hide tabs on forgot pane, show on login/register
-  const tabs = document.querySelector('.auth-tabs');
-  if (tabs) tabs.style.display = target === 'forgot' ? 'none' : '';
-
-  // Reset forgot password form when switching away
+  // Reset forgot password form if switching away
   const forgotForm = document.getElementById('forgotPasswordForm');
-  const emailSentState = document.getElementById('emailSentState');
-  if (target !== 'forgot') {
-    if (forgotForm) { forgotForm.style.display = 'block'; forgotForm.reset(); }
-    if (emailSentState) emailSentState.style.display = 'none';
+  if (forgotForm && target !== 'forgot') {
+    forgotForm.style.display = 'block';
+    forgotForm.reset();
   }
 }
 
@@ -51,79 +46,16 @@ document.querySelectorAll('[data-switch]').forEach((link) => {
   });
 });
 
-// ── Password visibility toggle (CSS class-driven SVG eye) ──
+// ── Password visibility toggle ──
 
 document.querySelectorAll('.toggle-password').forEach((btn) => {
   btn.addEventListener('click', () => {
     const input = document.getElementById(btn.dataset.target);
-    if (input.type === 'password') {
-      input.type = 'text';
-      btn.classList.add('showing');
-    } else {
-      input.type = 'password';
-      btn.classList.remove('showing');
-    }
+    const isHidden = input.type === 'password';
+    input.type = isHidden ? 'text' : 'password';
+    btn.textContent = isHidden ? 'Hide' : 'Show';
   });
 });
-
-// ── Phone formatting (register pane) ──
-(function () {
-  var phoneInput = document.getElementById('phone');
-  if (!phoneInput) return;
-
-  function formatPhone(digits) {
-    digits = digits.replace(/\D/g, '').substring(0, 9);
-    if (digits.length <= 3) return digits;
-    if (digits.length <= 6) return digits.substring(0, 3) + ' ' + digits.substring(3);
-    return digits.substring(0, 3) + ' ' + digits.substring(3, 6) + ' ' + digits.substring(6);
-  }
-
-  phoneInput.addEventListener('input', function () {
-    var raw = phoneInput.value.replace(/\D/g, '').substring(0, 9);
-    var pos = phoneInput.selectionStart;
-    var oldLen = phoneInput.value.length;
-    phoneInput.value = formatPhone(raw);
-    var newLen = phoneInput.value.length;
-    phoneInput.setSelectionRange(Math.max(0, pos + (newLen - oldLen)), Math.max(0, pos + (newLen - oldLen)));
-  });
-})();
-
-// ── Password strength meter (register pane) ──
-(function () {
-  var pwInput = document.getElementById('regPassword');
-  var pwStrength = document.getElementById('regPwStrength');
-  var pwFill = document.getElementById('regPwStrengthFill');
-  var pwLabel = document.getElementById('regPwStrengthLabel');
-  if (!pwInput || !pwStrength) return;
-
-  pwInput.addEventListener('input', function () {
-    var val = pwInput.value;
-    if (!val) { pwStrength.style.display = 'none'; return; }
-    pwStrength.style.display = 'block';
-
-    var score = 0;
-    if (val.length >= 6) score++;
-    if (val.length >= 10) score++;
-    if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
-    if (/[0-9]/.test(val)) score++;
-    if (/[^A-Za-z0-9]/.test(val)) score++;
-
-    var levels = [
-      { min: 0, cls: 'weak',   label: 'Weak' },
-      { min: 2, cls: 'fair',   label: 'Fair' },
-      { min: 3, cls: 'good',   label: 'Good' },
-      { min: 4, cls: 'strong', label: 'Strong' }
-    ];
-    var level = levels[0];
-    for (var i = levels.length - 1; i >= 0; i--) {
-      if (score >= levels[i].min) { level = levels[i]; break; }
-    }
-    pwFill.className = 'pw-strength__bar-fill pw-strength__bar-fill--' + level.cls;
-    pwLabel.className = 'pw-strength__label pw-strength__label--' + level.cls;
-    pwLabel.textContent = level.label;
-  });
-})();
-
 
 // ── Helper: show error on a field ──
 
@@ -149,13 +81,13 @@ function handleAuthSuccess(data) {
   localStorage.setItem('user', JSON.stringify(data.user));
 
   const role = data.user.role;
-  // Redirect to Flask routes, not template files
+  //referencing from the html pages themselves
   if (role === 'admin') {
-    window.location.href = '/admin/dashboard';
+    window.location.href = '/templates/admin/admin_dash.html';
   } else if (role === 'zone_operator') {
-    window.location.href = '/zone-operator/dashboard';
+    window.location.href = '/templates/zone_operator/zo_dash.html';
   } else {
-    window.location.href = '/resident/dashboard';
+    window.location.href = '/templates/resident/resident_dash.html';
   }
   
 }
@@ -230,7 +162,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   clearErrors();
 
   const username = document.getElementById('fullName').value.trim();
-  const phone_number = '0' + document.getElementById('phone').value.replace(/\D/g, '');
+  const phone_number = document.getElementById('phone').value.trim();
   const email = document.getElementById('regEmail').value.trim();
   const zone_id = document.getElementById('zone').value;
   const password = document.getElementById('regPassword').value;
@@ -319,15 +251,14 @@ document.getElementById('forgotPasswordForm').addEventListener('submit', async (
       return;
     }
 
-    // Show email sent state
-    document.getElementById('forgotPasswordForm').style.display = 'none';
-    document.getElementById('sentEmailAddress').textContent = email;
-    document.getElementById('emailSentState').style.display = 'block';
+    // Show success message
+    const formTitle = document.getElementById('formTitle');
+    const formSubtitle = document.getElementById('formSubtitle');
+    const form = document.getElementById('forgotPasswordForm');
 
-    document.getElementById('formTitle').textContent = 'Check your email';
-    document.getElementById('formSubtitle').textContent = `We've sent reset instructions to ${email}`;
-
-    setupResendState(email);
+    formTitle.textContent = 'Check your email';
+    formSubtitle.textContent = `We've sent password reset instructions to ${email}`;
+    form.style.display = 'none';
 
   } catch (err) {
     showError('forgotEmailError', 'Network error — please try again');
@@ -336,50 +267,3 @@ document.getElementById('forgotPasswordForm').addEventListener('submit', async (
     btn.textContent = 'Send Reset Link';
   }
 });
-
-let _resendExpiryTimer = null;
-
-function setupResendState(email) {
-  const resendBtn = document.getElementById('resendBtn');
-
-  // Show resend button enabled immediately — no countdown
-  resendBtn.disabled = false;
-  resendBtn.textContent = 'Resend email';
-
-  // After 30 minutes the link in the email expires — prompt user to start over
-  if (_resendExpiryTimer) clearTimeout(_resendExpiryTimer);
-  _resendExpiryTimer = setTimeout(() => {
-    resendBtn.textContent = 'Enter email again';
-    resendBtn.disabled = false;
-    resendBtn.onclick = () => {
-      document.getElementById('emailSentState').style.display = 'none';
-      document.getElementById('forgotPasswordForm').style.display = 'block';
-      document.getElementById('forgotPasswordForm').reset();
-      document.getElementById('formTitle').textContent = 'Reset your password';
-      document.getElementById('formSubtitle').textContent = 'Enter your email to receive reset instructions';
-    };
-  }, 30 * 60 * 1000);
-
-  resendBtn.onclick = async () => {
-    resendBtn.disabled = true;
-    resendBtn.textContent = 'Sending…';
-    try {
-      const res = await fetch(`${API_BASE}/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      if (!res.ok) {
-        resendBtn.textContent = 'Resend failed';
-        setTimeout(() => setupResendState(email), 2000);
-        return;
-      }
-    } catch {
-      resendBtn.textContent = 'Resend failed';
-      setTimeout(() => setupResendState(email), 2000);
-      return;
-    }
-    // New token issued — restart the 30-min expiry clock
-    setupResendState(email);
-  };
-}

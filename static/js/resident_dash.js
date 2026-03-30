@@ -1,18 +1,3 @@
-// ── Toast notification ──
-function showToast(message, type) {
-  var container = document.getElementById('toastContainer');
-  if (!container) return;
-  var isError = type === 'error';
-  var toast = document.createElement('div');
-  toast.className = 'toast ' + (isError ? 'toast--error' : 'toast--success');
-  toast.innerHTML =
-    '<span class="toast__text">' + message + '</span>' +
-    '<button class="toast__close" onclick="this.parentElement.remove()">&#x2715;</button>' +
-    '<div class="toast__progress"></div>';
-  container.appendChild(toast);
-  setTimeout(function() { toast.remove(); }, 3500);
-}
-
 document.addEventListener('DOMContentLoaded', function () {
 
   // ── Sidebar toggle (mobile) ──
@@ -38,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('user');
-      window.location.href = '/logout';
+      window.location.href = '/login';
     });
   }
 
@@ -149,146 +134,24 @@ document.addEventListener('DOMContentLoaded', function () {
   // Load resident data on page load
   loadResidentData();
 
-  const token = localStorage.getItem('access_token');
+  // ── Load next schedule from backend ──
+  // TODO: replace with real fetch when backend is ready
+  // fetch('/api/schedules/next', { headers: { Authorization: 'Bearer ' + localStorage.getItem('authToken') } })
+  //   .then(r => r.json())
+  //   .then(data => {
+  //     document.getElementById('collectionDetail').textContent = data.route_description + ' · Vehicle ' + data.vehicle_plate;
+  //   });
 
-  // ── Load claim stats ──
-  async function loadClaimStats() {
-    try {
-      const res = await fetch('/api/claims/stats', {
-        headers: { Authorization: 'Bearer ' + token }
-      });
-      if (res.ok) {
-        const stats = await res.json();
-        document.getElementById('openClaims').textContent = stats.open || 0;
-      }
-    } catch (err) {
-      console.error('Error loading claim stats:', err);
-    }
-  }
-
-  // ── Load recent claims (last 3) ──
-  async function loadRecentClaims() {
-    const container = document.getElementById('recentClaims');
-    try {
-      const res = await fetch('/api/claims?type=claim', {
-        headers: { Authorization: 'Bearer ' + token }
-      });
-      if (!res.ok) {
-        container.innerHTML = '<p class="card__sub" style="padding:12px;">Failed to load claims.</p>';
-        return;
-      }
-      const claims = await res.json();
-      container.innerHTML = '';
-
-      if (claims.length === 0) {
-        container.innerHTML = '<p class="card__sub" style="padding:12px;">No claims yet.</p>';
-        return;
-      }
-
-      var statusMap = { open: 'open', under_review: 'in-progress', approved: 'approved', rejected: 'rejected' };
-      var labelMap = { open: 'Open', under_review: 'Under Review', approved: 'Approved', rejected: 'Rejected' };
-
-      claims.slice(0, 3).forEach(function (claim) {
-        var category = (claim.claim_category || '').replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
-        var date = claim.reported_at ? new Date(claim.reported_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
-        var badgeClass = statusMap[claim.status] || 'open';
-        var badgeLabel = labelMap[claim.status] || claim.status;
-
-        var card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = '<div class="card__row"><div>' +
-          '<div class="card__title">' + category + '</div>' +
-          '<div class="card__sub">Submitted ' + date + '</div>' +
-          '</div><span class="badge badge--' + badgeClass + '">' + badgeLabel + '</span></div>';
-        container.appendChild(card);
-      });
-    } catch (err) {
-      container.innerHTML = '<p class="card__sub" style="padding:12px;">Network error loading claims.</p>';
-    }
-  }
-
-  // ── Load next schedule ──
-  async function loadNextSchedule() {
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (!user.zone_id) {
-        document.getElementById('collectionTime').textContent = 'No zone assigned';
-        document.getElementById('collectionStatus').textContent = '—';
-        return;
-      }
-
-      const res = await fetch('/api/schedules?zone_id=' + user.zone_id, {
-        headers: { Authorization: 'Bearer ' + token }
-      });
-      if (!res.ok) return;
-
-      const schedules = await res.json();
-      var now = new Date();
-      var upcoming = schedules.filter(function (s) {
-        return new Date(s.date_time_start) >= now || s.status === 'ongoing';
-      });
-
-      if (upcoming.length === 0) {
-        document.getElementById('collectionTime').textContent = 'No upcoming collection';
-        document.getElementById('collectionStatus').textContent = '—';
-        return;
-      }
-
-      var next = upcoming[0];
-      var start = new Date(next.date_time_start);
-      var timeStr = start.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) +
-        ' at ' + start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-      document.getElementById('collectionTime').textContent = timeStr;
-      document.getElementById('collectionDetail').textContent = 'Schedule #' + next.id;
-
-      var statusEl = document.getElementById('collectionStatus');
-      if (next.status === 'ongoing') {
-        statusEl.textContent = 'Ongoing';
-        statusEl.className = 'badge badge--in-progress';
-      } else {
-        statusEl.textContent = 'Not Started';
-        statusEl.className = 'badge badge--upcoming';
-      }
-    } catch (err) {
-      console.error('Error loading schedule:', err);
-    }
-  }
-
-  // ── Load claim categories ──
-  async function loadCategories() {
-    var select = document.getElementById('claimType');
-    try {
-      var res = await fetch('/api/claims/categories', {
-        headers: { Authorization: 'Bearer ' + token }
-      });
-      if (!res.ok) {
-        select.innerHTML = '<option value="">Failed to load</option>';
-        return;
-      }
-      var data = await res.json();
-      select.innerHTML = '<option value="">— Select issue type —</option>';
-      data.claim.forEach(function (cat) {
-        var opt = document.createElement('option');
-        opt.value = cat.value;
-        opt.textContent = cat.label;
-        select.appendChild(opt);
-      });
-    } catch (err) {
-      select.innerHTML = '<option value="">Failed to load</option>';
-    }
-  }
-
-  // ── Quick claim form submission ──
+  // ── Quick claim form validation ──
   const form = document.getElementById('quickClaimForm');
   if (form) {
-    form.addEventListener('submit', async function (e) {
+    form.addEventListener('submit', function (e) {
       e.preventDefault();
+      let valid = true;
 
       const type = document.getElementById('claimType');
+      const loc = document.getElementById('claimLocation');
       const desc = document.getElementById('claimDesc');
-      const photo = document.getElementById('claimPhoto');
-      let valid = true;
 
       if (!type.value) {
         type.classList.add('error');
@@ -297,6 +160,15 @@ document.addEventListener('DOMContentLoaded', function () {
       } else {
         type.classList.remove('error');
         document.getElementById('claimTypeError').classList.remove('visible');
+      }
+
+      if (!loc.value.trim()) {
+        loc.classList.add('error');
+        document.getElementById('claimLocationError').classList.add('visible');
+        valid = false;
+      } else {
+        loc.classList.remove('error');
+        document.getElementById('claimLocationError').classList.remove('visible');
       }
 
       if (!desc.value.trim()) {
@@ -308,72 +180,12 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('claimDescError').classList.remove('visible');
       }
 
-      if (!photo.files.length) {
-        photo.classList.add('error');
-        document.getElementById('claimPhotoError').classList.add('visible');
-        valid = false;
-      } else {
-        photo.classList.remove('error');
-        document.getElementById('claimPhotoError').classList.remove('visible');
-      }
-
-      if (!valid) return;
-
-      var btn = form.querySelector('button[type="submit"]');
-      btn.disabled = true;
-      btn.textContent = 'Submitting claim...';
-
-      try {
-        // Upload photo
-        var formData = new FormData();
-        formData.append('photo', photo.files[0]);
-        var uploadRes = await fetch('/api/upload/photo', {
-          method: 'POST',
-          headers: { Authorization: 'Bearer ' + token },
-          body: formData
-        });
-        var uploadData = await uploadRes.json();
-        if (!uploadRes.ok) {
-          showToast(uploadData.error || 'Failed to submit claim', 'error');
-          return;
-        }
-
-        // Submit claim
-        var claimRes = await fetch('/api/claims', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + token
-          },
-          body: JSON.stringify({
-            claim_category: type.value,
-            description: desc.value.trim(),
-            photo_url: uploadData.photo_url
-          })
-        });
-        var claimData = await claimRes.json();
-        if (!claimRes.ok) {
-          showToast(claimData.error || 'Failed to submit claim', 'error');
-          return;
-        }
-
-        showToast('Claim submitted successfully!');
+      if (valid) {
+        // TODO: fetch('/api/claims', { method: 'POST', ... })
+        alert('Claim submitted successfully!');
         form.reset();
-        loadClaimStats();
-        loadRecentClaims();
-      } catch (err) {
-        showToast('Network error — please try again', 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Submit Claim';
       }
     });
   }
-
-  // ── Load all dashboard data ──
-  loadClaimStats();
-  loadRecentClaims();
-  loadNextSchedule();
-  loadCategories();
 
 });

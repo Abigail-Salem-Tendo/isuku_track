@@ -66,12 +66,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getDefaultState() {
     return {
-      residents: 0,
-      zones: [],
-      vehicles: [],
-      claims: [],
-      payments: [], 
-      reports: []
+      residents: 1204,
+      zones : [],
+      vehicles : [],
+      claims: [
+        { id: 'CLM-4012', title: 'Overflow at KG 11 Ave', zone: 'Zone A', when: '2h ago', status: 'Open' },
+        { id: 'CLM-4018', title: 'Illegal dumping — KN 5', zone: 'Zone B', when: '4h ago', status: 'In Progress' },
+        { id: 'CLM-4021', title: 'Missed collection', zone: 'Zone B', when: 'Yesterday', status: 'Resolved' },
+        { id: 'CLM-4032', title: 'Damaged bin — Street 4', zone: 'Zone E', when: 'Yesterday', status: 'Open' }
+      ],
+      reports: [
+        { id: 1, zone: 'Zone A', operator: 'Jean P.', submitted: 'Sun 8 Mar', note: 'Auto-generated', claims: 12, resolved: 10, payments: 28, revenue: 28000, status: 'Reviewed' },
+        { id: 2, zone: 'Zone B', operator: 'Amina K.', submitted: 'Sun 8 Mar', note: 'Vehicle issue noted', claims: 18, resolved: 13, payments: 32, revenue: 32000, status: 'Pending' },
+        { id: 3, zone: 'Zone C', operator: 'Eric M.', submitted: 'Sun 8 Mar', note: 'Route optimization suggested', claims: 7, resolved: 7, payments: 19, revenue: 19000, status: 'Pending' }
+      ]
     };
   }
 
@@ -83,105 +91,51 @@ document.addEventListener('DOMContentLoaded', function () {
     // Data is persisted to backend via API calls
   }
   // --- INTEGRATION: Fetch Live Telemetry  ---
- async function fetchLiveTelemetry() {
-  try {
-    // Fetching EVERYTHING in parallel
-    const [zonesData, vehiclesData, claimsData, paymentsData, residentsData] = await Promise.all([
-        API.get('/zones/'),
-        API.get('/vehicles/'),
-        API.get('/claims/'),
-        API.get('/payments/'),
-        API.get('/auth/users?role=resident')
-    ]);
+  async function fetchLiveTelemetry() {
+    try {
+      // Fetch only Zones and Vehicles
+      const [zonesData, vehiclesData] = await Promise.all([
+          API.get('/zones/'),
+          API.get('/vehicles/')
+      ]);
 
-    // 1. Map Zones
-    state.zones = zonesData.map(function(z) {
-        return {
-            id: z.id,
-            name: z.name,
-            location: z.district + ' · ' + z.sector,
-            operator: z.zone_operator_name || 'Unassigned',
-            schedule: z.zone_operator_name ? 'Ongoing' : 'Pending', 
-            claims: 0 
-        };
-    });
+      // Map backend Zone data to frontend table format
+      state.zones = zonesData.map(function(z) {
+          return {
+              id: z.id,
+              name: z.name,
+              location: z.district + ' · ' + z.sector,
+              operator: z.zone_operator_name || 'Unassigned',
+              schedule: z.zone_operator_name ? 'Ongoing' : 'Pending', // Simulated schedule status
+              claims: 0 
+          };
+      });
 
-    // 2. Map Vehicles
-    state.vehicles = vehiclesData.map(function(v) {
-        var statusDisplay = 'Available';
-        if (v.status === 'in_use') statusDisplay = 'In Use';
-        if (v.status === 'maintenance') statusDisplay = 'Maintenance';
+      // Map backend Vehicle data to frontend list format
+      state.vehicles = vehiclesData.map(function(v) {
+          // Convert snake_case status to Title Case
+          var statusDisplay = 'Available';
+          if (v.status === 'in_use') statusDisplay = 'In Use';
+          if (v.status === 'maintenance') statusDisplay = 'Maintenance';
 
-        return {
-            id: v.id,
-            plate: v.plate_number,
-            driver: v.driver_name,
-            phone: v.driver_phone,
-            status: statusDisplay
-        };
-    });
+          return {
+              id: v.id,
+              plate: v.plate_number,
+              driver: v.driver_name,
+              phone: v.driver_phone,
+              status: statusDisplay
+          };
+      });
 
-    // 3. Map Claims
-    state.claims = claimsData.map(function(c) {
-      // Find the zone name for UI display
-      const zoneObj = zonesData.find(z => z.id === c.zone_id);
-      const zoneName = zoneObj ? zoneObj.name : 'Unknown Zone';
-      
-      // Format date simply
-      const dateObj = new Date(c.reported_at);
-      const dateStr = dateObj.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
+      // Re-render the dashboard UI with the fresh data!
+      renderAll();
+      showToast('Zones and Fleet synced', false);
 
-      // Map backend status (open, under_review, approved, rejected) to UI
-      let statusDisplay = 'Open';
-      if (c.status === 'under_review') statusDisplay = 'In Progress';
-      if (c.status === 'approved') statusDisplay = 'Resolved';
-      if (c.status === 'rejected') statusDisplay = 'Rejected';
-
-      // SAFELY handle the category name (Suggestions vs Claims)
-      // Using regex /_/g to replace ALL underscores, just in case
-      const rawCategory = c.claim_category || c.suggestion_category || 'Uncategorized';
-      const formattedTitle = rawCategory.replace(/_/g, ' ').toUpperCase();
-
-      return {
-          id: `CLM-${c.id}`,
-          title: formattedTitle,
-          zone: zoneName,
-          when: dateStr,
-          status: statusDisplay
-      };
-  });
-
-    // 4. Map Payments (To calculate the revenue in renderStats)
-    // renderStats looks at state.reports for revenue. We will override renderStats to use this instead.
-    state.payments = paymentsData;
-
-    // 5. Total Residents
-    state.residents = residentsData.length;
-
-    // Overriding the renderStats function locally just for the revenue calculation
-    const originalRenderStats = renderStats;
-    renderStats = function() {
-        originalRenderStats(); // Call original
-        
-        // Calculate real revenue from approved payments
-        const approvedPayments = state.payments.filter(p => p.status === 'approved');
-        const realRevenue = approvedPayments.reduce((sum, p) => sum + p.amount, 0);
-        
-        const statPaymentsWeek = document.getElementById('statPaymentsWeek');
-        const revenueTotal = document.querySelector('.revenue-total');
-        
-        if (statPaymentsWeek) statPaymentsWeek.textContent = realRevenue.toLocaleString() + ' RWF';
-        if (revenueTotal) revenueTotal.textContent = realRevenue.toLocaleString() + ' RWF total';
-    };
-
-    renderAll();
-    showToast('Dashboard fully synced', false);
-
-  } catch (error) {
-    console.error("Failed to load live dashboard data:", error);
-    showToast("Sync failed: Check network", true);
+    } catch (error) {
+      console.error("Failed to load live dashboard data:", error);
+      showToast("Sync failed: Check network", true);
+    }
   }
-}
 
   function showToast(message, isError) {
     if (!toast) return;
@@ -263,13 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderStats() {
     var activeZones = state.zones.length;
-    
-    // Change this line to include 'In Progress'
-    var openClaims = state.claims.filter(function (c) { 
-        return c.status === 'Open' || c.status === 'In Progress'; 
-    }).length;
-
-    // ... rest of the function
+    var openClaims = state.claims.filter(function (c) { return c.status === 'Open'; }).length;
     var paymentsWeek = state.reports.reduce(function (sum, r) { return sum + r.revenue; }, 0);
 
     var statActiveZones = document.getElementById('statActiveZones');
@@ -311,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var formHtml = '';
 
     if (action === 'new-zone') {
-      window.location.href = '/admin/zones'; 
+      window.location.href = '/templates/interactive-map.html';
     }
 
     if (action === 'create-schedule') {
@@ -373,44 +321,48 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (action === 'add-vehicle') {
-      if (!goToSidebarLink('vehicles', '/admin/vehicles')) {
+      if (!goToSidebarLink('vehicles', 'admin_vehicles.html')) {
         showToast('Vehicles page is not available yet', true);
       }
       return;
     }
 
     if (action === 'view-reports' || action === 'all-reports') {
-      if (!goToSidebarLink('reports', '/admin/reports')) {
+      if (!goToSidebarLink('reports', 'admin_reports.html')) {
         showToast('Reports page is not available yet', true);
       }
       return;
     }
 
-    // ... down to ...
+    if (action === 'manage-zones') {
+      var zones = document.getElementById('zoneTableBody');
+      if (zones) zones.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
 
     if (action === 'stat-zones') {
-      if (!goToSidebarLink('zones', '/admin/zones')) {
+      if (!goToSidebarLink('zones', 'admin_zones.html')) {
         showToast('Zones page is not available yet', true);
       }
       return;
     }
 
     if (action === 'stat-claims') {
-      if (!goToSidebarLink('claims', '/admin/claims')) {
+      if (!goToSidebarLink('claims', 'admin_claims.html')) {
         showToast('Claims page is not available yet', true);
       }
       return;
     }
 
     if (action === 'stat-payments') {
-      if (!goToSidebarLink('payments', '/admin/payments')) {
+      if (!goToSidebarLink('payments', 'admin_payments.html')) {
         showToast('Payments page is not available yet', true);
       }
       return;
     }
 
     if (action === 'stat-users') {
-      if (!goToSidebarLink('users', '/admin/users')) {
+      if (!goToSidebarLink('users', 'admin_users.html')) {
         showToast('Users page is not available yet', true);
       }
       return;
@@ -470,8 +422,14 @@ document.addEventListener('DOMContentLoaded', function () {
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('userRole');
       localStorage.removeItem('adminName');
-      
-      window.location.href = '/logout';
+
+      var isStaticPreview = window.location.protocol === 'file:' || window.location.port === '5500' || window.location.port === '5501';
+      if (isStaticPreview) {
+        showToast('Logged out');
+        return;
+      }
+
+      window.location.href = '/login';
     }
   }
 

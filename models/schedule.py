@@ -47,20 +47,6 @@ class Schedule(db.Model):
 
     def to_dict(self):
         """Serialize schedule to a JSON-friendly dictionary."""
-        from models.vehicle import Vehicle
-        
-        vehicle_info = None
-        if self.vehicle_id:
-            vehicle = Vehicle.query.get(self.vehicle_id)
-            if vehicle:
-                vehicle_info = {
-                    "id": vehicle.id,
-                    "plate_number": vehicle.plate_number,
-                    "driver_name": vehicle.driver_name,
-                    "driver_phone": vehicle.driver_phone,
-                    "status": vehicle.status
-                }
-        
         return {
             "id": self.id,
             "date_time_start": self.date_time_start.isoformat() if self.date_time_start else None,
@@ -69,7 +55,6 @@ class Schedule(db.Model):
             "zone_operator_id": self.zone_operator_id,
             "zone_id": self.zone_id,
             "vehicle_id": self.vehicle_id,
-            "vehicle": vehicle_info,
             "priority_score": self.priority_score,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }

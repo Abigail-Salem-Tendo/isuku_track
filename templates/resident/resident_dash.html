@@ -105,21 +105,13 @@
           </svg>
         </button>
         <span class="topbar__title">Dashboard</span>
-        <div style="position: relative;">
-          <button class="topbar__bell" id="notificationToggle">
-            <svg viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 0 1-6 0v-1m6 0H9" />
-            </svg>
-          </button>
-          <div class="notification-panel">
-            <div class="notif-header">
-              <span>Notifications</span>
-              <button id="markAllReadBtn">Mark all as read</button>
-            </div>
-            <div id="notificationList"></div>
-          </div>
-        </div>
+        <button class="topbar__bell">
+          <svg viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 0 1-6 0v-1m6 0H9" />
+          </svg>
+          <span class="topbar__bell-badge"></span>
+        </button>
       </div>
 
       <main class="resident-main">
@@ -194,10 +186,10 @@
               </svg>
             </div>
             <div class="next-collection__info">
-              <div class="next-collection__time" id="collectionTime">Checking...</div>
-              <div class="next-collection__detail" id="collectionDetail"></div>
+              <div class="next-collection__time">Today at 14:00 — Route A</div>
+              <div class="next-collection__detail" id="collectionDetail">Loading...</div>
             </div>
-            <span class="badge badge--upcoming" id="collectionStatus">—</span>
+            <span class="badge badge--upcoming">Not Started Yet</span>
           </div>
         </div>
 
@@ -223,19 +215,24 @@
                 <div class="form-group">
                   <label for="claimType">Issue Type</label>
                   <select id="claimType" name="claimType">
-                    <option value="">Loading categories...</option>
+                    <option value="">— Select issue type —</option>
+                    <option value="overflow">Overflow</option>
+                    <option value="damaged">Damaged Bin</option>
+                    <option value="illegal_dumping">Illegal Dumping</option>
+                    <option value="missed_collection">Missed Collection</option>
+                    <option value="other">Other</option>
                   </select>
                   <span class="error-message" id="claimTypeError">Please select an issue type</span>
+                </div>
+                <div class="form-group">
+                  <label for="claimLocation">Location</label>
+                  <input type="text" id="claimLocation" placeholder="Enter the location of the issue" />
+                  <span class="error-message" id="claimLocationError">Location is required</span>
                 </div>
                 <div class="form-group">
                   <label for="claimDesc">Description</label>
                   <textarea id="claimDesc" placeholder="Describe the issue" rows="3"></textarea>
                   <span class="error-message" id="claimDescError">Description is required</span>
-                </div>
-                <div class="form-group">
-                  <label for="claimPhoto">Photo (required)</label>
-                  <input type="file" id="claimPhoto" accept="image/jpeg,image/png,image/webp" />
-                  <span class="error-message" id="claimPhotoError">Photo is required</span>
                 </div>
                 <button type="submit" class="btn btn-primary">Submit Claim</button>
               </form>
@@ -248,8 +245,32 @@
               <span class="section__title">My Claim History</span>
               <a href="/resident/resident_claims" class="section__link">View all →</a>
             </div>
-            <div id="recentClaims">
-              <p class="card__sub" style="padding:12px;">Loading claims...</p>
+            <div class="card">
+              <div class="card__row">
+                <div>
+                  <div class="card__title">Overflow</div>
+                  <div class="card__sub">Submitted 3 Mar · Approved</div>
+                </div>
+                <span class="badge badge--approved">Approved</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card__row">
+                <div>
+                  <div class="card__title">Damaged bin</div>
+                  <div class="card__sub">Submitted 1 Mar</div>
+                </div>
+                <span class="badge badge--in-progress">In Progress</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card__row">
+                <div>
+                  <div class="card__title">Missed collection</div>
+                  <div class="card__sub">Submitted 20 Feb</div>
+                </div>
+                <span class="badge badge--approved">Resolved</span>
+              </div>
             </div>
           </div>
 
@@ -320,7 +341,16 @@
           </svg>
           My Profile
         </a>
-        <div class="dd-item dd-logout" onclick="logout()">
+        <a href="/static/pages/resident/settings.html" class="dd-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          Settings
+        </a>
+        <div class="dd-item dd-logout" onclick="if(confirm('Logout?'))window.location.href='/logout'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -333,19 +363,9 @@
     </div>
   </nav>
 
-  <div class="toast-container" id="toastContainer"></div>
-
   <script src="/static/js/auth.js"></script>
-  <script src="/static/js/api_helper.js"></script>
-  <script src="/static/js/resident_notifications.js"></script>
   <script src="/static/js/resident_dash.js"></script>
   <script>
-    function logout() {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
-      window.location.href = '/logout';
-    }
     // Profile dropdown toggle
     function toggleProfileDd(e) {
       e.stopPropagation();

@@ -146,30 +146,8 @@ def get_current_user():
     
     if not user:
         return jsonify({"error": "User not found"}), 404
-
-    data = user.to_dict()
-
-    if user.zone:
-        data["zone"] = {
-            "id": user.zone.id,
-            "name": user.zone.name,
-            "district": user.zone.district,
-            "sector": user.zone.sector,
-            "cell": user.zone.cell,
-            "village": user.zone.village,
-        }
-        if user.zone.zone_operator:
-            data["zone"]["zone_operator"] = {
-                "name": user.zone.zone_operator.username,
-                "phone": user.zone.zone_operator.phone_number,
-                "email": user.zone.zone_operator.email,
-            }
-        else:
-            data["zone"]["zone_operator"] = None
-    else:
-        data["zone"] = None
-
-    return jsonify({"user": data}), 200
+    
+    return jsonify({"user": user.to_dict()}), 200
 
 @auth_bp.route("/profile", methods=["PUT"])
 @role_required("resident", "zone_operator", "admin")
@@ -183,11 +161,6 @@ def update_profile():
     user = User.query.get(current_user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
-
-    # Capture originals for no-changes detection
-    original_username = user.username
-    original_phone = user.phone_number
-    original_zone_id = user.zone_id
 
     errors = []
 
@@ -234,8 +207,6 @@ def update_profile():
             errors.append("Current password is required to set a new password")
         elif not bcrypt.check_password_hash(user.password_hash, current_password):
             errors.append("Current password is incorrect")
-        elif bcrypt.check_password_hash(user.password_hash, data["new_password"]):
-            errors.append("New password must be different from current password")
         else:
             error = validate_password(data["new_password"])
             if error:
@@ -257,14 +228,6 @@ def update_profile():
     if errors:
         return jsonify({"error": errors[0]}), 400
 
-    # Backend: no-changes check for profile fields
-    profile_fields = {"username", "phone_number", "zone_id"}
-    if profile_fields.intersection(data.keys()) and "new_password" not in data:
-        if (user.username == original_username and
-                user.phone_number == original_phone and
-                user.zone_id == original_zone_id):
-            return jsonify({"error": "No changes detected"}), 400
-
     try:
         db.session.commit()
     except Exception:
@@ -279,22 +242,23 @@ def update_profile():
 
 @auth_bp.route("/forgot-password", methods=["POST"])
 def forgot_password():
-    # Verify identity with email, then send reset link
+    # Verify identity with email + phone number, then return reset token
     data = request.get_json()
     if not data:
         return jsonify({"error": "Request body is required"}), 400
 
     email = data.get("email", "").strip().lower()
+    phone_number = data.get("phone_number", "").strip()
 
-    if not email:
-        return jsonify({"error": "Email is required"}), 400
+    if not email or not phone_number:
+        return jsonify({"error": "Email and phone number are required"}), 400
 
     # Find user by email
     user = User.query.filter_by(email=email).first()
-    if not user:
-        return jsonify({"error": "No account found with that email address"}), 404
+    if not user or user.phone_number != phone_number:
+        return jsonify({"error": "No account matches that email and phone number"}), 404
 
-    # Generate reset token
+    # Both match — generate reset token
     token = generate_reset_token(email)
     reset_link = f"{request.host_url}reset-password?token={token}"
 

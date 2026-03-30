@@ -3,10 +3,10 @@
 document.addEventListener('DOMContentLoaded', function () {
 
   // ── Sidebar toggle (mobile) ──
-  var menuBtn = document.getElementById('menuBtn');
-  var sidebar = document.getElementById('sidebar');
-  var overlay = document.getElementById('sidebarOverlay');
-  var logoutBtn = document.getElementById('logoutBtn');
+  const menuBtn = document.getElementById('menuBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const logoutBtn = document.getElementById('logoutBtn');
 
   if (menuBtn) {
     menuBtn.addEventListener('click', function () {
@@ -22,247 +22,54 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function () {
-      if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('userName');
-        window.location.href = '/login';
-      }
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      window.location.href = '/login';
     });
   }
-
-  // ── Toast notifications ──
-  function showToast(message, type) {
-    var container = document.getElementById('toastContainer');
-    if (!container) return;
-
-    var iconSvg = type === 'success'
-      ? '<svg class="toast__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
-      : '<svg class="toast__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
-
-    var toast = document.createElement('div');
-    toast.className = 'toast toast--' + type;
-    toast.innerHTML = iconSvg +
-      '<span class="toast__text">' + message + '</span>' +
-      '<button class="toast__close" aria-label="Close">&times;</button>' +
-      '<div class="toast__progress"></div>';
-
-    container.appendChild(toast);
-
-    toast.querySelector('.toast__close').addEventListener('click', function () {
-      dismissToast(toast);
-    });
-
-    setTimeout(function () { dismissToast(toast); }, 3500);
-  }
-
-  function dismissToast(toast) {
-    if (!toast || toast.dataset.dismissed) return;
-    toast.dataset.dismissed = 'true';
-    toast.style.animation = 'toastOut 0.25s ease forwards';
-    setTimeout(function () {
-      if (toast.parentNode) toast.parentNode.removeChild(toast);
-    }, 250);
-  }
-
-  // ── Button loading state ──
-  function setLoading(btn, loading) {
-    if (loading) {
-      btn.classList.add('btn--loading');
-      btn.disabled = true;
-    } else {
-      btn.classList.remove('btn--loading');
-      btn.disabled = false;
-    }
-  }
-
-  // ── Animated eye toggle (CSS class-driven) ──
-  document.querySelectorAll('.toggle-password').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var input = document.getElementById(btn.getAttribute('data-target'));
-      if (input.type === 'password') {
-        input.type = 'text';
-        btn.classList.add('showing');
-      } else {
-        input.type = 'password';
-        btn.classList.remove('showing');
-      }
-    });
-  });
-
-  // ── Phone number formatting ──
-  var phoneInput = document.getElementById('phone');
-
-  function formatPhoneDisplay(digits) {
-    digits = digits.replace(/\D/g, '').substring(0, 9);
-    if (digits.length <= 3) return digits;
-    if (digits.length <= 6) return digits.substring(0, 3) + ' ' + digits.substring(3);
-    return digits.substring(0, 3) + ' ' + digits.substring(3, 6) + ' ' + digits.substring(6);
-  }
-
-  function stripToLocal(stored) {
-    if (!stored) return '';
-    var d = stored.replace(/\D/g, '');
-    if (d.startsWith('250') && d.length >= 12) return d.substring(3);
-    if (d.startsWith('0') && d.length >= 10) return d.substring(1);
-    return d.substring(0, 9);
-  }
-
-  if (phoneInput) {
-    phoneInput.addEventListener('input', function () {
-      var raw = phoneInput.value.replace(/\D/g, '').substring(0, 9);
-      var pos = phoneInput.selectionStart;
-      var oldLen = phoneInput.value.length;
-      phoneInput.value = formatPhoneDisplay(raw);
-      var newLen = phoneInput.value.length;
-      var newPos = Math.max(0, pos + (newLen - oldLen));
-      phoneInput.setSelectionRange(newPos, newPos);
-    });
-  }
-
-  // ── Password strength meter ──
-  var newPasswordInput = document.getElementById('newPassword');
-  var pwStrength = document.getElementById('pwStrength');
-  var pwStrengthFill = document.getElementById('pwStrengthFill');
-  var pwStrengthLabel = document.getElementById('pwStrengthLabel');
-
-  if (newPasswordInput && pwStrength) {
-    newPasswordInput.addEventListener('input', function () {
-      var val = newPasswordInput.value;
-      if (!val) { pwStrength.style.display = 'none'; return; }
-      pwStrength.style.display = 'block';
-
-      var score = 0;
-      if (val.length >= 6) score++;
-      if (val.length >= 10) score++;
-      if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
-      if (/[0-9]/.test(val)) score++;
-      if (/[^A-Za-z0-9]/.test(val)) score++;
-
-      var levels = [
-        { min: 0, cls: 'weak',   label: 'Weak' },
-        { min: 2, cls: 'fair',   label: 'Fair' },
-        { min: 3, cls: 'good',   label: 'Good' },
-        { min: 4, cls: 'strong', label: 'Strong' }
-      ];
-
-      var level = levels[0];
-      for (var i = levels.length - 1; i >= 0; i--) {
-        if (score >= levels[i].min) { level = levels[i]; break; }
-      }
-
-      pwStrengthFill.className = 'pw-strength__bar-fill pw-strength__bar-fill--' + level.cls;
-      pwStrengthLabel.className = 'pw-strength__label pw-strength__label--' + level.cls;
-      pwStrengthLabel.textContent = level.label;
-    });
-  }
-
-  // ── Loyalty progress bar (gamified, 100pt milestones) ──
-  var REWARD_MILESTONE = 100;
-
-  function updateLoyaltyBar(points) {
-    var pts = points || 0;
-
-    var currentMilestone = Math.ceil((pts + 1) / REWARD_MILESTONE) * REWARD_MILESTONE;
-    if (pts > 0 && pts % REWARD_MILESTONE === 0) {
-      currentMilestone = pts + REWARD_MILESTONE;
-    }
-    var prevMilestone = currentMilestone - REWARD_MILESTONE;
-    var progressInMilestone = pts - prevMilestone;
-    var pct = Math.min(100, Math.round((progressInMilestone / REWARD_MILESTONE) * 100));
-    var remaining = currentMilestone - pts;
-
-    var ptsNum = document.getElementById('profilePtsNum');
-    if (ptsNum) ptsNum.textContent = pts;
-
-    var targetEl = document.getElementById('profileLoyaltyTarget');
-    if (targetEl) targetEl.textContent = 'Next reward: ' + currentMilestone + ' pts';
-
-    var fillEl = document.getElementById('profileLoyaltyFill');
-    if (fillEl) {
-      setTimeout(function () { fillEl.style.width = pct + '%'; }, 100);
-    }
-
-    var emojiEl = document.getElementById('profileLoyaltyEmoji');
-    var msgEl = document.getElementById('profileLoyaltyMsg');
-    var emoji, msg;
-
-    if (remaining <= 5) {
-      emoji = '\uD83D\uDD25';
-      msg = 'Almost there! Just <strong>' + remaining + ' pts</strong> to your next reward!';
-    } else if (remaining <= 20) {
-      emoji = '\uD83D\uDE80';
-      msg = 'So close! Only <strong>' + remaining + ' pts</strong> to go — keep reporting!';
-    } else if (remaining <= 50) {
-      emoji = '\u2B50';
-      msg = '<strong>' + remaining + ' pts</strong> to your next reward — you\'re doing great!';
-    } else if (pts === 0) {
-      emoji = '\uD83C\uDF31';
-      msg = 'Submit your first claim to start earning points!';
-    } else {
-      emoji = '\uD83C\uDFC6';
-      msg = '<strong>' + remaining + ' pts</strong> to your next reward — keep it up!';
-    }
-
-    if (emojiEl) emojiEl.textContent = emoji;
-    if (msgEl) msgEl.innerHTML = msg;
-  }
-
-  // ── Track original values for change detection ──
-  var originalProfile = { username: '', phone: '', zoneId: '' };
 
   // ── Load profile from backend ──
   async function loadProfile() {
     try {
-      var token = localStorage.getItem('access_token');
-      if (!token) { window.location.href = '/login'; return; }
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        console.error('No access token found');
+        window.location.href = '/login';
+        return;
+      }
 
-      var response = await fetch('/api/auth/me', {
-        headers: { 'Authorization': 'Bearer ' + token }
+      const response = await fetch('/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       if (response.ok) {
-        var data = await response.json();
-        var user = data.user;
+        const data = await response.json();
+        const user = data.user;
 
-        // Form fields
+        // Populate form fields
         document.getElementById('fullName').value = user.username || '';
         document.getElementById('email').value = user.email || '';
+        document.getElementById('phone').value = user.phone_number || '';
 
-        // Phone: convert stored format to local 9-digit display
-        var localPhone = stripToLocal(user.phone_number || '');
-        document.getElementById('phone').value = formatPhoneDisplay(localPhone);
-
-        // Store originals for change detection
-        originalProfile.username = user.username || '';
-        originalProfile.phone = '0' + localPhone;
-        originalProfile.zoneId = user.zone ? String(user.zone.id) : '';
-
-        // Hero card
+        // Set profile display info
         document.getElementById('profileName').textContent = user.username;
+        document.getElementById('profilePoints').textContent = `${user.loyalty_points || 0} pts`;
 
-        // Zone details
-        var zoneDetailsEl = document.getElementById('profileZoneDetails');
-        if (user.zone && zoneDetailsEl) {
-          zoneDetailsEl.textContent = user.zone.district + ' · ' + user.zone.sector + ' · ' + user.zone.cell + ' · ' + user.zone.village;
-        } else if (zoneDetailsEl) {
-          zoneDetailsEl.textContent = '';
-        }
-
-        // Loyalty progress bar
-        updateLoyaltyBar(user.loyalty_points || 0);
-
-        // Avatar initials
-        var initials = user.username.split(' ').map(function (n) { return n[0]; }).join('').toUpperCase();
+        // Set avatar initials
+        const initials = user.username.split(' ').map(n => n[0]).join('').toUpperCase();
         document.getElementById('profileAvatar').textContent = initials;
         document.getElementById('sidebarAvatar').textContent = initials;
         document.getElementById('sidebarName').textContent = user.username;
 
-        // Zone info
+        // Set zone info
         if (user.zone) {
           document.getElementById('profileZone').textContent = user.zone.name;
-          document.getElementById('sidebarRole').textContent = user.zone.name + ' Resident';
+          document.getElementById('sidebarRole').textContent = `${user.zone.name} Resident`;
+          // Store current zone_id for form submission
           window.currentZoneId = user.zone.id;
         } else {
           document.getElementById('profileZone').textContent = 'No zone assigned';
@@ -270,62 +77,81 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
       } else if (response.status === 401) {
+        // Token expired, redirect to login
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');
         window.location.href = '/login';
       } else {
-        showToast('Failed to load profile. Please try again.', 'error');
+        console.error('Failed to load profile:', response.statusText);
+        alert('Failed to load profile. Please try again.');
       }
     } catch (error) {
       console.error('Error loading profile:', error);
-      showToast('Error loading profile. Please try again.', 'error');
+      alert('Error loading profile. Please try again.');
     }
   }
 
   // ── Load zones for dropdown ──
   async function loadZones() {
     try {
-      var token = localStorage.getItem('access_token');
-      var response = await fetch('/api/zones', {
-        headers: { 'Authorization': 'Bearer ' + token }
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/zones', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       if (response.ok) {
-        var zones = await response.json();
-        var zoneSelect = document.getElementById('zone');
+        const zones = await response.json();
+        const zoneSelect = document.getElementById('zone');
+
+        // Clear existing options
         zoneSelect.innerHTML = '<option value="">— Select a zone —</option>';
 
-        zones.forEach(function (zone) {
-          var option = document.createElement('option');
+        // Populate zones
+        zones.forEach(zone => {
+          const option = document.createElement('option');
           option.value = zone.id;
-          option.textContent = zone.name + ' (' + zone.district + ', ' + zone.sector + ')';
+          option.textContent = `${zone.name} (${zone.district}, ${zone.sector})`;
           zoneSelect.appendChild(option);
         });
 
+        // Set the current zone as selected
         if (window.currentZoneId) {
           zoneSelect.value = window.currentZoneId;
         }
+      } else {
+        console.error('Failed to load zones:', response.statusText);
       }
     } catch (error) {
       console.error('Error loading zones:', error);
     }
   }
 
-  loadProfile().then(function () { loadZones(); });
+  // Load profile and zones on page load
+  loadProfile().then(() => loadZones());
 
-  // ── Profile form submission ──
-  var profileForm = document.getElementById('profileForm');
-  var profileSaveBtn = document.getElementById('profileSaveBtn');
+  // ── Password toggles ──
+  document.querySelectorAll('.toggle-password').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const input = document.getElementById(btn.getAttribute('data-target'));
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      btn.textContent = isHidden ? 'Hide' : 'Show';
+    });
+  });
+
+  // ── Profile form validation ──
+  const profileForm = document.getElementById('profileForm');
 
   profileForm.addEventListener('submit', async function (e) {
     e.preventDefault();
-    var valid = true;
+    let valid = true;
 
-    var fullName = document.getElementById('fullName');
-    var phone = document.getElementById('phone');
-    var zone = document.getElementById('zone');
-    var phoneWrap = document.getElementById('phoneFieldWrap');
+    const fullName = document.getElementById('fullName');
+    const phone = document.getElementById('phone');
+    const zone = document.getElementById('zone');
 
     if (!fullName.value.trim()) {
       fullName.classList.add('error');
@@ -336,13 +162,12 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('fullNameError').classList.remove('visible');
     }
 
-    var rawPhone = phone.value.replace(/\D/g, '');
-    if (rawPhone.length < 9) {
-      if (phoneWrap) phoneWrap.classList.add('error');
+    if (!phone.value.trim()) {
+      phone.classList.add('error');
       document.getElementById('phoneError').classList.add('visible');
       valid = false;
     } else {
-      if (phoneWrap) phoneWrap.classList.remove('error');
+      phone.classList.remove('error');
       document.getElementById('phoneError').classList.remove('visible');
     }
 
@@ -356,62 +181,47 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (valid) {
-      var phoneToSend = '0' + rawPhone;
-
-      // Frontend: catch no-changes before wasting a network call
-      if (
-        fullName.value.trim() === originalProfile.username &&
-        phoneToSend === originalProfile.phone &&
-        zone.value === originalProfile.zoneId
-      ) {
-        showToast('No changes detected.', 'error');
-        return;
-      }
-
-      setLoading(profileSaveBtn, true);
       try {
-        var token = localStorage.getItem('access_token');
-        var response = await fetch('/api/auth/profile', {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch('/api/auth/profile', {
           method: 'PUT',
           headers: {
-            'Authorization': 'Bearer ' + token,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             username: fullName.value.trim(),
-            phone_number: phoneToSend,
+            phone_number: phone.value.trim(),
             zone_id: parseInt(zone.value)
           })
         });
 
-        var data = await response.json();
+        const data = await response.json();
 
         if (response.ok) {
-          showToast('Profile updated successfully!', 'success');
+          alert('Profile updated successfully!');
+          // Reload profile to show updated data
           await loadProfile();
         } else {
-          showToast(data.error || 'Failed to update profile.', 'error');
+          alert(data.error || 'Failed to update profile');
         }
       } catch (error) {
         console.error('Error updating profile:', error);
-        showToast('Network error. Please try again.', 'error');
-      } finally {
-        setLoading(profileSaveBtn, false);
+        alert('Error updating profile. Please try again.');
       }
     }
   });
 
-  // ── Password form submission ──
-  var passwordForm = document.getElementById('passwordForm');
-  var passwordSaveBtn = document.getElementById('passwordSaveBtn');
+  // ── Password form validation ──
+  const passwordForm = document.getElementById('passwordForm');
 
   passwordForm.addEventListener('submit', async function (e) {
     e.preventDefault();
-    var valid = true;
+    let valid = true;
 
-    var current = document.getElementById('currentPassword');
-    var newPass = document.getElementById('newPassword');
-    var confirm = document.getElementById('confirmPassword');
+    const current = document.getElementById('currentPassword');
+    const newPass = document.getElementById('newPassword');
+    const confirm = document.getElementById('confirmPassword');
 
     if (!current.value) {
       current.classList.add('error');
@@ -440,22 +250,13 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('confirmPasswordError').classList.remove('visible');
     }
 
-    // Frontend: catch same-password before wasting a network call
-    if (valid && newPass.value === current.value) {
-      newPass.classList.add('error');
-      document.getElementById('newPasswordError').textContent = 'New password must be different from current password';
-      document.getElementById('newPasswordError').classList.add('visible');
-      valid = false;
-    }
-
     if (valid) {
-      setLoading(passwordSaveBtn, true);
       try {
-        var token = localStorage.getItem('access_token');
-        var response = await fetch('/api/auth/profile', {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch('/api/auth/profile', {
           method: 'PUT',
           headers: {
-            'Authorization': 'Bearer ' + token,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -464,25 +265,17 @@ document.addEventListener('DOMContentLoaded', function () {
           })
         });
 
-        var data = await response.json();
+        const data = await response.json();
 
         if (response.ok) {
-          showToast('Password updated successfully!', 'success');
+          alert('Password updated successfully!');
           passwordForm.reset();
-          if (pwStrength) pwStrength.style.display = 'none';
-          document.querySelectorAll('.toggle-password').forEach(function (btn) {
-            var inp = document.getElementById(btn.getAttribute('data-target'));
-            if (inp) inp.type = 'password';
-            btn.classList.remove('showing');
-          });
         } else {
-          showToast(data.error || 'Failed to update password.', 'error');
+          alert(data.error || 'Failed to update password');
         }
       } catch (error) {
         console.error('Error updating password:', error);
-        showToast('Network error. Please try again.', 'error');
-      } finally {
-        setLoading(passwordSaveBtn, false);
+        alert('Error updating password. Please try again.');
       }
     }
   });

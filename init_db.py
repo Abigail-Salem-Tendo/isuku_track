@@ -4,8 +4,6 @@ from models.user import User
 from models.zone import Zone
 from models.vehicle import Vehicle
 from models.schedule import Schedule
-from models.payment import Payment, MonthlyPrice
-from models.claims import Claim
 
 with app.app_context():
     db.create_all()

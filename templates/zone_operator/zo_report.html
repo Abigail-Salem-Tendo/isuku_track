@@ -25,14 +25,14 @@
 
   <div class="sb-sec">
     <div class="sb-lbl">My Zone</div>
-    <a class="sb-a" href="/zone-operator/dashboard">
+    <a class="sb-a" href="zo_dash.html">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
         <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
       </svg>
       Dashboard
     </a>
-    <a class="sb-a" href="/zone-operator/schedules">
+    <a class="sb-a" href="zo_schedules.html">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="4" width="18" height="18" rx="2"/>
         <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
@@ -40,33 +40,33 @@
       </svg>
       Schedules
     </a>
-    <a class="sb-a" href="/zone-operator/claims">
+    <a class="sb-a" href="zo_claims.html">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
         <polyline points="14 2 14 8 20 8"/>
         <line x1="16" y1="13" x2="8" y2="13"/>
       </svg>
-      Claims
+      Claims <span class="sb-badge">7</span>
     </a>
   </div>
 
   <div class="sb-sec">
     <div class="sb-lbl">Management</div>
-    <a class="sb-a" href="/zone-operator/payments">
+    <a class="sb-a" href="zo_payments.html">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="2" y="5" width="20" height="14" rx="2"/>
         <line x1="2" y1="10" x2="22" y2="10"/>
       </svg>
-      Payments
+      Payments <span class="sb-badge am">3</span>
     </a>
-    <a class="sb-a" href="/zone-operator/residents">
+    <a class="sb-a" href="zo_residents.html">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
         <circle cx="9" cy="7" r="4"/>
       </svg>
       Residents
     </a>
-    <a class="sb-a on" href="/zone-operator/report">
+    <a class="sb-a on" href="zo_report.html">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"/>
         <line x1="12" y1="20" x2="12" y2="4"/>
@@ -76,23 +76,12 @@
     </a>
   </div>
 
-  <div class="sb-sec">
-    <div class="sb-lbl">Account</div>
-    <a class="sb-a" href="/zone-operator/profile">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg>
-      My Profile
-    </a>
-  </div>
-
   <div class="sb-foot">
     <div class="sb-user">
-      <div class="sb-av" id="sidebarProfileAvatar">JP</div>
+      <div class="sb-av">JP</div>
       <div>
-        <div class="sb-un" id="sidebarProfileName">Zone Operator</div>
-        <div class="sb-ur" id="sidebarProfileRole">Zone Operator</div>
+        <div class="sb-un">Jean-Pierre K.</div>
+        <div class="sb-ur">Zone A Operator</div>
       </div>
     </div>
     <button class="sb-logout" onclick="logout()">
@@ -113,24 +102,15 @@
         <span></span><span></span><span></span>
       </div>
       <h1>Weekly Report</h1>
-      <p>Kimironko Zone A · Manual Submission</p>
+      <p>Kimironko Zone A · Auto-sends Sunday 20:00</p>
     </div>
     <div class="tb-r">
-      <div class="notif-wrap" style="position:relative;">
-        <button class="icon-btn" id="notifToggle">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-          </svg>
-          <div class="notif-dot" id="notifDot" style="display:none;"></div>
-        </button>
-        <div class="notif-panel" id="notifPanel">
-          <div class="notif-head">
-            <span>Notifications</span>
-            <button id="markAllReadBtn">Mark all as read</button>
-          </div>
-          <div id="notifList"></div>
-        </div>
+      <div class="icon-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a6657" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <div class="notif-dot"></div>
       </div>
       <div class="av">JP</div>
     </div>
@@ -138,11 +118,21 @@
 
   <div class="page">
 
-    <div class="sg report-stats" style="grid-template-columns:repeat(2,minmax(0,1fr));">
+    <div class="sg">
+      <div class="sc">
+        <div class="sc-lbl">Auto-sends In</div>
+        <div class="sc-val" style="color:var(--g1);font-size:1.2rem">4 days</div>
+        <div class="sc-sub">Sunday 20:00</div>
+      </div>
       <div class="sc">
         <div class="sc-lbl">Last Report</div>
         <div class="sc-val" style="font-size:1.1rem">Mar 9</div>
-        <div class="sc-sub">sent manually</div>
+        <div class="sc-sub">sent on time</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Week Payments</div>
+        <div class="sc-val">28</div>
+        <div class="sc-sub">28,000 RWF</div>
       </div>
       <div class="sc">
         <div class="sc-lbl">Zone Rate</div>
@@ -153,22 +143,63 @@
 
     <div class="row2">
 
-      <!-- Report form -->
+      <!-- Current week report form -->
       <div class="card">
         <div class="ch">
-          <div class="ct">Send Report</div>
+          <div class="ct">Current Week Remarks</div>
+          <a class="ca">Week of Mar 16–22</a>
         </div>
         <div class="cb">
 
-          <div class="date-range-row" style="display:flex;gap:16px;margin-bottom:20px;">
-            <div style="flex:1;">
-              <label style="font-size:.85rem;color:#5a7866;font-weight:500;display:block;margin-bottom:6px;">From Date</label>
-              <input type="date" id="fromDate" class="date-input" style="font-size:1rem;padding:10px 12px;border:1px solid #ddd;border-radius:8px;width:100%;box-sizing:border-box;">
-            </div>
-            <div style="flex:1;">
-              <label style="font-size:.85rem;color:#5a7866;font-weight:500;display:block;margin-bottom:6px;">To Date</label>
-              <input type="date" id="toDate" class="date-input" style="font-size:1rem;padding:10px 12px;border:1px solid #ddd;border-radius:8px;width:100%;box-sizing:border-box;">
-            </div>
+          <div class="deadline">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#48a870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Report auto-sends in <strong style="color:var(--g1);margin:0 3px;">4 days</strong> · Add remarks before then
+          </div>
+
+          <div class="rsec">
+            <label>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+              </svg>
+              Route Optimization
+            </label>
+            <textarea class="rta" placeholder="Suggest route improvements for next week…"></textarea>
+          </div>
+
+          <div class="rsec">
+            <label>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13"/>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+              </svg>
+              Vehicle Issues
+            </label>
+            <textarea class="rta" placeholder="Note any vehicle problems or maintenance needs…"></textarea>
+          </div>
+
+          <div class="rsec">
+            <label>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+              </svg>
+              Resident Disputes
+            </label>
+            <textarea class="rta" placeholder="Log resident complaints or conflicts…"></textarea>
+          </div>
+
+          <div class="rsec">
+            <label>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14H6L5 6"/>
+              </svg>
+              Collection Issues
+            </label>
+            <textarea class="rta" placeholder="Describe any overflow or missed collection issues…"></textarea>
           </div>
 
           <div class="rsec">
@@ -176,26 +207,13 @@
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
               </svg>
-              Your Remarks
+              General Notes
             </label>
-            <div class="remark-suggestions">
-              <label for="suggestionCategory">Suggestion Category</label>
-              <select id="suggestionCategory" class="remark-select">
-                <option value="">Select a category...</option>
-                <option value="route_optimization">Route Optimization</option>
-                <option value="vehicle_issues">Vehicle Issues</option>
-                <option value="resident_disputes">Resident Disputes</option>
-                <option value="staffing_concerns">Staffing Concerns</option>
-                <option value="infrastructure_needs">Infrastructure Needs</option>
-              </select>
-            </div>
-            <textarea id="remarksInput" class="rta" placeholder="Enter your report remarks here..." style="min-height:150px;margin-top:10px;"></textarea>
+            <textarea class="rta" placeholder="Any other observations or recommendations…"></textarea>
           </div>
 
-          <button class="btn-save" id="sendReportBtn">Send Report</button>
+          <button class="btn-save" id="saveBtn">Save Remarks</button>
         </div>
       </div>
 
@@ -273,7 +291,7 @@
 <div class="overlay" id="overlay" onclick="toggleSb()"></div>
 
 <nav class="mob-nav">
-  <a class="mn-item" href="/zone-operator/schedules">
+  <a class="mn-item" href="zo_schedules.html">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="4" width="18" height="18" rx="2"/>
       <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
@@ -281,7 +299,7 @@
     </svg>
     <span>Schedules</span>
   </a>
-  <a class="mn-item" href="/zone-operator/claims">
+  <a class="mn-item" href="zo_claims.html">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
       <polyline points="14 2 14 8 20 8"/>
@@ -289,7 +307,7 @@
     </svg>
     <span>Claims</span>
   </a>
-  <a class="mn-item mn-home" href="/zone-operator/dashboard">
+  <a class="mn-item mn-home" href="zo_dash.html">
     <div class="mn-home-inner">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -297,7 +315,7 @@
     </div>
     <span>Home</span>
   </a>
-  <a class="mn-item" href="/zone-operator/payments">
+  <a class="mn-item" href="zo_payments.html">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="2" y="5" width="20" height="14" rx="2"/>
       <line x1="2" y1="10" x2="22" y2="10"/>
@@ -344,62 +362,6 @@
   </div>
 </nav>
 
-<script src="/static/js/api_helper.js"></script>
-<script src="/static/js/notifications.js"></script>
 <script src="../../static/js/zo_dash.js"></script>
-
-<script>
-  // ── Load user profile on page load ────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', function () {
-    loadUserProfile();
-  });
-
-  async function loadUserProfile() {
-    try {
-      let user = null;
-      try {
-        user = await API.get('/auth/me');
-      } catch (e1) {
-        try {
-          user = await API.get('/auth/profile');
-        } catch (e2) {
-          console.warn('Profile endpoints not available');
-        }
-      }
-      if (user && (user.username || user.full_name)) {
-        const name = user.full_name || user.username || 'Zone Operator';
-        updateProfileUI(name);
-      } else {
-        const cached = localStorage.getItem('userFullName');
-        if (cached) {
-          updateProfileUI(cached);
-        }
-      }
-    } catch (err) {
-      console.error('Error loading user profile:', err);
-      const cached = localStorage.getItem('userFullName') || 'Zone Operator';
-      updateProfileUI(cached);
-    }
-  }
-
-  function updateProfileUI(fullName) {
-    const initials = (fullName || 'ZO')
-      .split(' ')
-      .map(n => n.charAt(0).toUpperCase())
-      .join('')
-      .slice(0, 2);
-
-    const sidebarName = document.getElementById('sidebarProfileName');
-    const sidebarAvatar = document.getElementById('sidebarProfileAvatar');
-    if (sidebarName) sidebarName.textContent = fullName || 'Zone Operator';
-    if (sidebarAvatar) sidebarAvatar.textContent = initials;
-
-    const topbarAvatar = document.getElementById('topbarProfileAvatar');
-    if (topbarAvatar) topbarAvatar.textContent = initials;
-
-    localStorage.setItem('userFullName', fullName || 'Zone Operator');
-    localStorage.setItem('userInitials', initials);
-  }
-</script>
 </body>
 </html>
