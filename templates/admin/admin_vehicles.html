@@ -193,22 +193,16 @@
   // --- GLOBAL STATE ---
   let globalVehicles = [];
   let currentFilter = 'All';
-  const dummyVehicles = [
-      { id: 9001, plate_number: 'RAD 101A', driver_name: 'Jean Pierre', driver_phone: '0788123456', status: 'available' },
-      { id: 9002, plate_number: 'RAB 224B', driver_name: 'Amina Keza', driver_phone: '0788234567', status: 'in_use' },
-      { id: 9003, plate_number: 'RAC 337C', driver_name: 'Eric Mugenzi', driver_phone: '0788345678', status: 'maintenance' },
-      { id: 9004, plate_number: 'RAD 448D', driver_name: 'Diane Uwase', driver_phone: '0788456789', status: 'available' }
-  ];
   
   // --- API FETCH & RENDER ---
   async function fetchAndRenderVehicles() {
       try {
         const vehicles = await API.get('/vehicles/');
-        globalVehicles = Array.isArray(vehicles) && vehicles.length ? vehicles : dummyVehicles;
+        globalVehicles = Array.isArray(vehicles) ? vehicles : [];
           renderTable();
           updateCounters();
       } catch (error) {
-        globalVehicles = dummyVehicles;
+        globalVehicles = [];
         renderTable();
         updateCounters();
       }
