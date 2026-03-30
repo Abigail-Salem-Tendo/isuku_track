@@ -159,9 +159,89 @@
     <form id="zoDeleteModalForm" class="modal-form"></form>
   </div>
 </div>
+<<<<<<< HEAD
+
+<script>
+function toggleSb(){var sb=document.querySelector('.sb');var overlay=document.getElementById('overlay');if(sb)sb.classList.toggle('open');if(overlay)overlay.classList.toggle('open');}
+document.getElementById('logoutBtn')?.addEventListener('click',function(){localStorage.removeItem('accessToken');localStorage.removeItem('refreshToken');localStorage.removeItem('userRole');localStorage.removeItem('adminName');window.location.href='/login';});
+
+var zoModal=document.getElementById('zoModal');var zoModalForm=document.getElementById('zoModalForm');var zoModalClose=document.getElementById('zoModalClose');var createZoBtn=document.getElementById('createZoBtn');
+var modifyZoModal=document.getElementById('modifyZoModal');var modifyZoModalForm=document.getElementById('modifyZoModalForm');var modifyZoModalClose=document.getElementById('modifyZoModalClose');var modifyZoBtn=document.getElementById('modifyZoBtn');
+var zoDeleteModal=document.getElementById('zoDeleteModal');var zoDeleteModalForm=document.getElementById('zoDeleteModalForm');var zoDeleteModalClose=document.getElementById('zoDeleteModalClose');var deleteZoBtn=document.getElementById('deleteZoBtn');
+
+function closeZoModal(){if(!zoModal)return;zoModal.classList.remove('open');zoModal.setAttribute('aria-hidden','true');if(zoModalForm)zoModalForm.innerHTML='';}
+
+function openZoModal(){if(!zoModal||!zoModalForm)return;var tableBody=document.getElementById('zoneOperatorTableBody');var rows=tableBody?Array.from(tableBody.querySelectorAll('tr')):[];var zoneMap={};rows.forEach(function(row){var zoneCell=row.querySelector('td:nth-child(1) .zn');if(!zoneCell)return;var zoneName=zoneCell.textContent.trim();if(zoneName)zoneMap[zoneName]=true;});var zones=Object.keys(zoneMap).sort();var zoneOptions='<option value="" disabled selected>Choose an available zone...</option>';zones.forEach(function(zone){zoneOptions+='<option value="'+zone+'">'+zone+'</option>';});if(!zones.length){zoneOptions='<option value="">No zones available</option>';}var zoneField='<label class="mf-lbl">Zone<select class="mf-in" name="zoZone" '+(zones.length?'required':'disabled')+'>'+zoneOptions+'</select></label>';var formHtml='<label class="mf-lbl">Name<input class="mf-in" name="zoName" required placeholder="Jean-Pierre K." /></label>'+'<label class="mf-lbl">Email<input class="mf-in" name="zoEmail" type="email" required placeholder="jean@example.com" /></label>'+'<label class="mf-lbl">Phone Number<input class="mf-in" name="zoPhone" required placeholder="0788 123 456" /></label>'+zoneField+'<div style="background:#f5f5f5;padding:10px;border-radius:6px;margin:12px 0;font-size:.74rem;line-height:1.4;color:var(--txt-m);"><strong>Temporary Password:</strong> A temporary password will be automatically generated and sent to the operator\'s email upon creation. They can reset it on first login.</div>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="zoFormCancel">Cancel</button><button type="submit" class="mf-btn" '+(zones.length?'':'disabled')+'>Create Operator</button></div>';zoModalForm.innerHTML=formHtml;zoModal.classList.add('open');zoModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('zoFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeZoModal);}}
+
+function generateTemporaryPassword(){var chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';var password='';for(var i=0;i<12;i++){password+=chars.charAt(Math.floor(Math.random()*chars.length));}return password;}
+
+function closeZoDeleteModal(){if(!zoDeleteModal)return;zoDeleteModal.classList.remove('open');zoDeleteModal.setAttribute('aria-hidden','true');if(zoDeleteModalForm)zoDeleteModalForm.innerHTML='';}
+
+function closeModifyZoModal(){if(!modifyZoModal)return;modifyZoModal.classList.remove('open');modifyZoModal.setAttribute('aria-hidden','true');if(modifyZoModalForm)modifyZoModalForm.innerHTML='';}
+
+function openModifyZoModal(){if(!modifyZoModal||!modifyZoModalForm)return;var tableBody=document.getElementById('zoneOperatorTableBody');if(!tableBody)return;var rows=Array.from(tableBody.querySelectorAll('tr'));if(rows.length===0){alert('No operators to modify');return;}var operatorOptions='<label class="mf-lbl">Select Operator to Modify<select class="mf-in" name="modifyOperator" required><option value="">Choose an operator...</option>';var zoneMap={};rows.forEach(function(row,i){var opName=row.querySelector('td:nth-child(2)').textContent.trim();operatorOptions+='<option value="'+i+'_'+opName+'">'+opName+'</option>';var zoneCell=row.querySelector('td:nth-child(1) .zn');if(zoneCell){var zoneName=zoneCell.textContent.trim();if(zoneName)zoneMap[zoneName]=true;}});operatorOptions+='</select></label>';var zones=Object.keys(zoneMap).sort();var zoneOptions='<option value="" disabled selected>Choose an available zone...</option>';zones.forEach(function(zone){zoneOptions+='<option value="'+zone+'">'+zone+'</option>';});if(!zones.length){zoneOptions='<option value="">No zones available</option>';}var zoneField='<label class="mf-lbl">Zone<select class="mf-in" name="modifyZone" '+(zones.length?'required':'disabled')+'>'+zoneOptions+'</select></label>';var formHtml=operatorOptions+'<label class="mf-lbl">Name<input class="mf-in" name="zoName" required placeholder="Jean-Pierre K." /></label>'+'<label class="mf-lbl">Email<input class="mf-in" name="zoEmail" type="email" required placeholder="jean@example.com" /></label>'+'<label class="mf-lbl">Phone Number<input class="mf-in" name="zoPhone" required placeholder="0788 123 456" /></label>'+zoneField+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="modifyZoFormCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#1976d2;" '+(zones.length?'':'disabled')+'>Update Operator</button></div>';modifyZoModalForm.innerHTML=formHtml;modifyZoModal.classList.add('open');modifyZoModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('modifyZoFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeModifyZoModal);}}
+
+function openZoDeleteModal(){if(!zoDeleteModal||!zoDeleteModalForm)return;var tableBody=document.getElementById('zoneOperatorTableBody');if(!tableBody)return;var rows=Array.from(tableBody.querySelectorAll('tr'));if(rows.length===0){alert('No operators to delete');return;}var operatorHTML='<label class="mf-lbl">Select Operator to Delete<select class="mf-in" name="zoOperator" required><option value="">Choose an operator...</option>';rows.forEach(function(row){var opName=row.querySelector('td:nth-child(2)').textContent.trim();operatorHTML+='<option value="'+opName+'">'+opName+'</option>';});operatorHTML+='</select></label>'+'<div class="mf-actions"><button type="button" class="mf-btn sec" id="zoDeleteFormCancel">Cancel</button><button type="submit" class="mf-btn" style="background:#d32f2f;">Delete Operator</button></div>';zoDeleteModalForm.innerHTML=operatorHTML;zoDeleteModal.classList.add('open');zoDeleteModal.setAttribute('aria-hidden','false');var cancelBtn=document.getElementById('zoDeleteFormCancel');if(cancelBtn){cancelBtn.addEventListener('click',closeZoDeleteModal);}}
+
+if(createZoBtn){createZoBtn.addEventListener('click',openZoModal);}
+if(zoModalClose){zoModalClose.addEventListener('click',closeZoModal);}
+if(modifyZoBtn){modifyZoBtn.addEventListener('click',openModifyZoModal);}
+if(modifyZoModalClose){modifyZoModalClose.addEventListener('click',closeModifyZoModal);}
+if(deleteZoBtn){deleteZoBtn.addEventListener('click',openZoDeleteModal);}
+if(zoDeleteModalClose){zoDeleteModalClose.addEventListener('click',closeZoDeleteModal);}
+
+if(zoModalForm){zoModalForm.addEventListener('submit',function(e){e.preventDefault();var name=zoModalForm.querySelector('input[name="zoName"]').value;var email=zoModalForm.querySelector('input[name="zoEmail"]').value;var phone=zoModalForm.querySelector('input[name="zoPhone"]').value;var zone=zoModalForm.querySelector('select[name="zoZone"]').value;var tempPassword=generateTemporaryPassword();console.log('Creating zone operator:',{name:name,email:email,phone:phone,zone:zone,temporaryPassword:tempPassword});closeZoModal();var toast=document.createElement('div');toast.className='toast show';toast.style.maxWidth='400px';var toastContent='<div style="padding:12px;"><strong>✓ Operator Created</strong><br><small style="opacity:0.9;">'+name+'</small><br><small style="display:block;margin-top:2px;opacity:0.85;">Zone: '+zone+'</small><br><br><strong style="font-size:.85rem;">Temporary Password:</strong><br><code style="display:inline-block;background:#f0f0f0;padding:6px 8px;border-radius:4px;font-family:monospace;font-size:.8rem;margin:6px 0;letter-spacing:0.5px;">'+tempPassword+'</code><br><small style="display:block;margin-top:8px;opacity:0.85;">Sent to: '+email+'<br>Operator can reset on first login</small></div>';toast.innerHTML=toastContent;document.body.appendChild(toast);setTimeout(function(){toast.remove();},4000);})}
+
+if(modifyZoModalForm){modifyZoModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedOperator=modifyZoModalForm.querySelector('select[name="modifyOperator"]').value;var name=modifyZoModalForm.querySelector('input[name="zoName"]').value;var email=modifyZoModalForm.querySelector('input[name="zoEmail"]').value;var phone=modifyZoModalForm.querySelector('input[name="zoPhone"]').value;var zone=modifyZoModalForm.querySelector('select[name="modifyZone"]').value;if(!selectedOperator||!zone){return;}var selectedIndex=parseInt(selectedOperator.split('_')[0],10);var tableBody=document.getElementById('zoneOperatorTableBody');if(tableBody&&!isNaN(selectedIndex)){var row=tableBody.querySelectorAll('tr')[selectedIndex];if(row){var zoneCell=row.querySelector('td:nth-child(1) .zn');var operatorCell=row.querySelector('td:nth-child(2)');if(zoneCell)zoneCell.textContent=zone;if(operatorCell)operatorCell.textContent=name;}}console.log('Modifying zone operator:',{selectedOperator:selectedOperator,name:name,email:email,phone:phone,zone:zone});closeModifyZoModal();var toast=document.createElement('div');toast.className='toast show';toast.textContent='Zone operator '+name+' updated and assigned to '+zone+' successfully!';document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);});}
+
+if(zoDeleteModalForm){zoDeleteModalForm.addEventListener('submit',function(e){e.preventDefault();var selectedOperator=zoDeleteModalForm.querySelector('select[name="zoOperator"]').value;if(!selectedOperator||!confirm('Are you sure you want to delete '+selectedOperator+'? This action cannot be undone.')){return;}console.log('Deleting zone operator:',selectedOperator);closeZoDeleteModal();var tableBody=document.getElementById('zoneOperatorTableBody');if(tableBody){var rows=Array.from(tableBody.querySelectorAll('tr'));rows.forEach(function(row){if(row.querySelector('td:nth-child(2)').textContent.trim()===selectedOperator){row.remove();}});}var successMsg='Zone operator '+selectedOperator+' deleted successfully!';if(zoDeleteModal){var toast=document.createElement('div');toast.className='toast show';toast.textContent=successMsg;document.body.appendChild(toast);setTimeout(function(){toast.remove();},2600);}});}
+
+(function(){var d=document.getElementById('dashboardDate');if(!d)return;var s=d.getAttribute('data-subtitle')||d.textContent.trim();var n=new Date();var l=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});d.textContent=l+' — '+s;})();
+
+(function(){
+  var tabs=Array.from(document.querySelectorAll('.zone-operator-status-ribbon .ftab'));
+  var rows=Array.from(document.querySelectorAll('#zoneOperatorTableBody tr'));
+  if(!tabs.length||!rows.length)return;
+
+  function rowStatus(row){
+    var status=row.getAttribute('data-zo-status')||'';
+    if(status)return status;
+    var badge=row.querySelector('td:nth-child(3) .b');
+    return badge?badge.textContent.trim():'Pending';
+  }
+
+  function updateCounts(){
+    var counts={Completed:0,Ongoing:0,Pending:0};
+    rows.forEach(function(row){var s=rowStatus(row);if(counts[s]!==undefined)counts[s]+=1;});
+    var c=document.getElementById('zoCompletedCount');
+    var o=document.getElementById('zoOngoingCount');
+    var p=document.getElementById('zoPendingCount');
+    if(c)c.textContent=String(counts.Completed);
+    if(o)o.textContent=String(counts.Ongoing);
+    if(p)p.textContent=String(counts.Pending);
+  }
+
+  function applyFilter(status){
+    rows.forEach(function(row){row.style.display=rowStatus(row)===status?'':'none';});
+  }
+
+  tabs.forEach(function(tab){
+    tab.addEventListener('click',function(){
+      tabs.forEach(function(t){t.classList.remove('on');});
+      tab.classList.add('on');
+      applyFilter(tab.getAttribute('data-zo-filter')||'Completed');
+    });
+  });
+
+  updateCounts();
+  applyFilter('Completed');
+})();
+</script>
+=======
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/static/js/api_helper.js"></script>
 <script src="/static/js/notifications.js"></script>
 <script src="/static/js/admin_zo.js"></script>
+>>>>>>> 3d770faaf07f9aeaa039a224045e16a4f0f0ac0c
 </body>
 </html>
