@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>USSD Simulator | IsukuTrack</title>
+  <style>
+    :root {
+      --bg: #1a1f1e;
+      --card: #252b2a;
+      --phone: #1c2120;
+      --screen-bg: #0d1f15;
+      --screen-txt: #7dffb0;
+      --screen-dim: #4a8c63;
+      --key-bg: #2e3634;
+      --key-txt: #e8f0ed;
+      --key-hover: #3a4442;
+      --key-act: #2d7a55;
+      --border: #323a38;
+      --muted: #6b7c78;
+      --red: #c0392b;
+      --green: #2d7a55;
+      --green-hover: #236645;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px;
+      gap: 20px;
+    }
+
+    /* Top bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 18px;
+      width: 100%;
+      max-width: 340px;
+    }
+    .topbar label { font-size: .72rem; color: var(--muted); white-space: nowrap; }
+    .topbar input {
+      flex: 1;
+      background: var(--phone);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 7px 10px;
+      color: var(--screen-txt);
+      font-family: 'Courier New', monospace;
+      font-size: .88rem;
+      outline: none;
+    }
+    .topbar input:focus { border-color: var(--green); }
+
+    /* Phone shell */
+    .phone {
+      background: var(--phone);
+      border: 2px solid var(--border);
+      border-radius: 32px;
+      width: 100%;
+      max-width: 300px;
+      padding: 18px 14px 26px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.04);
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+
+    /* Speaker grille */
+    .speaker {
+      width: 56px; height: 5px;
+      background: repeating-linear-gradient(90deg, var(--border) 0 2px, transparent 2px 5px);
+      border-radius: 3px;
+      align-self: center;
+    }
+
+    /* Screen */
+    .screen {
+      background: var(--screen-bg);
+      border-radius: 11px;
+      border: 2px solid #0a1710;
+      min-height: 190px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,.7);
+    }
+    .screen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #0f2518;
+    }
+    .screen-carrier { font-size: .6rem; color: var(--screen-dim); letter-spacing: .08em; }
+    .status-pill {
+      font-size: .58rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+      padding: 1px 7px; border-radius: 10px;
+    }
+    .status-pill.idle   { color: var(--screen-dim); background: #0d1a11; }
+    .status-pill.active { color: var(--screen-txt); background: #0d2515; }
+    .status-pill.ended  { color: #e07070; background: #1f0d0d; }
+    .status-pill.loading{ color: #a0d0b5; background: #0d2018; }
+    .signal-dots { display: flex; gap: 3px; align-items: flex-end; }
+    .signal-dots span { display: block; width: 3px; background: var(--screen-dim); border-radius: 1px; }
+    .signal-dots span:nth-child(1){ height: 5px; }
+    .signal-dots span:nth-child(2){ height: 8px; }
+    .signal-dots span:nth-child(3){ height: 11px; }
+    .signal-dots span:nth-child(4){ height: 14px; }
+
+    .screen-body {
+      flex: 1;
+      font-family: 'Courier New', monospace;
+      font-size: .82rem;
+      line-height: 1.6;
+      color: var(--screen-txt);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .screen-body.dim { color: var(--screen-dim); font-style: italic; }
+
+    .screen-input {
+      border-top: 1px solid #0f2518;
+      padding-top: 8px;
+      display: flex; align-items: center; gap: 6px;
+      min-height: 28px;
+    }
+    .screen-prompt { font-size: .68rem; color: var(--screen-dim); font-family: monospace; }
+    .screen-typed  { font-family: 'Courier New', monospace; font-size: .88rem; color: #fff; flex: 1; word-break: break-all; }
+    .cursor {
+      width: 7px; height: 13px;
+      background: var(--screen-txt);
+      border-radius: 1px;
+      animation: blink .9s step-end infinite;
+      flex-shrink: 0;
+    }
+    @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+
+    /* text mode hint */
+    .text-hint {
+      font-size: .6rem; color: var(--screen-dim); font-style: italic; text-align: center;
+      margin-top: -4px;
+    }
+
+    /* Nav row */
+    .nav-row { display: flex; justify-content: space-between; align-items: center; padding: 0 6px; }
+    .soft-btn { background: none; border: none; color: var(--muted); font-size: .68rem; cursor: pointer; padding: 3px 6px; border-radius: 5px; }
+    .soft-btn:hover { color: var(--screen-txt); background: var(--card); }
+    .nav-dot { width: 10px; height: 10px; border: 2px solid var(--border); border-radius: 50%; }
+
+    /* Keypad */
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .key {
+      background: var(--key-bg);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 4px 7px;
+      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 1px;
+      transition: background .1s, transform .08s;
+      user-select: none;
+    }
+    .key:hover  { background: var(--key-hover); }
+    .key:active { background: var(--key-act); transform: scale(.94); }
+    .key.disabled { opacity: .3; pointer-events: none; }
+    .key-num { font-size: 1rem; font-weight: 700; color: var(--key-txt); line-height: 1; }
+    .key-alpha { font-size: .45rem; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; }
+    .key.special .key-num { font-size: .82rem; color: var(--muted); }
+    .key.del .key-num { font-size: .82rem; color: #e07070; }
+
+    .path-bar { font-size: .6rem; color: #3a5048; font-family: monospace; text-align: center; min-height: 14px; }
+
+    /* Action buttons */
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .act-btn {
+      border: none; border-radius: 11px; padding: 11px 8px;
+      font-size: .82rem; font-weight: 700; cursor: pointer;
+      transition: background .15s, opacity .15s;
+    }
+    .act-btn:disabled { opacity: .35; cursor: not-allowed; }
+    .act-btn.send { background: var(--green); color: #fff; }
+    .act-btn.send:not(:disabled):hover { background: var(--green-hover); }
+    .act-btn.end  { background: #3b1515; color: #e07070; }
+    .act-btn.end:not(:disabled):hover  { background: #4a1c1c; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <label for="phoneInput">Phone</label>
+    <input id="phoneInput" type="text" placeholder="0780000000" value="0780000001" maxlength="16" />
+  </div>
+
+  <div class="phone">
+    <div class="speaker"></div>
+
+    <div class="screen">
+      <div class="screen-header">
+        <span class="screen-carrier">ISUKU</span>
+        <span id="statusPill" class="status-pill idle">IDLE</span>
+        <div class="signal-dots"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div id="screenBody" class="screen-body dim">Press Dial to start</div>
+      <div id="inputRow" class="screen-input" style="display:none;">
+        <span class="screen-prompt">&gt;</span>
+        <span id="typedDisplay" class="screen-typed"></span>
+        <div class="cursor"></div>
+      </div>
+    </div>
+
+    <div id="textHint" class="text-hint" style="display:none;">Use keyboard to type description</div>
+
+    <div class="nav-row">
+      <button class="soft-btn" id="clearBtn">Clear</button>
+      <div class="nav-dot"></div>
+      <button class="soft-btn" id="backBtn">Back</button>
+    </div>
+
+    <div class="keypad" id="keypad">
+      <div class="key" data-k="1"><span class="key-num">1</span><span class="key-alpha"></span></div>
+      <div class="key" data-k="2"><span class="key-num">2</span><span class="key-alpha">abc</span></div>
+      <div class="key" data-k="3"><span class="key-num">3</span><span class="key-alpha">def</span></div>
+      <div class="key" data-k="4"><span class="key-num">4</span><span class="key-alpha">ghi</span></div>
+      <div class="key" data-k="5"><span class="key-num">5</span><span class="key-alpha">jkl</span></div>
+      <div class="key" data-k="6"><span class="key-num">6</span><span class="key-alpha">mno</span></div>
+      <div class="key" data-k="7"><span class="key-num">7</span><span class="key-alpha">pqrs</span></div>
+      <div class="key" data-k="8"><span class="key-num">8</span><span class="key-alpha">tuv</span></div>
+      <div class="key" data-k="9"><span class="key-num">9</span><span class="key-alpha">wxyz</span></div>
+      <div class="key special" data-k="*"><span class="key-num">*</span><span class="key-alpha"></span></div>
+      <div class="key" data-k="0"><span class="key-num">0</span><span class="key-alpha">+</span></div>
+      <div class="key del" data-k="del"><span class="key-num">⌫</span><span class="key-alpha"></span></div>
+    </div>
+
+    <div class="path-bar" id="pathBar">—</div>
+
+    <div class="actions">
+      <button class="act-btn send" id="dialBtn">Dial *123#</button>
+      <button class="act-btn end"  id="endBtn">End</button>
+    </div>
+  </div>
+
+  <script src="/static/js/ussd_sim.js"></script>
+</body>
+</html>

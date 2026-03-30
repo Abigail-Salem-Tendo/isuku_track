@@ -17,6 +17,7 @@ from routes.reports import reports_bp
 from routes.payment_routes import payment_bp
 from routes.notifications import notifications_bp
 from routes.residents import residents_bp
+from routes.ussd import ussd_bp
 from flask import render_template
 
 
@@ -43,6 +44,7 @@ def create_app():
     app.register_blueprint(payment_bp, url_prefix='/api/payments')
     app.register_blueprint(notifications_bp, url_prefix='/api/notifications')
     app.register_blueprint(residents_bp, url_prefix='/api/residents')
+    app.register_blueprint(ussd_bp)
 
 
 
@@ -150,6 +152,10 @@ def create_app():
     def logout():
         """Logout user by redirecting to login page."""
         return render_template("login1.html")
+
+    @app.route("/ussd-sim")
+    def ussd_simulator():
+        return render_template("ussd_sim.html")
 
     return app
 
