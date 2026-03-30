@@ -100,7 +100,6 @@ async function loadAllData() {
   renderPaymentsSection();
   renderSchedulesBadge();
   renderTopContributors();
-  initZoneMap();
 }
 
 /* Helper: unwrap Promise.allSettled result */
@@ -518,64 +517,6 @@ function renderTopContributors() {
   setText('totalPointsAwarded', totalPts.toLocaleString());
 }
 
-/* ════════════════════════════════════════════════════════════
-   MAP — zone map with resident markers from real data
-   ════════════════════════════════════════════════════════════ */
-function initZoneMap() {
-  const mapEl = document.getElementById('zoneMap');
-  if (!mapEl || typeof L === 'undefined') return;
-
-  // Determine zone center from user or from resident data
-  const u = _dashData.user;
-  let center = [-1.9403, 30.1125]; // Kimironko default
-  if (u && u.latitude && u.longitude) center = [u.latitude, u.longitude];
-
-  if (zoneMapInstance) {
-    zoneMapInstance.remove();
-    zoneMapInstance = null;
-  }
-
-  const map = L.map('zoneMap').setView(center, 15);
-  zoneMapInstance = map;
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
-
-  // Build a Set of resident IDs that have approved payments this month
-  const now        = new Date();
-  const thisMonth  = now.getMonth() + 1;
-  const thisYear   = now.getFullYear();
-  const paidIds    = new Set(
-    _dashData.payments
-      .filter(p => p.status === 'approved' && p.payment_month === thisMonth && p.payment_year === thisYear)
-      .map(p => p.resident_id)
-  );
-  const claimIds   = new Set(_dashData.claims.filter(c => c.status === 'open').map(c => c.user_id));
-
-  // If we have resident coords, plot them; otherwise use zone centre marker
-  const residents  = _dashData.residents;
-
-  if (residents.length) {
-    residents.forEach(r => {
-      // Residents may not have lat/lon — skip if absent
-      if (!r.latitude && !r.longitude) return;
-
-      const paid      = paidIds.has(r.id);
-      const hasClaim  = claimIds.has(r.id);
-      const status    = paid ? 'active' : 'overdue';
-
-      L.marker([r.latitude, r.longitude], { icon: createBinIcon(status) })
-        .addTo(map)
-        .bindPopup(buildMarkerPopup(r.username, paid, hasClaim));
-    });
-  } else {
-    // Fallback: single zone marker
-    L.marker(center, { icon: createBinIcon('active') })
-      .addTo(map)
-      .bindPopup(`<strong>${u?.zone_name || 'Your Zone'}</strong>`);
-  }
-}
 
 function buildMarkerPopup(name, paid, hasClaim) {
   const dot = (color) => `<span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;"></span>`;
