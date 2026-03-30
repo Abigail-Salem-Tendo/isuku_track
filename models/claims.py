@@ -36,8 +36,8 @@ class Claim(db.Model):
     # Zone operator suggestion categories
     suggestion_category = db.Column(
         db.Enum(
-            "route_optimization", "vehicle_issues", "resident_disputes",
-            "staffing_concerns", "infrastructure_needs",
+            "no_issues", "route_optimization", "vehicle_issues",
+            "resident_disputes", "staffing_concerns", "infrastructure_needs",
             name="suggestion_category_enum"
         ),
         nullable=True
@@ -53,6 +53,10 @@ class Claim(db.Model):
 
     reported_at = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     resolved_at = db.Column(db.DateTime, nullable=True)
+
+    # Report period — only for suggestions (ZO weekly reports)
+    period_from = db.Column(db.Date, nullable=True)
+    period_to = db.Column(db.Date, nullable=True)
 
     # ZO who reviewed the claim
     resolved_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
@@ -131,4 +135,6 @@ class Claim(db.Model):
             "points_awarded": self.points_awarded,
             "rejection_category": self.rejection_category,
             "rejection_detail": self.rejection_detail,
+            "period_from": self.period_from.isoformat() if self.period_from else None,
+            "period_to": self.period_to.isoformat() if self.period_to else None,
         }

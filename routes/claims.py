@@ -24,6 +24,7 @@ def get_categories():
             {"value": "other", "label": "Other"},
         ],
         "suggestion": [
+            {"value": "no_issues", "label": "No Issues"},
             {"value": "route_optimization", "label": "Route Optimization"},
             {"value": "vehicle_issues", "label": "Vehicle Issues"},
             {"value": "resident_disputes", "label": "Resident Disputes"},
@@ -137,18 +138,34 @@ def create_suggestion():
 
     suggestion_category = data.get("suggestion_category")
     valid_categories = [
-        "route_optimization", "vehicle_issues", "resident_disputes",
-        "staffing_concerns", "infrastructure_needs"
+        "no_issues", "route_optimization", "vehicle_issues",
+        "resident_disputes", "staffing_concerns", "infrastructure_needs"
     ]
     if suggestion_category not in valid_categories:
         return jsonify({"error": f"Invalid suggestion category. Must be one of: {', '.join(valid_categories)}"}), 400
+
+    from datetime import date as date_type
+    period_from = None
+    period_to = None
+    if data.get("period_from"):
+        try:
+            period_from = datetime.strptime(data["period_from"], "%Y-%m-%d").date()
+        except ValueError:
+            pass
+    if data.get("period_to"):
+        try:
+            period_to = datetime.strptime(data["period_to"], "%Y-%m-%d").date()
+        except ValueError:
+            pass
 
     suggestion = Claim(
         user_id=int(user_id),
         zone_id=zone.id,
         type="suggestion",
         description=description,
-        suggestion_category=suggestion_category
+        suggestion_category=suggestion_category,
+        period_from=period_from,
+        period_to=period_to
     )
 
     try:

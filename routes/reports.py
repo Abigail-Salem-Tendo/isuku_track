@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, get_jwt
 from extensions import db
 from models.claims import Claim
+from models.payment import Payment
 from models.user import User
 from models.zone import Zone
 from models.schedule import Schedule
@@ -81,6 +82,21 @@ def get_zone_report(zone_id):
         if s.status in schedule_stats:
             schedule_stats[s.status] += 1
 
+    # --- Payment stats for the date range ---
+    payments_query = Payment.query.filter(
+        Payment.zone_id == zone_id,
+        Payment.submitted_at >= from_dt,
+        Payment.submitted_at <= to_dt
+    )
+    payments = payments_query.all()
+    payment_stats = {"pending": 0, "approved": 0, "rejected": 0, "total": len(payments)}
+    total_approved_amount = 0.0
+    for p in payments:
+        if p.status in payment_stats:
+            payment_stats[p.status] += 1
+        if p.status == "approved":
+            total_approved_amount += p.amount or 0
+
     # --- ZO suggestions for the date range ---
     suggestions = Claim.query.filter(
         Claim.zone_id == zone_id,
@@ -126,6 +142,14 @@ def get_zone_report(zone_id):
             "completed": schedule_stats["completed"],
             "ongoing": schedule_stats["ongoing"],
             "not_started": schedule_stats["not_started"]
+        },
+
+        "payments": {
+            "total": payment_stats["total"],
+            "approved": payment_stats["approved"],
+            "pending": payment_stats["pending"],
+            "rejected": payment_stats["rejected"],
+            "total_approved_amount": total_approved_amount
         },
 
         "suggestions": [
