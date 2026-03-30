@@ -25,15 +25,17 @@
   
   // --- API FETCH & RENDER ---
   async function fetchAndRenderSchedules() {
-      try {
-          const [schedData, zonesData] = await Promise.all([
-              API.get('/schedules/'),
-              API.get('/zones/')
-          ]);
-          
-          globalSchedules = schedData;
-          globalZones = zonesData;
-  
+    try {
+        const [schedData, zonesData, vehiclesData] = await Promise.all([
+            API.get('/schedules/'),
+            API.get('/zones/'),
+            API.get('/vehicles/') 
+        ]);
+        
+        globalSchedules = schedData;
+        globalZones = zonesData;
+        globalVehicles = vehiclesData; // Store them
+    
           renderTable();
           updateCounters();
       } catch (error) {
