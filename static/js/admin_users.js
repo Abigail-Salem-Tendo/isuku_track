@@ -61,10 +61,10 @@
           });
   
           // Update Top Card Statistics
-          document.getElementById('usersTotalResidents').textContent = residentsCount;
-          document.getElementById('usersActiveResidents').textContent = residentsCount; 
-          document.getElementById('usersInactiveResidents').textContent = '0';
-          document.getElementById('usersZoneOperators').textContent = zoneOpsCount;
+          if (document.getElementById('usersTotalResidents')) document.getElementById('usersTotalResidents').textContent = residentsCount;
+          if (document.getElementById('usersActiveResidents')) document.getElementById('usersActiveResidents').textContent = residentsCount; 
+          if (document.getElementById('usersInactiveResidents')) document.getElementById('usersInactiveResidents').textContent = '0';
+          if (document.getElementById('usersZoneOperators')) document.getElementById('usersZoneOperators').textContent = zoneOpsCount;
   
           // Apply whichever filter tab is currently selected
           const activeFilterBtn = document.querySelector('.ftab.on');
