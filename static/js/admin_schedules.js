@@ -21,6 +21,7 @@
   // --- GLOBAL STATE ---
   let globalSchedules = [];
   let globalZones = [];
+  let globalVehicles = []; 
   let currentFilter = 'Completed';
   
   // --- API FETCH & RENDER ---
@@ -31,17 +32,15 @@
             API.get('/zones/'),
             API.get('/vehicles/') 
         ]);
-        
         globalSchedules = schedData;
         globalZones = zonesData;
-        globalVehicles = vehiclesData; // Store them
-    
-          renderTable();
-          updateCounters();
-      } catch (error) {
-          Swal.fire('Error', 'Failed to load schedules', 'error');
-      }
-  }
+        globalVehicles = vehiclesData; 
+        renderTable();
+        updateCounters();
+    } catch (error) {
+        Swal.fire('Error', 'Failed to load schedules', 'error');
+    }
+}
   
   function getDisplayStatus(dbStatus) {
       if (dbStatus === 'completed') return 'Completed';
@@ -118,103 +117,131 @@
       modal.setAttribute('aria-hidden', 'false');
   }
   
-  // --- CREATE SCHEDULE ---
-  document.getElementById('createSchedBtn').addEventListener('click', () => {
-      let zoneOptions = '<option value="">Select a Zone</option>';
-      globalZones.forEach(z => { 
-          // Only allow scheduling for zones that actually have an operator
-          if(z.zone_operator_id) {
-              zoneOptions += `<option value="${z.id}" data-op="${z.zone_operator_id}">${z.name} (${z.zone_operator_name})</option>`;
-          }
-      });
-  
-      if(zoneOptions === '<option value="">Select a Zone</option>') {
-          return Swal.fire('Action Required', 'You must assign operators to zones before creating schedules.', 'info');
-      }
-  
-      document.getElementById('schedModalForm').innerHTML = `
-          <label class="mf-lbl">Select Zone<select class="mf-in" id="newSchedZone" required>${zoneOptions}</select></label>
-          <label class="mf-lbl">Start Time<input class="mf-in" id="newSchedStart" type="datetime-local" required /></label>
-          <label class="mf-lbl">End Time<input class="mf-in" id="newSchedEnd" type="datetime-local" required /></label>
-          <label class="mf-lbl">Status
-              <select class="mf-in" id="newSchedStatus">
-                  <option value="not_started">Pending</option>
-                  <option value="ongoing">Ongoing</option>
-                  <option value="completed">Completed</option>
-              </select>
-          </label>
-          <div class="mf-actions">
-              <button type="button" class="mf-btn sec" onclick="closeModal('schedModal')">Cancel</button>
-              <button type="submit" class="mf-btn">Create</button>
-          </div>`;
-      openModal('schedModal');
-  });
-  
-  document.getElementById('schedModalForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const zoneSelect = document.getElementById('newSchedZone');
-      const selectedOption = zoneSelect.options[zoneSelect.selectedIndex];
-      
-     // Grab the raw HTML5 datetime-local string (e.g. "2026-03-31T11:30")
-    // and append ":00" to explicitly match the backend's ISO 8601 expectation.
+ // --- CREATE SCHEDULE ---
+document.getElementById('createSchedBtn').addEventListener('click', () => {
+    let zoneOptions = '<option value="">Select a Zone</option>';
+    globalZones.forEach(z => { 
+        if(z.zone_operator_id) {
+            zoneOptions += `<option value="${z.id}" data-op="${z.zone_operator_id}">${z.name} (${z.zone_operator_name})</option>`;
+        }
+    });
+
+    let vehicleOptions = '<option value="">Select a Vehicle</option>';
+    globalVehicles.forEach(v => {
+        // Only show available/in-use vehicles
+        if(v.status !== 'maintenance') {
+            vehicleOptions += `<option value="${v.id}">${v.plate_number} (${v.driver_name})</option>`;
+        }
+    });
+
+    if(zoneOptions === '<option value="">Select a Zone</option>') {
+        return Swal.fire('Action Required', 'You must assign operators to zones before creating schedules.', 'info');
+    }
+
+    document.getElementById('schedModalForm').innerHTML = `
+        <label class="mf-lbl">Select Zone<select class="mf-in" id="newSchedZone" required>${zoneOptions}</select></label>
+        <label class="mf-lbl">Select Vehicle<select class="mf-in" id="newSchedVehicle" required>${vehicleOptions}</select></label>
+        <label class="mf-lbl">Start Time<input class="mf-in" id="newSchedStart" type="datetime-local" required /></label>
+        <label class="mf-lbl">End Time<input class="mf-in" id="newSchedEnd" type="datetime-local" required /></label>
+        <label class="mf-lbl">Status
+            <select class="mf-in" id="newSchedStatus">
+                <option value="not_started">Pending</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+            </select>
+        </label>
+        <div class="mf-actions">
+            <button type="button" class="mf-btn sec" onclick="closeModal('schedModal')">Cancel</button>
+            <button type="submit" class="mf-btn">Create</button>
+        </div>`;
+    openModal('schedModal');
+});
+
+document.getElementById('schedModalForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const zoneSelect = document.getElementById('newSchedZone');
+    const selectedOption = zoneSelect.options[zoneSelect.selectedIndex];
+    
     const startString = document.getElementById('newSchedStart').value;
     const endString = document.getElementById('newSchedEnd').value;
 
     const payload = {
         zone_id: parseInt(zoneSelect.value),
         zone_operator_id: parseInt(selectedOption.getAttribute('data-op')),
+        vehicle_id: parseInt(document.getElementById('newSchedVehicle').value), 
         date_time_start: startString.length === 16 ? startString + ':00' : startString,
         date_time_end: endString.length === 16 ? endString + ':00' : endString,
         status: document.getElementById('newSchedStatus').value
     };
-  
-      try {
-          await API.post('/schedules/', payload);
-          closeModal('schedModal');
-          Swal.fire('Created!', 'Schedule has been established.', 'success');
-          fetchAndRenderSchedules();
-      } catch (error) { Swal.fire('Error', error.message, 'error'); }
-  });
+
+    try {
+        await API.post('/schedules/', payload);
+        closeModal('schedModal');
+        Swal.fire('Created!', 'Schedule has been established.', 'success');
+        fetchAndRenderSchedules();
+    } catch (error) { Swal.fire('Error', error.message, 'error'); }
+});
   
   // --- MODIFY SCHEDULE ---
-  document.getElementById('modifySchedBtn').addEventListener('click', () => {
-      if (globalSchedules.length === 0) return Swal.fire('Info', 'No schedules to modify', 'info');
-      
-      let options = '<option value="">Choose a schedule...</option>';
-      globalSchedules.forEach(s => {
-          const zoneName = globalZones.find(z => z.id === s.zone_id)?.name || 'Unknown Zone';
-          const displayDate = new Date(s.date_time_start).toLocaleDateString('en-GB', { month:'short', day:'numeric' });
-          options += `<option value="${s.id}">${zoneName} (${displayDate})</option>`;
-      });
-  
-      document.getElementById('modifySchedModalForm').innerHTML = `
-          <label class="mf-lbl">Select Schedule<select class="mf-in" id="modSchedSelect" required>${options}</select></label>
-          <label class="mf-lbl">Status
-              <select class="mf-in" id="modSchedStatus">
-                  <option value="not_started">Pending</option>
-                  <option value="ongoing">Ongoing</option>
-                  <option value="completed">Completed</option>
-              </select>
-          </label>
-          <div class="mf-actions">
-              <button type="button" class="mf-btn sec" onclick="closeModal('modifySchedModal')">Cancel</button>
-              <button type="submit" class="mf-btn" style="background:#1976d2;">Update Status</button>
-          </div>`;
-      openModal('modifySchedModal');
-  });
-  
-  document.getElementById('modifySchedModalForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const sId = document.getElementById('modSchedSelect').value;
-      if (!sId) return;
-  
-      try {
-          await API.put(`/schedules/${sId}`, { status: document.getElementById('modSchedStatus').value });
-          closeModal('modifySchedModal');
-          Swal.fire('Updated!', 'Schedule status updated.', 'success');
-          fetchAndRenderSchedules();
-      } catch (error) { Swal.fire('Error', error.message, 'error'); }
-  });
+document.getElementById('modifySchedBtn').addEventListener('click', () => {
+    if (globalSchedules.length === 0) return Swal.fire('Info', 'No schedules to modify', 'info');
+    
+    let schedOptions = '<option value="">Choose a schedule...</option>';
+    globalSchedules.forEach(s => {
+        const zoneName = globalZones.find(z => z.id === s.zone_id)?.name || 'Unknown Zone';
+        const displayDate = new Date(s.date_time_start).toLocaleDateString('en-GB', { month:'short', day:'numeric' });
+        schedOptions += `<option value="${s.id}">${zoneName} (${displayDate})</option>`;
+    });
+
+    let vehicleOptions = '<option value="">Select a Vehicle</option>';
+    globalVehicles.forEach(v => {
+        vehicleOptions += `<option value="${v.id}">${v.plate_number} (${v.driver_name})</option>`;
+    });
+
+    document.getElementById('modifySchedModalForm').innerHTML = `
+        <label class="mf-lbl">Select Schedule<select class="mf-in" id="modSchedSelect" required>${schedOptions}</select></label>
+        <label class="mf-lbl">Re-assign Vehicle<select class="mf-in" id="modSchedVehicle" required>${vehicleOptions}</select></label>
+        <label class="mf-lbl">Status
+            <select class="mf-in" id="modSchedStatus">
+                <option value="not_started">Pending</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+            </select>
+        </label>
+        <div class="mf-actions">
+            <button type="button" class="mf-btn sec" onclick="closeModal('modifySchedModal')">Cancel</button>
+            <button type="submit" class="mf-btn" style="background:#1976d2;">Update Schedule</button>
+        </div>`;
+    
+    // Auto-fill vehicle and status when a schedule is selected
+    document.getElementById('modSchedSelect').addEventListener('change', (e) => {
+        const sched = globalSchedules.find(x => x.id == e.target.value);
+        if (sched) {
+            document.getElementById('modSchedVehicle').value = sched.vehicle_id || '';
+            document.getElementById('modSchedStatus').value = sched.status;
+        }
+    });
+
+    openModal('modifySchedModal');
+});
+
+document.getElementById('modifySchedModalForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const sId = document.getElementById('modSchedSelect').value;
+    if (!sId) return;
+
+    const payload = {
+        vehicle_id: parseInt(document.getElementById('modSchedVehicle').value),
+        status: document.getElementById('modSchedStatus').value
+    };
+
+    try {
+        await API.put(`/schedules/${sId}`, payload);
+        closeModal('modifySchedModal');
+        Swal.fire('Updated!', 'Schedule updated successfully.', 'success');
+        fetchAndRenderSchedules();
+    } catch (error) { Swal.fire('Error', error.message, 'error'); }
+});
   
   // --- DELETE SCHEDULE ---
   document.getElementById('deleteSchedBtn').addEventListener('click', () => {
