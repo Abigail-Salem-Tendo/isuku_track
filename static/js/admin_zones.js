@@ -48,31 +48,71 @@ document.getElementById('modifyZoneBtn').addEventListener('click', () => window.
 document.getElementById('deleteZoneBtn').addEventListener('click', () => window.location.href = '/map');
 
 // --- FETCH & RENDER LIVE DATA ---
+// --- GLOBAL STATE FOR FILTERING ---
+let globalZonesData = [];
+
+// --- SEPARATED TABLE RENDERER ---
+function renderZonesTable(zonesToRender) {
+    const tbody = document.getElementById('zoneTableBody');
+    tbody.innerHTML = ''; 
+
+    if (zonesToRender.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#7a8780;">No zones match your search filters.</td></tr>';
+        return;
+    }
+
+    zonesToRender.forEach(zone => {
+        const isAssigned = zone.zone_operator_name ? true : false;
+        const opText = isAssigned ? zone.zone_operator_name : '<span class="ci-meta">Unassigned</span>';
+        const statusClass = isAssigned ? 'ok' : 'pe';
+        const statusText = isAssigned ? 'Assigned' : 'Pending';
+
+        const row = `<tr>
+          <td><div class="zn">${zone.name}</div><div class="zg">${zone.cell || 'N/A'}</div></td>
+          <td>${zone.district}</td>
+          <td>${zone.sector}</td>
+          <td>${opText}</td>
+          <td><span class="b ${statusClass}">${statusText}</span></td>
+        </tr>`;
+        tbody.insertAdjacentHTML('beforeend', row);
+    });
+}
+
+// --- FILTER LOGIC ---
+function applyZoneFilters() {
+    const districtFilter = document.getElementById('zoneFilterDistrict').value.toLowerCase();
+    const sectorFilter = document.getElementById('zoneFilterSector').value.toLowerCase();
+    const operatorFilter = document.getElementById('zoneFilterOperator').value.toLowerCase();
+
+    const filteredZones = globalZonesData.filter(z => {
+        const matchDistrict = (z.district || '').toLowerCase().includes(districtFilter);
+        const matchSector = (z.sector || '').toLowerCase().includes(sectorFilter);
+        const opName = z.zone_operator_name || 'unassigned';
+        const matchOperator = opName.toLowerCase().includes(operatorFilter);
+
+        return matchDistrict && matchSector && matchOperator;
+    });
+
+    renderZonesTable(filteredZones);
+}
+
+// Attach listeners to the inputs so it filters as you type
+document.getElementById('zoneFilterDistrict')?.addEventListener('input', applyZoneFilters);
+document.getElementById('zoneFilterSector')?.addEventListener('input', applyZoneFilters);
+document.getElementById('zoneFilterOperator')?.addEventListener('input', applyZoneFilters);
+document.getElementById('zonesFilterRibbon')?.addEventListener('submit', e => e.preventDefault());
+
+
+// --- FETCH & RENDER LIVE DATA ---
 async function loadAdminZones() {
     try {
-        // Fetch real data using our global helper!
-        const zones = await API.get('/zones/');
-        const tbody = document.getElementById('zoneTableBody');
-        tbody.innerHTML = ''; 
+        // Fetch real data and store it globally for the filters
+        globalZonesData = await API.get('/zones/');
+        
+        // Initial render of all zones
+        renderZonesTable(globalZonesData);
 
-        // 1. Populate the Table
-        zones.forEach(zone => {
-            const isAssigned = zone.zone_operator_name ? true : false;
-            const opText = isAssigned ? zone.zone_operator_name : '<span class="ci-meta">Unassigned</span>';
-            const statusClass = isAssigned ? 'ok' : 'pe';
-            const statusText = isAssigned ? 'Assigned' : 'Pending';
-
-            const row = `<tr>
-              <td><div class="zn">${zone.name}</div><div class="zg">${zone.cell || 'N/A'}</div></td>
-              <td>${zone.district}</td>
-              <td>${zone.sector}</td>
-              <td>${opText}</td>
-              <td><span class="b ${statusClass}">${statusText}</span></td>
-            </tr>`;
-            tbody.insertAdjacentHTML('beforeend', row);
-        });
-
-        // 2. Populate the Map (Using the tactical Voyager style)
+        // Populate the Map
         const mapContainer = document.getElementById('zonesMap');
         if (mapContainer) {
             const zonesMap = L.map('zonesMap').setView([-1.95, 30.08], 13);
@@ -80,7 +120,7 @@ async function loadAdminZones() {
                 attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 18
             }).addTo(zonesMap);
 
-            zones.forEach(zone => {
+            globalZonesData.forEach(zone => {
                 if (zone.latitude && zone.longitude) {
                     const circle = L.circle([zone.latitude, zone.longitude], {
                         color: '#2e7d52', fillColor: '#48a870', fillOpacity: 0.35, weight: 2, radius: 800
@@ -110,3 +150,4 @@ async function loadAdminZones() {
 
 // Boot the live data
 loadAdminZones();
+
