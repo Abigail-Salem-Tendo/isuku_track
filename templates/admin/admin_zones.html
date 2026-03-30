@@ -181,7 +181,7 @@
         <input class="mf-in" name="zoneSector" required placeholder="Kimironko" />
       </label>
       <label class="mf-lbl">Operator
-        <input class="mf-in" name="zoneOperator" placeholder="Unassigned" />
+        <select class="mf-in" name="zoneOperator" id="createZoneOperatorSelect"></select>
       </label>
       <div class="mf-actions">
         <button type="button" class="mf-btn sec" id="createZoneCancel">Cancel</button>
@@ -306,6 +306,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
   var modifyZoneDistrictSelect=document.getElementById('modifyZoneDistrictSelect');
   var modifyZoneSectorSelect=document.getElementById('modifyZoneSectorSelect');
   var modifyZoneOperatorSelect=document.getElementById('modifyZoneOperatorSelect');
+  var createZoneOperatorSelect=document.getElementById('createZoneOperatorSelect');
 
   function openModal(modal){
     if(!modal)return;
@@ -354,6 +355,23 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
     }
     if(modifyZoneSelect)modifyZoneSelect.innerHTML=options;
     if(deleteZoneSelect)deleteZoneSelect.innerHTML=options;
+    refreshCreateZoneOperatorOptions(rows);
+  }
+
+  function refreshCreateZoneOperatorOptions(rows){
+    if(!createZoneOperatorSelect)return;
+    var operatorMap={};
+    (rows||[]).forEach(function(row){
+      var operatorCell=row.cells[3];
+      if(!operatorCell)return;
+      var operatorName=operatorCell.textContent.trim();
+      if(operatorName&&operatorName!=='Unassigned')operatorMap[operatorName]=true;
+    });
+    var operatorOptions='<option value="">Unassigned</option>';
+    Object.keys(operatorMap).sort().forEach(function(operator){
+      operatorOptions+='<option value="'+operator+'">'+operator+'</option>';
+    });
+    createZoneOperatorSelect.innerHTML=operatorOptions;
   }
 
   function setModifyFormValues(index){
@@ -398,6 +416,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', function () {
   if(createZoneBtn){
     createZoneBtn.addEventListener('click',function(){
       if(createZoneForm)createZoneForm.reset();
+      refreshCreateZoneOperatorOptions(zoneTableBody?Array.from(zoneTableBody.querySelectorAll('tr')):[]);
       openModal(createZoneModal);
     });
   }
